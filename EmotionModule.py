@@ -7,7 +7,7 @@
   - [Optional] May apply modifiers to parameters of all actions (i.e. sadness makes movements slower)
 """
 
-class EmotionalModule(object):
+class EmotionModule(object):
 
-	def __init__(self):
+	def __init__(self,config,response_module):
 		pass

@@ -12,9 +12,16 @@ from Reactor import Reactor
 
 class SensorModule(object):
 
-	def __init__(self):
-		self.sensors = []
-		self.reactors = []
-		self.cameras = []
+	def __init__(self,config,emotion_module):
+		self.cameras = self.loadCameras(config)
+		self.sensors = self.loadSensors(config)
+		self.reactors = self.loadReactors(config,emotion_module)
 
+	def loadCameras(self,config):
+		return []
 
+	def loadSensors(self,config):
+		return []
+
+	def loadReactors(self,config,emotion_module):
+		return []

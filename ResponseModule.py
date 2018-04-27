@@ -5,5 +5,5 @@
 
 class ResponseModule(object):
 
-	def __init__(self):
+	def __init__(self,config,action_module):
 		pass
