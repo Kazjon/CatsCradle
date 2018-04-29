@@ -7,5 +7,18 @@ Reactor (Checks for a combination of conditions across sensors and triggers a re
 """
 
 class Reactor(object):
-	def __init__(self):
+	def __init__(self,em):
+		self.state = {}
+		self.emotionModule = em
+		pass
+
+	def update(self,state):
+		self.state = state
+		if self.detect():
+			self.trigger()
+
+	def detect(self):
+		pass
+
+	def trigger(self):
 		pass

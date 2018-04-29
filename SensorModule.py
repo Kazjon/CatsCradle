@@ -13,15 +13,31 @@ from Reactor import Reactor
 class SensorModule(object):
 
 	def __init__(self,config,emotion_module):
-		self.cameras = self.loadCameras(config)
-		self.sensors = self.loadSensors(config)
-		self.reactors = self.loadReactors(config,emotion_module)
+		self.config = config
+		self.emotion_module = emotion_module
 
-	def loadCameras(self,config):
-		return []
+	def loadCameras(self):
+		raise NotImplementedError
 
-	def loadSensors(self,config):
-		return []
+	def loadSensors(self):
+		raise NotImplementedError
 
-	def loadReactors(self,config,emotion_module):
-		return []
+	def loadReactors(self):
+		raise NotImplementedError
+
+class PrototypeSensorModule(SensorModule):
+
+	def __init__(self,config,emotion_module):
+		SensorModule.__init__(self,config,emotion_module)
+		self.loadCameras()
+		self.loadSensors()
+		self.loadReactors()
+
+	def loadCameras(self):
+		pass
+
+	def loadSensors(self):
+		pass
+
+	def loadReactors(self):
+		pass
