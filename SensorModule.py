@@ -9,35 +9,26 @@ SensorModule (Handles all the sensory data with the exception of the in-head IMU
 """
 
 from Reactor import Reactor
+from Camera import Camera
+from PersonSensor import PersonSensor
 
 class SensorModule(object):
 
-	def __init__(self,config,emotion_module):
-		self.config = config
-		self.emotion_module = emotion_module
+    def __init__(self,config,emotion_module):
+    	self.config = config
+    	self.emotion_module = emotion_module
+        self.cameras = []
+        self.personSensor = None
 
-	def loadCameras(self):
-		raise NotImplementedError
+    	self.loadCameras()
+    	self.loadSensors()
+    	self.loadReactors()
 
-	def loadSensors(self):
-		raise NotImplementedError
+    def loadCameras(self):
+        self.cameras.append(Camera(0))
 
-	def loadReactors(self):
-		raise NotImplementedError
+    def loadSensors(self):
+        self.personSensor = PersonSensor(self.cameras)
 
-class PrototypeSensorModule(SensorModule):
-
-	def __init__(self,config,emotion_module):
-		SensorModule.__init__(self,config,emotion_module)
-		self.loadCameras()
-		self.loadSensors()
-		self.loadReactors()
-
-	def loadCameras(self):
-		pass
-
-	def loadSensors(self):
-		pass
-
-	def loadReactors(self):
-		pass
+    def loadReactors(self):
+    	pass
