@@ -1,0 +1,13 @@
+Install
+- python2
+- scipy
+- opencv
+- PyQt5
+- PyOpenGL, PyOpenGL_accelerate
+
+For age/gender recognition:
+- tensorflow
+- rude-carnie:  https://github.com/dpressel/rude-carnie
+
+Optional
+- PyGame (for stand alone MarionetteOpenGL.py only. SimulatorUI.py uses an internal opengl widget)
