@@ -69,38 +69,38 @@ class MarionetteOpenGL:
         lineWidth = 5
 
         # Draw Head points
-        pHR = ref.activePointInWorld(marionette.motor['HR'])
+        pHR = marionette.nodes['HR']
         glColor3f(0.0, 1.0, 0.0)
         self.drawPoint(pointRadius, pHR)
-        pHL = ref.activePointInWorld(marionette.motor['HL'])
+        pHL = marionette.nodes['HL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pHL)
         glColor3f(1.0, 0.0, 1.0) # Magenta
         self.drawLine(lineWidth, pHL, pHR)
 
         # Draw Shoulder points
-        pSR = ref.activePointInWorld(marionette.motor['SR'])
+        pSR = marionette.nodes['SR']
         glColor3f(0.0, 1.0, 0.0)
         self.drawPoint(pointRadius, pSR)
-        pSL = ref.activePointInWorld(marionette.motor['SL'])
+        pSL = marionette.nodes['SL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pSL)
         glColor3f(1.0, 1.0, 0.0) #Yellow
         self.drawLine(lineWidth, pSL, pSR)
 
         # Draw Arm points
-        pAR = ref.activePointInWorld(marionette.motor['AR'])
+        pAR = marionette.nodes['AR']
         glColor3f(0.0, 1.0, 0.0)
         self.drawPoint(pointRadius, pAR)
-        pAL = ref.activePointInWorld(marionette.motor['AL'])
+        pAL = marionette.nodes['AL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pAL)
 
         # Draw Wrist points
-        pWR = ref.activePointInWorld(marionette.motor['WR'])
+        pWR = marionette.nodes['WR']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pWR)
-        pWL = ref.activePointInWorld(marionette.motor['WL'])
+        pWL = marionette.nodes['WL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pWL)
 
@@ -112,10 +112,10 @@ class MarionetteOpenGL:
         self.drawLine(lineWidth * 5, pAR, pWR)
 
         # Draw Foot points
-        pFR = ref.activePointInWorld(marionette.motor['FR'])
+        pFR = marionette.nodes['FR']
         glColor3f(0.0, 1.0, 0.0)
         self.drawPoint(pointRadius, pFR)
-        pFL = ref.activePointInWorld(marionette.motor['FL'])
+        pFL = marionette.nodes['FL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pFL)
 
@@ -156,12 +156,12 @@ class MarionetteOpenGL:
         glColor3f(1.0, 1.0, 1.0)
         lineWidth = 1
 
-        for motor in marionette.motorList:
+        for (key, motor) in marionette.motor.items():
             if motor.isStatic:
                 # Draw string
                 motorToWorld = ref.motorToWorld(motor)
                 motorCenter = GetMatrixOrigin(motorToWorld)
-                attachmentPoint = ref.activePointInWorld(motor)
+                attachmentPoint = marionette.nodes[key]
                 self.drawLine(lineWidth, motorCenter, attachmentPoint)
 
     def draw(self, marionette):

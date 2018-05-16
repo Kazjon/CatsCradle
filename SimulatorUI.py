@@ -58,6 +58,7 @@ class App(QWidget):
 
         self.initUI()
 
+
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -162,6 +163,7 @@ class App(QWidget):
 
         self.show()
 
+
     def createViewCmdLayout(self):
         self.viewGroupBox = QGroupBox("View commands")
         layout = QGridLayout()
@@ -175,6 +177,7 @@ class App(QWidget):
                 j += 1
             i += 1
         self.viewGroupBox.setLayout(layout)
+
 
     def createCommandsLayout(self):
         self.commandsGroupBox = QGroupBox("Commands")
@@ -190,6 +193,7 @@ class App(QWidget):
             i += 1
         self.commandsGroupBox.setLayout(layout)
 
+
     def createStringCmdLayout(self):
         self.stringGroupBox = QGroupBox("String length at 0 degree (mm)")
         layout = QGridLayout()
@@ -200,6 +204,7 @@ class App(QWidget):
             n += 1
         self.stringGroupBox.setMinimumSize(200, 0)
         self.stringGroupBox.setLayout(layout)
+
 
     def createMotorCmdLayout(self):
         self.motorGroupBox = QGroupBox("Motor rotations (degrees)")
@@ -212,6 +217,7 @@ class App(QWidget):
         self.motorGroupBox.setMinimumSize(230, 0)
         self.motorGroupBox.setLayout(layout)
 
+
     def createMotorNameLayout(self):
         self.nameGroupBox = QGroupBox("Motor names")
         layout = QGridLayout()
@@ -221,36 +227,53 @@ class App(QWidget):
             n += 1
         self.nameGroupBox.setLayout(layout)
 
+
     def rotateView(self):
         self.visualWindow.angleZ = self.rotationSlider.value()
         self.visualWindow.updateGL()
+
 
     def translateView(self):
         self.visualWindow.offsetZ = self.translationSlider.value()
         self.visualWindow.updateGL()
 
+
     def zoomView(self):
         self.visualWindow.zoom = self.zoomSlider.value() / 100.0
         self.visualWindow.updateGL()
 
+
     def updateMotorPos(self, motor):
+        previousAngle = motor.angle
         # Update motor angle
         motor.angle = self.sliderMotor[motor].value()
+        if not self.marionette.computeNodesPosition():
+            # Restore previous angle
+            motor.angle = previousAngle
+            self.sliderMotor[motor].setValue(previousAngle)
+        else:
+            # Redraw
+            self.visualWindow.updateGL()
+            if self.recordFile:
+                angles = ''
+                for motor in self.marionette.motorList:
+                    angles += ' ' + str(motor.angle)
+                self.recordFile.write(angles + '\n')
         self.labelMotorAngle[motor].setText(str(motor.angle))
-        # Redraw
-        self.visualWindow.updateGL()
-        if self.recordFile:
-            angles = ''
-            for motor in self.marionette.motorList:
-                angles += ' ' + str(motor.angle)
-            self.recordFile.write(angles + '\n')
+
 
     def updateStringLength(self, motor):
+        previousLength = motor.initialLength
         # Update motor string length
         motor.initialLength = self.sliderString[motor].value()
+        if not self.marionette.computeNodesPosition():
+            motor.initialLength = previousLength
+            self.sliderString[motor].setValue(previousLength)
+        else:
+            # Redraw
+            self.visualWindow.updateGL()
         self.labelMotorStringLength[motor].setText(str(motor.initialLength))
-        # Redraw
-        self.visualWindow.updateGL()
+
 
     def resetMotorAngle(self):
         for motor in self.marionette.motorList:
@@ -258,6 +281,10 @@ class App(QWidget):
             self.sliderMotor[motor].setValue(motor.angle)
             self.sliderMotor[motor].repaint()
             self.labelMotorAngle[motor].setText(str(motor.angle))
+
+        # Initial motor pos should be a valid position
+        # no need to check ... unless strings are not at initial length...
+        self.marionette.computeNodesPosition()
         self.visualWindow.updateGL()
 
     def resetStringLength(self):
@@ -267,6 +294,10 @@ class App(QWidget):
             motor.initialLength = m.length[key]
             self.sliderString[motor].setValue(motor.initialLength)
             self.sliderString[motor].repaint()
+
+        # Initial string length should be a valid positions
+        # no need to check ... unless motors are not at inital angle...
+        self.marionette.computeNodesPosition()
         self.visualWindow.updateGL()
 
     def record(self):
@@ -298,6 +329,7 @@ class App(QWidget):
                 for motor in self.marionette.motorList:
                     motor.angle = int(angles[i])
                     i += 1
+                self.marionette.computeNodesPosition()
                 self.visualWindow.updateGL()
             f.close()
             for motor in self.marionette.motorList:

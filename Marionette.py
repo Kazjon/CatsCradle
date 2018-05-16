@@ -1,5 +1,8 @@
 from MatrixUtil import *
 from Motor import *
+from ReferenceSpace import *
+
+from truss import truss
 
 #
 # Marionette's motors layout
@@ -37,8 +40,8 @@ class Marionette:
         offset = {}
         offset['SR'] = (0, -150, 0) # offset of the motor SR string hole on the right end of shoulders rod
         offset['SL'] = (0,  150, 0) # offset of the motor SL string hole on the left end of shoulders rod
-        offset['AR'] = (2, -150, 0) # offset of the motor AR string hole on the right end of shoulders rod
-        offset['AL'] = (2,  150, 0) # offset of the motor AL string hole on the left end of shoulders rod
+        offset['AR'] = (20, -150, 0) # offset of the motor AR string hole on the right end of shoulders rod
+        offset['AL'] = (20,  150, 0) # offset of the motor AL string hole on the left end of shoulders rod
         offset['HR'] = (0, -100, 0) # offset of the motor HR string hole on the right end of the head rod
         offset['HL'] = (0,  100, 0) # offset of the motor HL string hole on the left end of the head rod
         offset['FL'] = (-120,  100, -10) # offset of the motor FL on the ceiling (marionette's top attachment)
@@ -46,20 +49,28 @@ class Marionette:
         offset['WL'] = ( 150,  150, -10) # offset of the motor WL on the ceiling (marionette's top attachment)
         offset['WR'] = ( 150, -150, -10) # offset of the motor WR on the ceiling (marionette's top attachment)
         self.length = {}
-        self.length['SR'] = 400  # Initial length of string on SR (at 0 degrees rotation)
-        self.length['SL'] = 400  # Initial length of string on SL (at 0 degrees rotation)
-        self.length['AR'] = 600  # Initial length of string on AR (at 0 degrees rotation)
-        self.length['AL'] = 600  # Initial length of string on AL (at 0 degrees rotation)
+        self.length['SR'] = 600  # Initial length of string on SR (at 0 degrees rotation)
+        self.length['SL'] = 600  # Initial length of string on SL (at 0 degrees rotation)
+        self.length['AR'] = 700  # Initial length of string on AR (at 0 degrees rotation)
+        self.length['AL'] = 700  # Initial length of string on AL (at 0 degrees rotation)
         self.length['HR'] = 100  # Initial length of string on HR (at 0 degrees rotation)
         self.length['HL'] = 100  # Initial length of string on HL (at 0 degrees rotation)
         self.length['FR'] = 1800 # Initial length of string on FR (at 0 degrees rotation)
         self.length['FL'] = 1800 # Initial length of string on FL (at 0 degrees rotation)
-        self.length['WL'] = 800  # Initial length of string on WL (at 0 degrees rotation)
-        self.length['WR'] = 800  # Initial length of string on WR (at 0 degrees rotation)
+        self.length['WL'] = 900  # Initial length of string on WL (at 0 degrees rotation)
+        self.length['WR'] = 900  # Initial length of string on WR (at 0 degrees rotation)
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
         self.length['H'] = 0
         radius = 10 # All motors have the same radius????
+
+        # Marionette's measurements (mm):
+        self.headWidth = 160
+        self.shoulderWidth = 400
+        self.armLengthR = 150
+        self.armLengthL = 150
+        self.forearmLengthR = 130
+        self.forearmLengthL = 130
 
         # Motors
         self.motor = {}
@@ -119,6 +130,173 @@ class Marionette:
             if 'World' not in self.initialAToB[srcMotor].keys():
                 print "ERROR: Undefined initial transform from ", srcMotor.name, " To World"
 
+        # Marionettes attachment points position
+        self.nodes = {}
+        for key in ['SR', 'SL', 'AR', 'AL', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
+            self.nodes[key] = [0, 0, 0]
+
+        # Truss for the Head position (0: motorHR, 1: motorHL, 2: headR, 3: headL)
+        headEdges = np.array([[0, 1], [0, 2], [2, 3], [1, 3]])
+        headAnchors = np.array([0, 1])
+        self.trussHead = truss(4, headEdges, headAnchors)
+
+        # Truss for the Shoulders and Arms position
+        # (0: motorSR, 1: motorSL, 2: motorAR, 3: motorAL, 4: motorWR, 5:motorWL,
+        #  6: shoulderR, 7:shoulderL, 8: armR, 9:armL, 10: wristR, 11: wristL)
+        shouldersEdges = np.array([[0, 1], [0, 6], [6, 7], [1, 7],
+                                    [6, 8], [8, 2], [8, 10], [10, 4],
+                                    [7, 9], [9, 3], [9, 11], [11, 5]])
+        shouldersAnchors = np.array([0, 1, 2, 3, 4, 5])
+        self.trussShoulders = truss(12, shouldersEdges, shouldersAnchors)
+
+        # Compute initial positions
+        self.computeNodesPosition()
+
+    def circleIntersect(self, o, o1, r1, o2, r2):
+        """Returns the intersection points of 2 circles
+            o1: center of circle1
+            r1: radius of circle1
+            o2: center of circle2
+            r2: radius of circle2
+            o:  define the circles plane [o1 o2 o]
+            http://mathworld.wolfram.com/Sphere-SphereIntersection.html
+        """
+        # In circle1 referenceSpace:
+        d = np.linalg.norm(np.subtract(o1, o2))
+        if d == 0 or d > r1 + r2 or (d < r1 and d < r2):
+            raise NoIntersectionError
+
+        x = (d * d - r2 * r2 + r1 * r1) / (2 * d)
+        y = r1 * np.sin(np.arccos(x / r1))
+        p1 = [x, -y, 0]
+        p2 = [x, y, 0]
+
+        # Transform in World coordinates
+        circle1ToWorld = BuildTransformMatrix(o1, o2, o)
+        p1 = TransformPoint(p1, circle1ToWorld)
+        p2 = TransformPoint(p1, circle1ToWorld)
+        return [p1, p2]
+
+
+    def computeNodesPosition(self):
+        """Uses the motor angles to compute the marionette's nodes position
+            If a position cannot be reached returns FALSE and the nodes are not updated
+        """
+        ref = ReferenceSpace(self)
+
+        try:
+            # Original positions
+            # Head motors (anchors):
+            xHead = []
+            # motorHR (node 0) and motorHL (node 1) positions
+            for name in ['HR', 'HL']:
+                motor = self.motor[name]
+                motorToWorld = ref.motorToWorld(motor)
+                pos = GetMatrixOrigin(motorToWorld)
+                xHead.append(pos)
+            # HR (node 2) is straight down from motorHR (node 0):
+            motor = self.motor['HR']
+            lengthHR = motor.stringLengthFromAngle(motor.angle)
+            pos = [xHead[0][0], xHead[0][1], xHead[0][2] - lengthHR]
+            xHead.append(pos)
+            # HL (node 3) is on on intersection of 2 circles:
+            # circle 1: origin motorHL (node 1), radius length of string HL
+            # circle 2: origin HR (node 2), radius headWidth
+            # use motorHR (node 0) to define the plane
+            motor = self.motor['HL']
+            lengthHL = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xHead[0], xHead[2], self.headWidth, xHead[1], lengthHL)
+            xHead.append(inter[0])
+
+            # Compute final head positions
+            xHead = self.trussHead.computeNodesPositions(np.array(xHead))
+
+            # Shoulder, arms and wrists motors (anchors)
+            xShoulders = []
+            # motorSR (node 0), motorSL (node 1) positions
+            # motorAR (node 2), motorAL (node 3) positions
+            # motorWR (node 4), motorWL (node 5) positions
+            for name in ['SR', 'SL', 'AR', 'AL', 'WR', 'WL']:
+                motor = self.motor[name]
+                motorToWorld = ref.motorToWorld(motor)
+                pos = GetMatrixOrigin(motorToWorld)
+                xShoulders.append(pos)
+            # SR (node 6) is straight down from motorSR (node 0):
+            motor = self.motor['SR']
+            lengthSR = motor.stringLengthFromAngle(motor.angle)
+            pos = [xShoulders[0][0], xShoulders[0][1], xShoulders[0][2] - lengthSR]
+            xShoulders.append(pos)
+            # SL (node 7) is on on intersection of 2 circles:
+            # circle 1: origin motorSL (node 1), radius length of string SL
+            # circle 2: origin SR (node 6), radius shoulderWidth
+            # use motorSR (node 0) to define the plane
+            motor = self.motor['SL']
+            lengthSL = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xShoulders[0], xShoulders[6], self.shoulderWidth, xShoulders[1], lengthSL)
+            xShoulders.append(inter[0])
+            # AR (node 8) is on on intersection of 2 circles:
+            # circle 1: origin motorAR (node 2), radius length of string AR
+            # circle 2: origin SR (node 6), radius armLengthR
+            # use motorSR (node 0) to define the plane
+            motor = self.motor['AR']
+            lengthAR = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xShoulders[0], xShoulders[6], self.armLengthR, xShoulders[2], lengthAR)
+            xShoulders.append(inter[0])
+            # AL (node 9) is on on intersection of 2 circles:
+            # circle 1: origin motorAL (node 3), radius length of string AL
+            # circle 2: origin SL (node 7), radius armLengthL
+            # use motorSL (node 1) to define the plane
+            motor = self.motor['AL']
+            lengthAL = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xShoulders[1], xShoulders[7], self.armLengthL, xShoulders[3], lengthAL)
+            xShoulders.append(inter[0])
+            # WR (node 10) is on on intersection of 2 circles:
+            # circle 1: origin motorWR (node 4), radius length of string WR
+            # circle 2: origin AR (node 8), radius forearmLengthR
+            # use motorAR (node 2) to define the plane
+            motor = self.motor['WR']
+            lengthWR = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xShoulders[2], xShoulders[8], self.forearmLengthR, xShoulders[4], lengthWR)
+            xShoulders.append(inter[0])
+            # WL (node 11) is on on intersection of 2 circles:
+            # circle 1: origin motorWL (node 5), radius length of string WL
+            # circle 2: origin AL (node 9), radius forearmLengthL
+            # use motorAL (node 3) to define the plane
+            motor = self.motor['WL']
+            lengthWL = motor.stringLengthFromAngle(motor.angle)
+            inter = self.circleIntersect(xShoulders[3], xShoulders[9], self.forearmLengthL, xShoulders[5], lengthWL)
+            xShoulders.append(inter[0])
+
+            # Compute final shoulders, arms and wrists positions
+            xShoulders = self.trussShoulders.computeNodesPositions(np.array(xShoulders))
+
+        except:
+            # The position was not valid
+            # TODO: record invalid pos???
+            print "Invalid position"
+            return False
+
+        # Everything went fine in the computation:
+        # Update the marionette's nodes
+        idx = 2
+        for key in ['HR', 'HL']:
+            self.nodes[key] = xHead[idx * 3 : (idx + 1) * 3]
+            idx = idx + 1
+
+        idx = 6
+        for key in ['SR', 'SL', 'AR', 'AL', 'WR', 'WL']:
+            self.nodes[key] = xShoulders[idx * 3 : (idx + 1) * 3]
+            idx = idx + 1
+
+        # Foot points are straight down from their motors (for now)
+        # TODO: Improve this part (use a truss ???)
+        for key in ['FR', 'FL']:
+            motor = self.motor[key]
+            motorToWorld = ref.motorToWorld(motor)
+            pointInMotor = motor.getStringPoint()
+            self.nodes[key] = TransformPoint(pointInMotor, motorToWorld)
+
+        return True
 
 if __name__ == '__main__':
     # Tests

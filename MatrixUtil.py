@@ -42,7 +42,7 @@ def Translate(matrix, p):
     return np.dot(matrix, translationMatrix)
 
 def GetMatrixOrigin(matrix):
-    """Return the matrix origin matrix"""
+    """Return the matrix origin"""
     return [matrix[0][3], matrix[1][3], matrix[2][3]]
 
 def TransformPoint(pointInA, matrixAToB):
@@ -52,6 +52,42 @@ def TransformPoint(pointInA, matrixAToB):
 def TransformVector(vectorInA, matrixAToB):
     """Transform vector coordinates in space A to vector coordinates in space B"""
     return np.dot(matrixAToB, tuple(vectorInA) + (0,))[:3]
+
+def BuildTransformMatrix(O, X, Y):
+    """Build the transform matrix from the reference space defined
+        by 3 points.
+        O : origin
+        X : point in X dir
+        Y : point in Y dir
+    """
+    # x = normalized(OX)
+    # z = normal to plane (cross(x, OY))
+    # y = cross(z, x)
+    x = np.subtract(X, O)
+    x = np.multiply(1.0/np.linalg.norm(x), x)
+    y = np.subtract(Y, O)
+    z = np.cross(x, y)
+    z = np.multiply(1.0/np.linalg.norm(z), z)
+    y = np.cross(z, x)
+
+    transformMatrix = np.identity(4)
+    transformMatrix[0][0] = x[0]
+    transformMatrix[1][0] = x[1]
+    transformMatrix[2][0] = x[2]
+
+    transformMatrix[0][1] = y[0]
+    transformMatrix[1][1] = y[1]
+    transformMatrix[2][1] = y[2]
+
+    transformMatrix[0][2] = z[0]
+    transformMatrix[1][2] = z[1]
+    transformMatrix[2][2] = z[2]
+
+    transformMatrix[0][3] = O[0]
+    transformMatrix[1][3] = O[1]
+    transformMatrix[2][3] = O[2]
+
+    return transformMatrix
 
 
 if __name__ == '__main__':
@@ -84,3 +120,10 @@ if __name__ == '__main__':
     print m1
     v = TransformVector((1, 1, 0), m1)
     print v
+
+    o = [0, 0, 0]
+    x = [0, 1, 0]
+    y = [0, 0, 1]
+    m = BuildTransformMatrix(o, x, y)
+    print "BuildTransformMatrix ", o, ", ", x, ", ", y
+    print m

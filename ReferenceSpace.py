@@ -35,15 +35,6 @@ class ReferenceSpace:
     def motorAToMotorB(self, motorA, motorB):
         return np.dot(np.linalg.inv(self.motorToWorld(motorB)), self.motorToWorld(motorA))
 
-    def activePointInWorld(self, motor):
-        """Returns the coordinates in World space of the point at the end of the string attched to 'motor'"""
-        if motor.isStatic:
-            motorToWorld = self.motorToWorld(motor)
-            pointInMotor = motor.getStringPoint()
-            return TransformPoint(pointInMotor, motorToWorld)
-        else:
-            return None
-
 
 if __name__ == '__main__':
     # Tests
@@ -55,23 +46,3 @@ if __name__ == '__main__':
     motor = marionette.motorSL
     print ref.motorToWorld(motor)
     print motor.getStringPoint()
-    print ref.activePointInWorld(motor)
-
-    # print ref.activePointInWorld(marionette.motorSL)
-    # print ref.activePointInWorld(marionette.motorHR)
-    # print ref.activePointInWorld(marionette.motorHL)
-
-    # print "Rotating S"
-    # marionette.motorS.angle += 45
-    # print ref.activePointInWorld(marionette.motorSR)
-    # print ref.activePointInWorld(marionette.motorSL)
-    # marionette.motorS.angle += 45
-    # print ref.activePointInWorld(marionette.motorSR)
-    # print ref.activePointInWorld(marionette.motorSL)
-    # print "Rotating SR"
-    # marionette.motorSR.angle += 45
-    # print ref.activePointInWorld(marionette.motorSR)
-    # print ref.activePointInWorld(marionette.motorSL)
-    # marionette.motorSR.angle += 45
-    # print ref.activePointInWorld(marionette.motorSR)
-    # print ref.activePointInWorld(marionette.motorSL)

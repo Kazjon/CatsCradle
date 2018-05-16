@@ -48,13 +48,12 @@ class Motor:
             return RotateZ(np.identity(4), self.signZ * self.angle)
 
     def getStringPoint(self):
-        """Returns current coordinates of the string attachment point in motor reference space"""
+        """Returns current coordinates of the string attachment point in motor reference space
+            This assumes the string goes straight down.
+            Use only as a starting point for marionette's optimisation algo (truss)
+        """
         if self.isStatic:
             length = self.stringLengthFromAngle(self.angle)
-            ########TODO fix for angle in string (not straight down)
-            ######## It also can depend on another string length (Head or Shoulder)
-            ######## Left arm and hand need less precision but also depends on the Left
-            ######## shoulder attachment
             return [0, length, 0]
         else:
             return None
