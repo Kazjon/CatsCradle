@@ -78,6 +78,9 @@ class Marionette:
         for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
             self.motor[key] = Motor('motor' + key, radius, self.length[key])
             self.motorList.append(self.motor[key])
+        # TODO: define realistic min and max angle for each motor
+        # The current min for motor driving strings is the angle at which the string length is 0
+        # But this is can be improved with ranges describing the real marionette motion
 
         # Define the path from one reference space to world
         self.pathToWorld = {}
@@ -164,6 +167,7 @@ class Marionette:
         # In circle1 referenceSpace:
         d = np.linalg.norm(np.subtract(o1, o2))
         if d == 0 or d > r1 + r2 or (d < r1 and d < r2):
+            print "No intersection found: r1 = ", r1, " r2 = ", r2, " d = ", d
             raise NoIntersectionError
 
         x = (d * d - r2 * r2 + r1 * r1) / (2 * d)
@@ -183,11 +187,12 @@ class Marionette:
             If a position cannot be reached returns FALSE and the nodes are not updated
         """
         ref = ReferenceSpace(self)
+        xHead = []
+        xShoulders = []
 
         try:
             # Original positions
             # Head motors (anchors):
-            xHead = []
             # motorHR (node 0) and motorHL (node 1) positions
             for name in ['HR', 'HL']:
                 motor = self.motor[name]
@@ -212,7 +217,6 @@ class Marionette:
             xHead = self.trussHead.computeNodesPositions(np.array(xHead))
 
             # Shoulder, arms and wrists motors (anchors)
-            xShoulders = []
             # motorSR (node 0), motorSL (node 1) positions
             # motorAR (node 2), motorAL (node 3) positions
             # motorWR (node 4), motorWL (node 5) positions

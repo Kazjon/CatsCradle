@@ -1,4 +1,5 @@
 from MatrixUtil import *
+from math import pi
 
 class Motor:
     """Class to handle the rotation motor
@@ -21,24 +22,46 @@ class Motor:
         self.isStatic = (self.initialLength > 0)
         self.signZ = 1 # positive (allow flexibility if z axis is reverse rotation axis)
         self.angle = 0 # current angle (degrees)
+        self.circumference = 2 * pi * self.radius
+        if self.isStatic:
+            # min angle possible (l >= 0)
+            self.minAngle = self.angleFromStringLength(0)
+            self.maxAngle = 3000 # TODO: Limit = max length of string
+        else:
+            self.minAngle = -180
+            self.maxAngle = 180
+
 
     def angleFromStringLength(self, length):
         """Returns the rotation angle in degrees needed to get a string of 'length' length"""
         if self.isStatic:
+            # Compute number of full rotations:
             l = length - self.initialLength
+            n = int(l / self.circumference)
+            # Remaining length
+            l = l - n * self.circumference
             theta = self.signZ * l / self.radius
-            return np.degrees(tetha)
+            theta = theta  + n * 2 * pi
+            return np.degrees(theta)
         else:
-            return None
+            raise InvalidCallForStaticMotor
 
     def stringLengthFromAngle(self, angle):
         """Returns string length for a rotation of 'angle' degrees"""
         if self.isStatic:
+            # Compute number of full rotations:
             theta = np.radians(angle)
+            n = int(theta / 2 / pi)
+            # Remaining angle
+            theta = theta - n * 2 * pi
             l = self.signZ * theta * self.radius
-            return self.initialLength + l
+            l = self.initialLength + l + n * self.circumference
+            if l < 0 :
+                print "Motor::stringLengthFromAngle(", angle ,"): ", self.name, "error: invalid angle -> length ", l, " < 0"
+                raise InvalidAngleError
+            return l
         else:
-            return None
+            raise InvalidCallForStaticMotor
 
     def getRotationMatrix(self):
         """Returns the transform of the current rotation"""
@@ -56,12 +79,12 @@ class Motor:
             length = self.stringLengthFromAngle(self.angle)
             return [0, length, 0]
         else:
-            return None
+            raise InvalidCallForStaticMotor
 
 
 if __name__ == '__main__':
     # Tests
-    m = Motor("motor", 10)
+    m = Motor("motor", 10, 100)
 
     print m.angle
     print m.getRotationMatrix()
@@ -78,3 +101,9 @@ if __name__ == '__main__':
     print m.angle
     print m.getRotationMatrix()
     print m.getStringPoint()
+
+    angle = 50
+    length = m.stringLengthFromAngle(angle)
+    a = m.angleFromStringLength(length)
+    print "stringLengthFromAngle(", angle, ") = ", length
+    print "angleFromStringLength(", length, ") = ", a

@@ -120,8 +120,8 @@ class App(QWidget):
             # lambda does not work (all slider use the last motor)... why???
             # slider.valueChanged.connect(lambda: self.updateStringLength(motor))
             slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
-            slider.setMinimum(-180)
-            slider.setMaximum(180)
+            slider.setMinimum(motor.minAngle)
+            slider.setMaximum(motor.maxAngle)
             slider.setValue(0)
             slider.setTickInterval(1)
 

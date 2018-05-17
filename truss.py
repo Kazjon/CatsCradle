@@ -112,7 +112,11 @@ class truss:
 
         # solve for displacements with SQP (only dofs)
         ndof = np.size(self.dofs)
-        udof = fmin_slsqp(obj_dof, np.zeros(3 * ndof), f_eqcons=eqcons_dof)
+        udof, _, _, imode, smode = fmin_slsqp(obj_dof, np.zeros(3 * ndof), f_eqcons=eqcons_dof, full_output=True)
+        if imode != 0:
+            print "Optimisation failed: ", smode
+            raise OptimisationFailedError
+
         u = self.dof_to_displ(udof)
         newx = x.flatten() + u
 
