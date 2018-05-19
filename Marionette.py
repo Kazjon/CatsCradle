@@ -155,6 +155,27 @@ class Marionette:
         # Compute initial positions
         self.computeNodesPosition()
 
+
+    def setAngles(self, angles):
+        """ Set the motor angles in the following order:
+            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
+        """
+        if len(angles) != len():
+            raise InvalidAnglesNumberError
+        for m, a in zip(self.motorList, angles):
+            m.angle = a
+
+
+    def getAngles(self):
+        """ Get the current motor angles in the following order:
+            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
+        """
+        angles = []
+        for m in self.motorList:
+            angles.append(m.angle)
+        return angles
+        
+
     def circleIntersect(self, o, o1, r1, o2, r2):
         """Returns the intersection points of 2 circles
             o1: center of circle1
@@ -173,7 +194,7 @@ class Marionette:
         x = (d * d - r2 * r2 + r1 * r1) / (2 * d)
         y = r1 * np.sin(np.arccos(x / r1))
         p1 = [x, -y, 0]
-        p2 = [x, y, 0]
+        p2 = [x,  y, 0]
 
         # Transform in World coordinates
         circle1ToWorld = BuildTransformMatrix(o1, o2, o)
@@ -301,6 +322,17 @@ class Marionette:
             self.nodes[key] = TransformPoint(pointInMotor, motorToWorld)
 
         return True
+
+
+    def computeMotorAnglesFromNodes(targetPos):
+        """Inverse operation of computeNodesPosition
+            Get the motors angle to put the marionette in a given position
+            targetPos: list of nodes positions in the following order:
+            'HR', 'HL', 'SR', 'SL', 'AR', 'AL', 'WR', 'WL', 'FR', 'FL'
+        """
+        # TODO: implement Marionette::computeMotorAnglesFromNodes
+        return []
+
 
 if __name__ == '__main__':
     # Tests
