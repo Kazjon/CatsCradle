@@ -55,6 +55,7 @@ class App(QWidget):
         self.playBtn = QPushButton('Play')
         self.recordBtn = QPushButton('Record')
         self.closeBtn = QPushButton('Close', self)
+        self.printBtn = QPushButton('Print Angles', self)
 
         self.initUI()
 
@@ -160,6 +161,10 @@ class App(QWidget):
         self.closeBtn.setToolTip('Close the Simulator window')
         self.closeBtn.clicked.connect(self.close)
         self.closeBtn.setEnabled(True)
+        # Print button
+        self.printBtn.setToolTip('Print the current motor angles')
+        self.printBtn.clicked.connect(self.printAngles)
+        self.printBtn.setEnabled(True)
 
         self.show()
 
@@ -185,7 +190,7 @@ class App(QWidget):
         i = 1
         for btnList in [[self.resetAnglesBtn, self.resetStringsBtn],
                         [self.playBtn, self.recordBtn],
-                        [self.closeBtn]]:
+                        [self.closeBtn, self.printBtn]]:
             j = 1
             for btn in btnList:
                 layout.addWidget(btn, i, j)
@@ -335,6 +340,15 @@ class App(QWidget):
             for motor in self.marionette.motorList:
                 self.labelMotorAngle[motor].setText(str(motor.angle))
                 self.sliderMotor[motor].setValue(motor.angle)
+
+    def printAngles(self):
+        # Print current angles
+        angles = []
+        for motor in self.marionette.motorList:
+            angles.append(motor.angle)
+        print angles
+
+
 
 class glWidget(QGLWidget):
     def __init__(self, parent, marionette):
