@@ -8,6 +8,8 @@ from PyQt5.QtOpenGL import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from MarionetteOpenGL import *
+
 class ImageWidget(QWidget):
     def __init__(self, parent=None):
         super(ImageWidget, self).__init__(parent)
@@ -27,7 +29,34 @@ class ImageWidget(QWidget):
         qp.end()
 
 
+class MarionetteWidget(QGLWidget):
+    def __init__(self, marionette, parent=None):
+        QGLWidget.__init__(self, parent)
+        self.setMinimumSize(640, 480)
+        self.marionetteView = None
+        self.marionette = marionette
+        self.angleZ = 0
+        self.zoom = 1
+        self.offsetZ = 0
+
+    def paintGL(self):
+        glPushMatrix()
+        glRotatef(self.angleZ, 0, 0, 1)
+        glScale(self.zoom, self.zoom, self.zoom)
+        glTranslatef(0, 0, self.offsetZ)
+        self.marionetteView.draw(self.marionette)
+        glPopMatrix()
+
+    def initializeGL(self):
+        self.marionetteView = MarionetteOpenGL()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
     ImageWidget()
+
+    widget = MarionetteWidget(Marionette())
+    widget.show()
+
     sys.exit(app.exec_())
