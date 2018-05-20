@@ -1,3 +1,5 @@
+import os
+import sys
 import numpy as np
 from scipy.optimize import fmin_slsqp
 
@@ -112,7 +114,14 @@ class truss:
 
         # solve for displacements with SQP (only dofs)
         ndof = np.size(self.dofs)
+
+        # Temporarily redefine the standard output to avoid extra print done by fmin_slsqp
+        null = open(os.devnull,'wb')
+        sys.stdout = null
         udof, _, _, imode, smode = fmin_slsqp(obj_dof, np.zeros(3 * ndof), f_eqcons=eqcons_dof, full_output=True)
+        # Restore standard output
+        sys.stdout = sys.__stdout__
+        
         if imode != 0:
             print "Optimisation failed: ", smode
             raise OptimisationFailedError
