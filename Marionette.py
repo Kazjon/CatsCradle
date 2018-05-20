@@ -160,7 +160,7 @@ class Marionette:
         """ Set the motor angles in the following order:
             'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
         """
-        if len(angles) != len():
+        if len(angles) != len(self.motorList):
             raise InvalidAnglesNumberError
         for m, a in zip(self.motorList, angles):
             m.angle = a
@@ -174,7 +174,7 @@ class Marionette:
         for m in self.motorList:
             angles.append(m.angle)
         return angles
-        
+
 
     def circleIntersect(self, o, o1, r1, o2, r2):
         """Returns the intersection points of 2 circles
