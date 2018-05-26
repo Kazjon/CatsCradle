@@ -50,8 +50,8 @@ class PersonSensor(Sensor):
                     eyes = self.bodyDetector.detectEyes(frame, face)
                     # Estimate person's position
                     # TODO: use eyes spacing to estimate distance from camera
-                    posCamera = centerROI(face)
-                    person.posWorld = camera.cameraToWorld(posCamera)
+                    person.posCamera = centerROI(face)
+                    person.posWorld = camera.cameraToWorld(person.posCamera)
                     # Estimate person's height
                     person.height = camera.estimateSize(face[3], self.standardFaceHeight)
                     persons.append(person)

@@ -4,8 +4,6 @@ from SensorModule import SensorModule
 from EmotionModule import EmotionModule
 from ResponseModule import ResponseModule
 from ActionModule import ActionModule
-from Audience import Audience
-from Marionette import Marionette
 
 show = True
 if show:
@@ -14,17 +12,15 @@ if show:
 def runCatsCradle(config):
 	"""Main entry point for Cat's Cradle."""
 	global show
-	marionette = Marionette()
-	action_module = ActionModule(config, marionette.getAngles())
+	action_module = ActionModule(config)
 	response_module = ResponseModule(config,action_module)
 	emotion_module = EmotionModule(config,response_module)
 	sensor_module = SensorModule(config,emotion_module)
 
-	audience = Audience(sensor_module.personSensor)
-	audience.personSensor.show = show
+	sensor_module.personSensor.show = show
 
 	while True:
-		audience.update()
+		sensor_module.update()
 		#print "found ", len(audience.persons), " persons"
 
 		if show:

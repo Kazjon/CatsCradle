@@ -11,6 +11,7 @@ SensorModule (Handles all the sensory data with the exception of the in-head IMU
 from Reactor import Reactor
 from Camera import Camera
 from PersonSensor import PersonSensor
+from Audience import Audience
 
 class SensorModule(object):
 
@@ -19,6 +20,7 @@ class SensorModule(object):
     	self.emotion_module = emotion_module
         self.cameras = []
         self.personSensor = None
+        self.audience = None
 
     	self.loadCameras()
     	self.loadSensors()
@@ -29,6 +31,11 @@ class SensorModule(object):
 
     def loadSensors(self):
         self.personSensor = PersonSensor(self.cameras)
+        self.audience = Audience(self.personSensor)
 
     def loadReactors(self):
     	pass
+
+    def update(self):
+        self.audience.update()
+        self.emotion_module.update(self.audience)

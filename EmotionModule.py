@@ -9,5 +9,16 @@
 
 class EmotionModule(object):
 
-	def __init__(self,config,response_module):
-		pass
+    def __init__(self,config,response_module):
+        self.response_module = response_module
+
+    def update(self, audience):
+        # Temp implementation to link all modules
+        # TODO: Implement Emotion of the marionette (Kaz)
+        numPersons = len(audience.persons)
+        if numPersons < 1:
+            self.response_module.setEmotion('emotion0')
+        elif numPersons == 1:
+            self.response_module.setEmotion('emotion1', audience.persons[0])
+        else:
+            self.response_module.setEmotion('emotion2')

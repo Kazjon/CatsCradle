@@ -16,19 +16,21 @@ from UIUtils import MarionetteWidget
 
 class ActionModule(object):
 
-    def __init__(self, config, currentAngles):
+    def __init__(self, config):
         # TODO: Get full list of motions from
         # https://docs.google.com/spreadsheets/d/1XPwe3iQbNzOgRDWYDuqAxW8JrQiBvvqikn3oN0fImSs/edit#gid=0
         self.angles = {}
         self.angles['rest'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.angles['rightHandFullRaise'] = [None, -980, None, -2298, None, None, None, None, None, None, -1919, None]
         self.angles['leftHandFullRaise'] = [None, None, -980, None, -2298, None, None, None, None, None, None, -1919]
+        self.angles['bothHandFullRaise'] = [None, -980, -980, -2298, -2298, None, None, None, None, None, -1919, -1919]
 
         self.speed = {}
         self.speed['slow'] = 40
         self.speed['fast'] = 20
 
-        self.currentAngles = currentAngles
+        # Initialize the angles to the marionette's default (0 everywhere)
+        self.currentAngles = Marionette().getAngles()
 
         # Thread related variables
         self.q = Queue.Queue()
@@ -38,6 +40,8 @@ class ActionModule(object):
             raise InvalidTargetKeyError
         if speedKey not in self.speed.keys():
             raise InvalidSpeedKeyError
+
+        print "move to ", targetKey, " ", speedKey
 
         target = self.angles[targetKey]
         speed = self.speed[speedKey]
@@ -65,8 +69,7 @@ if __name__ == '__main__':
             self.delay  = delay
             self.mutex  = QMutex()
             self.run    = True
-            self.marionette = Marionette()
-            self.actionModule = ActionModule(None, self.marionette.getAngles())
+            self.actionModule = ActionModule(None)
 
         def generateMotion(self):
             print "started"
