@@ -11,6 +11,6 @@ Sensor (a single thing we want to detect, e.g. position of people, age of people
 """
 
 class Sensor(object):
-	def __init__(self,cameras):
-		self.cameras = cameras
+    def __init__(self,cameras):
+        self.cameras = cameras
 

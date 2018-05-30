@@ -3,7 +3,7 @@
   - Selects responses given the current emotional state and the world state (the output of the sensors).
 """
 
-class ResponseModule(object):
+class DummyResponseModule(object):
 
     def __init__(self,config,action_module):
         self.action_module = action_module

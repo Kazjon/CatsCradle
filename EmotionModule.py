@@ -7,7 +7,7 @@
   - [Optional] May apply modifiers to parameters of all actions (i.e. sadness makes movements slower)
 """
 
-class EmotionModule(object):
+class DummyEmotionModule(object):
 
     def __init__(self,config,response_module):
         self.response_module = response_module
@@ -22,3 +22,10 @@ class EmotionModule(object):
             self.response_module.setEmotion('emotion1', audience.persons[0])
         else:
             self.response_module.setEmotion('emotion2')
+
+class EmotionModule(object):
+    def __init__(self,config,response_module):
+        self.response_module = response_module
+
+    def update(self, audience):
+        pass

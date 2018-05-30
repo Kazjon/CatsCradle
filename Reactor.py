@@ -7,18 +7,44 @@ Reactor (Checks for a combination of conditions across sensors and triggers a re
 """
 
 class Reactor(object):
-	def __init__(self,em):
-		self.state = {}
-		self.emotionModule = em
-		pass
+    def __init__(self,em):
+        self.audience = None
+        self.emotionModule = em
 
-	def update(self,state):
-		self.state = state
-		if self.detect():
-			self.trigger()
+    def update(self,audience):
+        self.audience = audience
+        if self.detect():
+            self.emotionModule.update(self.effect())
 
-	def detect(self):
-		pass
+    def detect(self):
+        raise NotImplementedError
 
-	def trigger(self):
-		pass
+    def effect(self):
+        raise NotImplementedError
+
+class LonelinessReactor(Reactor):
+    def __init__(self,em):
+        Reactor.__init__(self,em)
+
+    def detect(self):
+        if len(self.audience.persons):
+            return False
+        return True
+
+    def effect(self):
+        return [0,0,0,1]
+
+class NewPersonReactor(Reactor):
+    def __init__(self,em):
+        Reactor.__init__(self,em)
+        self.previous_persons = 0
+
+    def detect(self):
+        if len(self.audience.persons) and not self.previous_persons:
+            self.previous_persons = len(self.audience.persons)
+            return False
+        self.previous_persons = len(self.audience.persons)
+        return True
+
+    def effect(self):
+        return [50,0,0,0]
