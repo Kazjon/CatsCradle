@@ -28,6 +28,7 @@ class ActionModule(object):
         self.speed = {}
         self.speed['slow'] = 40
         self.speed['fast'] = 20
+        self.speed['jump'] = 1
 
         # Initialize the angles to the marionette's default (0 everywhere)
         self.currentAngles = Marionette().getAngles()

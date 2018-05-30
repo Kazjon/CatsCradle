@@ -9,6 +9,8 @@ from PyQt5.QtOpenGL import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from ActionModule import ActionModule
+
 from UIUtils import MarionetteWidget
 from Marionette import *
 
@@ -55,8 +57,13 @@ class App(QWidget):
         self.resetStringsBtn = QPushButton('Reset strings')
         self.playBtn = QPushButton('Play')
         self.recordBtn = QPushButton('Record')
-        self.closeBtn = QPushButton('Close', self)
-        self.printBtn = QPushButton('Print Angles', self)
+        self.closeBtn = QPushButton('Close')
+        self.printBtn = QPushButton('Print Angles')
+
+        # Goto controls
+        self.anglesComboBox = QComboBox()
+        self.speedComboBox = QComboBox()
+        self.gotoBtn = QPushButton('GoTo Target')
 
         self.initUI()
 
@@ -70,6 +77,7 @@ class App(QWidget):
         self.createMotorCmdLayout()
         self.createMotorNameLayout()
         self.createCommandsLayout()
+        self.createGotoLayout()
 
         windowLayout = QGridLayout()
         # column 1
@@ -77,10 +85,12 @@ class App(QWidget):
         windowLayout.addWidget(self.motorGroupBox, 1, 2)
         windowLayout.addWidget(self.stringGroupBox, 1, 3)
 
-        windowLayout.addWidget(self.commandsGroupBox, 2, 1, 1, 3)
+        windowLayout.addWidget(self.commandsGroupBox, 2, 1, 1, 2)
+        windowLayout.addWidget(self.gotoGroupBox, 2, 3, 1, 1)
         # column 2
-        windowLayout.addWidget(self.visualWindow, 1, 5)
-        windowLayout.addWidget(self.viewGroupBox, 2, 5)
+        windowLayout.addWidget(self.visualWindow, 1, 4)
+
+        windowLayout.addWidget(self.viewGroupBox, 2, 4)
         self.setLayout(windowLayout)
 
         # View rotation slider around Z axis
@@ -167,6 +177,16 @@ class App(QWidget):
         self.printBtn.clicked.connect(self.printAngles)
         self.printBtn.setEnabled(True)
 
+        # GoTo controls
+        actionModule = ActionModule(None)
+        for key in actionModule.angles.keys():
+            self.anglesComboBox.addItem(key)
+        for key in actionModule.speed.keys():
+            self.speedComboBox.addItem(key)
+        self.gotoBtn.setToolTip('Move the marionette to the selected pose at the selected speed')
+        self.gotoBtn.clicked.connect(self.gotoTarget)
+        self.gotoBtn.setEnabled(True)
+
         self.show()
 
 
@@ -198,6 +218,21 @@ class App(QWidget):
                 j += 1
             i += 1
         self.commandsGroupBox.setLayout(layout)
+
+
+    def createGotoLayout(self):
+        self.gotoGroupBox = QGroupBox("GoTo")
+        layout = QGridLayout()
+        i = 1
+        for ctrlList in [[self.anglesComboBox],
+                        [self.speedComboBox],
+                        [self.gotoBtn]]:
+            j = 1
+            for ctrl in ctrlList:
+                layout.addWidget(ctrl, i, j)
+                j += 1
+            i += 1
+        self.gotoGroupBox.setLayout(layout)
 
 
     def createStringCmdLayout(self):
@@ -302,7 +337,7 @@ class App(QWidget):
             self.sliderString[motor].repaint()
 
         # Initial string length should be a valid positions
-        # no need to check ... unless motors are not at inital angle...
+        # no need to check ... unless motors are not at initial angle...
         self.marionette.computeNodesPosition()
         self.visualWindow.updateGL()
 
@@ -331,10 +366,7 @@ class App(QWidget):
             ###### TODO: add check on the file's content (it might not be a recorded file)
             for line in f:
                 angles = line.split()
-                i = 0
-                for motor in self.marionette.motorList:
-                    motor.angle = int(angles[i])
-                    i += 1
+                self.marionette.setAngles(angles)
                 self.marionette.computeNodesPosition()
                 self.visualWindow.updateGL()
             f.close()
@@ -348,6 +380,17 @@ class App(QWidget):
         for motor in self.marionette.motorList:
             angles.append(motor.angle)
         print angles
+
+    def gotoTarget(self):
+        # Go to selected target
+        actionModule = ActionModule(None)
+        actionModule.currentAngles = self.marionette.getAngles()
+        target = self.anglesComboBox.currentText()
+        speed = self.speedComboBox.currentText()
+        for angles in actionModule.moveTo(target, speed):
+            self.marionette.setAngles(angles)
+            self.marionette.computeNodesPosition()
+            self.visualWindow.updateGL()
 
 
 
