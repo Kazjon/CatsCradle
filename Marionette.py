@@ -32,37 +32,37 @@ class Marionette:
         S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL"""
 
         # Marionette's dimensions in mm (to be updated)
-        rod_O_S = 300 # length of upper vertical rod (shoulders)
-        rod_S_H = 200 # length of lower vertical rod (head)
+        rod_O_S = 50 # length of upper vertical rod (shoulders)
+        rod_S_H = 140 # length of lower vertical rod (head)
         # Offset definition: Fixed point of the string.
         # Could be a hole in the horizontal rods (for Head and Shoulders)
         # or the last contact point of the string on the motor circonference
         offset = {}
-        offset['SR'] = (0, -150, 0) # offset of the motor SR string hole on the right end of shoulders rod
-        offset['SL'] = (0,  150, 0) # offset of the motor SL string hole on the left end of shoulders rod
-        offset['AR'] = (20, -150, 0) # offset of the motor AR string hole on the right end of shoulders rod
-        offset['AL'] = (20,  150, 0) # offset of the motor AL string hole on the left end of shoulders rod
-        offset['HR'] = (0, -100, 0) # offset of the motor HR string hole on the right end of the head rod
-        offset['HL'] = (0,  100, 0) # offset of the motor HL string hole on the left end of the head rod
-        offset['FL'] = (-120,  100, -10) # offset of the motor FL on the ceiling (marionette's top attachment)
-        offset['FR'] = (-120, -100, -10) # offset of the motor FR on the ceiling (marionette's top attachment)
-        offset['WL'] = ( 150,  150, -10) # offset of the motor WL on the ceiling (marionette's top attachment)
-        offset['WR'] = ( 150, -150, -10) # offset of the motor WR on the ceiling (marionette's top attachment)
+        offset['SR'] = (0, -405, 0) # offset of the motor SR string hole on the right end of shoulders rod
+        offset['SL'] = (0,  405, 0) # offset of the motor SL string hole on the left end of shoulders rod
+        offset['AR'] = (65, -405, 0) # offset of the motor AR string hole on the right end of shoulders rod
+        offset['AL'] = (65,  405, 0) # offset of the motor AL string hole on the left end of shoulders rod
+        offset['HR'] = (0, -150, 0) # offset of the motor HR string hole on the right end of the head rod
+        offset['HL'] = (0,  150, 0) # offset of the motor HL string hole on the left end of the head rod
+        offset['FL'] = (-255,  255, -25) # offset of the motor FL on the ceiling (marionette's top attachment)
+        offset['FR'] = (-255, -255, -25) # offset of the motor FR on the ceiling (marionette's top attachment)
+        offset['WL'] = ( 255,  255, -25) # offset of the motor WL on the ceiling (marionette's top attachment)
+        offset['WR'] = ( 255, -255, -25) # offset of the motor WR on the ceiling (marionette's top attachment)
         self.length = {}
-        self.length['SR'] = 600  # Initial length of string on SR (at 0 degrees rotation)
-        self.length['SL'] = 600  # Initial length of string on SL (at 0 degrees rotation)
-        self.length['AR'] = 700  # Initial length of string on AR (at 0 degrees rotation)
-        self.length['AL'] = 700  # Initial length of string on AL (at 0 degrees rotation)
-        self.length['HR'] = 100  # Initial length of string on HR (at 0 degrees rotation)
-        self.length['HL'] = 100  # Initial length of string on HL (at 0 degrees rotation)
-        self.length['FR'] = 1800 # Initial length of string on FR (at 0 degrees rotation)
-        self.length['FL'] = 1800 # Initial length of string on FL (at 0 degrees rotation)
-        self.length['WL'] = 900  # Initial length of string on WL (at 0 degrees rotation)
-        self.length['WR'] = 900  # Initial length of string on WR (at 0 degrees rotation)
+        self.length['SR'] = 930  # Initial length of string on SR (at 0 degrees rotation)
+        self.length['SL'] = 930  # Initial length of string on SL (at 0 degrees rotation)
+        self.length['AR'] = 1190  # Initial length of string on AR (at 0 degrees rotation)
+        self.length['AL'] = 1170  # Initial length of string on AL (at 0 degrees rotation)
+        self.length['HR'] = 740  # Initial length of string on HR (at 0 degrees rotation)
+        self.length['HL'] = 740  # Initial length of string on HL (at 0 degrees rotation)
+        self.length['FR'] = 2100 # Initial length of string on FR (at 0 degrees rotation)
+        self.length['FL'] = 2100 # Initial length of string on FL (at 0 degrees rotation)
+        self.length['WL'] = 1470  # Initial length of string on WL (at 0 degrees rotation)
+        self.length['WR'] = 1500  # Initial length of string on WR (at 0 degrees rotation)
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
         self.length['H'] = 0
-        radius = 10 # All motors have the same radius????
+        radius = 25.5 # All motors have the same radius????
 
         # Marionette's measurements (mm):
         self.headWidth = 160
