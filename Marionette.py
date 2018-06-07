@@ -33,7 +33,7 @@ class Marionette:
 
         # Marionette's dimensions in mm (to be updated)
         rod_O_S = 50 # length of upper vertical rod (shoulders)
-        rod_S_H = 140 # length of lower vertical rod (head)
+        rod_S_H = 100 # length of lower vertical rod (head)
         # Offset definition: Fixed point of the string.
         # Could be a hole in the horizontal rods (for Head and Shoulders)
         # or the last contact point of the string on the motor circonference
@@ -65,12 +65,12 @@ class Marionette:
         radius = 25.5 # All motors have the same radius????
 
         # Marionette's measurements (mm):
-        self.headWidth = 160
-        self.shoulderWidth = 400
-        self.armLengthR = 150
-        self.armLengthL = 150
-        self.forearmLengthR = 130
-        self.forearmLengthL = 130
+        self.headWidth = 176
+        self.shoulderWidth = 280
+        self.armLengthR = 250
+        self.armLengthL = 250
+        self.forearmLengthR = 260
+        self.forearmLengthL = 260
 
         # Motors
         self.motor = {}
