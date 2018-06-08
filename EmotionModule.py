@@ -32,25 +32,28 @@ class DummyEmotionModule(object):
             self.response_module.setEmotion('emotion2')
 
 
-def softmax(x):
-    '''Compute softmax values for each sets of scores in x.'''
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
+#The points in 3d space on the 3-simplex (i.e. form a tetrahedron) and thus represent the four emotions.
 simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., math.sqrt(8) / 3., 0],
                              [-1. / 3., -math.sqrt(2) / 3., math.sqrt(2. / 3.)],
-                             [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]
-                             ])
+                             [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
 simplex_labels = ["Fear", "Anger", "Happiness", "Shame"]
 
+def softmax(x):
+    '''Compute softmax values for each sets of scores in x.  Used to normalise emotion vectors.'''
+    return np.exp(x) / np.sum(np.exp(x), axis=0)
+
+def normalise_emotion_vector(raw_vector):
+    '''Normalise 4d emotion vectors into [0..1], summing to 1.'''
+    if type(raw_vector[0]) is not list:
+        raw_vector = [raw_vector]
+    return np.asarray([softmax(p) for p in raw_vector])
+
 def map_to_euclidean(raw_points):
-    if type(raw_points[0]) is not list:
-        raw_points = [raw_points]
-    weighted_points = np.asarray([softmax(p) for p in raw_points])
-    return np.asarray([np.sum([simplex_points[i] * p[i] for i in range(4)], axis=0) for p in weighted_points])
-
-
+    '''Turns a point in un-normalised emotional space (a length 4 vector) into a point in emotional space.'''
+    return np.asarray([np.sum([simplex_points[i] * p[i] for i in range(4)], axis=0) for p in normalise_emotion_vector(raw_points)])
 
 class EmotionModule(object):
     def __init__(self,config,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, happiness_decay = 0.95, visualise=False):
@@ -79,6 +82,7 @@ class EmotionModule(object):
 
             plt.show()
 
+    #TODO: framerate (of emotional updates) isn't implemented , just using matplotlib's pause function.
     def update(self,audience, framerate = 5):
         self.velocity += self.acceleration
         self.position += self.velocity
@@ -93,8 +97,9 @@ class EmotionModule(object):
             plt.pause(0.01)
 
 
-
+    #This is triggered by Reactor objects, part of the SensorModule that trigger in response to particular sensed states.
     def affectEmotions(self,emotional_delta):
         self.acceleration += emotional_delta
+        self.response_module.update(normalise_emotion_vector(self.position))
 
 

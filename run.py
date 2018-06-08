@@ -1,8 +1,8 @@
 import sys
 
 from SensorModule import SensorModule
-from EmotionModule import DummyEmotionModule,EmotionModule
-from ResponseModule import DummyResponseModule
+from EmotionModule import EmotionModule
+from ResponseModule import ResponseModule
 from ActionModule import ActionModule
 
 show = True
@@ -13,7 +13,7 @@ def runCatsCradle(config):
     """Main entry point for Cat's Cradle."""
     global show
     action_module = ActionModule(config)
-    response_module = DummyResponseModule(config,action_module)
+    response_module = ResponseModule(config,action_module)
     emotion_module = EmotionModule(config,response_module, visualise=True)
     sensor_module = SensorModule(config,emotion_module)
 

@@ -83,4 +83,4 @@ class RightReactor(Reactor):
         return False
 
     def effect(self):
-        return [0.05, 0, 0, 0]
+        return [0, 0.05, 0, 0]
