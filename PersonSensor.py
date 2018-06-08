@@ -10,10 +10,11 @@ class PersonSensor(Sensor):
     """
     Use the BodyPartDetector to sense a person
     """
-    def __init__(self, cameras):
+    def __init__(self, cameras, cv_path):
         Sensor.__init__(self, cameras)
 
-        self.bodyDetector = BodyPartDetector()
+        self.cv_path = cv_path
+        self.bodyDetector = BodyPartDetector(cv_path)
         self.show = False
 
         # TODO: Get proper standard values (mm)
@@ -46,7 +47,7 @@ class PersonSensor(Sensor):
                         #prevPerson.update(frame)
                         break
                 if not alreadyExists:
-                    person = Person(frame, face)
+                    person = Person(frame, face, self.cv_path)
                     eyes = self.bodyDetector.detectEyes(frame, face)
                     # Estimate person's position
                     # TODO: use eyes spacing to estimate distance from camera

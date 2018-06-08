@@ -8,9 +8,9 @@ class BodyPartDetector:
     Use the OpenCV Haar cascades to detect bodies, faces, eyes and smiles from
     an image
     """
-    def __init__(self):
+    def __init__(self,openCVPath):
         # TODO: Make sure the path is the same on all machines
-        openCVPath = '/usr/local/Cellar/opencv/3.3.1_1/share/OpenCV/'
+        #openCVPath = '/usr/local/Cellar/opencv/3.3.1_1/share/OpenCV/'
         haarcascadesPath = openCVPath + 'haarcascades/'
 
         self.frontalFaceCascade = cv2.CascadeClassifier(haarcascadesPath + 'haarcascade_frontalface_default.xml')
@@ -75,8 +75,9 @@ class BodyPartDetector:
 
         # TODO: Remove duplicate faces in profile faces
 
-        if len(profileFaces) > 0:
-            numpy.append(faces, profileFaces, axis = 0)
+        #Note from Kaz: This was crashing so I'm commenting it out for now.
+        #if len(profileFaces) > 0:
+        #    numpy.append(faces, profileFaces, axis = 0)
 
         return self.shiftROIs(faces, x, y)
 

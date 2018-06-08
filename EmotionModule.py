@@ -6,6 +6,14 @@
   - Triggers Actions (as determined by strong emotional states)
   - [Optional] May apply modifiers to parameters of all actions (i.e. sadness makes movements slower)
 """
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+import math
+import itertools
+import matplotlib
+matplotlib.use("QT5Agg")
+import matplotlib.pyplot as plt
+plt.ion()
 
 class DummyEmotionModule(object):
 
@@ -23,9 +31,70 @@ class DummyEmotionModule(object):
         else:
             self.response_module.setEmotion('emotion2')
 
-class EmotionModule(object):
-    def __init__(self,config,response_module):
-        self.response_module = response_module
 
-    def update(self, audience):
-        pass
+def softmax(x):
+    '''Compute softmax values for each sets of scores in x.'''
+    return np.exp(x) / np.sum(np.exp(x), axis=0)
+
+
+simplex_points = np.asarray([[1, 0, 0],
+                             [-1. / 3., math.sqrt(8) / 3., 0],
+                             [-1. / 3., -math.sqrt(2) / 3., math.sqrt(2. / 3.)],
+                             [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]
+                             ])
+simplex_labels = ["Fear", "Anger", "Happiness", "Shame"]
+
+def map_to_euclidean(raw_points):
+    if type(raw_points[0]) is not list:
+        raw_points = [raw_points]
+    weighted_points = np.asarray([softmax(p) for p in raw_points])
+    return np.asarray([np.sum([simplex_points[i] * p[i] for i in range(4)], axis=0) for p in weighted_points])
+
+
+
+class EmotionModule(object):
+    def __init__(self,config,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, happiness_decay = 0.95, visualise=False):
+        self.response_module = response_module
+        self.acceleration = np.zeros(4)
+        self.velocity = np.zeros(4)
+        self.position = np.zeros(4)
+        self.drag = np.asarray([drag_coefficient] * 4)
+        self.decay = np.asarray([decay_coefficient] * 4)
+        self.decay[2] = happiness_decay
+        self.max_position_value = 10.
+        self.visualise = visualise
+        if visualise:
+            self.fig = plt.figure()
+            self.ax = self.fig.add_subplot(111, projection='3d')
+            xs, ys, zs = simplex_points.T
+            self.ax.scatter(xs, ys, zs, c='r', marker="o", s=30)
+
+            for x,y,z,l in zip(xs, ys, zs, simplex_labels):
+                self.ax.text(x, y, z, l)
+            xs,ys,zs = np.asarray(list(itertools.chain.from_iterable(itertools.combinations(list(simplex_points),2)))).T
+            self.ax.plot(xs,ys,zs,color="red",alpha=0.25,linewidth=1)
+
+            x, y, z = map_to_euclidean(self.position).T
+            self.pos_plot = self.ax.scatter(x, y, z, c='b', marker="o", s=100)
+
+            plt.show()
+
+    def update(self,audience, framerate = 5):
+        self.velocity += self.acceleration
+        self.position += self.velocity
+        self.position = np.minimum([self.max_position_value]*4,self.position)
+        self.velocity *= self.drag
+        self.position *= self.decay
+        self.acceleration = np.zeros(4)
+        print "Raw: ",np.round(self.position,2), "  Mapped: ",np.round(map_to_euclidean(self.position),2)
+        if self.visualise:
+            self.pos_plot._offsets3d = map_to_euclidean(self.position).T
+            self.fig.canvas.draw()
+            plt.pause(0.01)
+
+
+
+    def affectEmotions(self,emotional_delta):
+        self.acceleration += emotional_delta
+
+

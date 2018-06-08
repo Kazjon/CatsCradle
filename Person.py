@@ -10,12 +10,12 @@ personCount_ = 0
 
 class Person:
     """Class to handle a person parameters"""
-    def __init__(self, frame, roi):
+    def __init__(self, frame, roi, cv_path):
         global personCount_
         personCount_ += 1
         self.id = personCount_
         # detector
-        self.bodyDetector = BodyPartDetector()
+        self.bodyDetector = BodyPartDetector(cv_path)
         # Person's properties
         self.gender = ""
         self.smile = False

@@ -1,7 +1,7 @@
 import sys
 
 from SensorModule import SensorModule
-from EmotionModule import DummyEmotionModule
+from EmotionModule import DummyEmotionModule,EmotionModule
 from ResponseModule import DummyResponseModule
 from ActionModule import ActionModule
 
@@ -14,7 +14,7 @@ def runCatsCradle(config):
     global show
     action_module = ActionModule(config)
     response_module = DummyResponseModule(config,action_module)
-    emotion_module = DummyEmotionModule(config,response_module)
+    emotion_module = EmotionModule(config,response_module, visualise=True)
     sensor_module = SensorModule(config,emotion_module)
 
     sensor_module.personSensor.show = show
@@ -29,7 +29,8 @@ def runCatsCradle(config):
 
 
 def initialise():
-    config = {}
+    config = {"cv_path":sys.argv[1]
+              }
     return config
 
 if __name__ == "__main__":

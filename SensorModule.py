@@ -8,7 +8,7 @@ SensorModule (Handles all the sensory data with the exception of the in-head IMU
   - Able to visualise current sensory input (just as simple points/lines/labels)
 """
 
-from Reactor import LonelinessReactor,NewPersonReactor
+from Reactor import LonelinessReactor,NewPersonReactor,LeftReactor,RightReactor
 from Camera import Camera
 from PersonSensor import PersonSensor
 from Audience import Audience
@@ -24,20 +24,24 @@ class SensorModule(object):
         self.reactors = []
 
         self.loadCameras()
-        self.loadSensors()
+        self.loadSensors(config["cv_path"])
         self.loadReactors()
 
     def loadCameras(self):
         self.cameras.append(Camera(0))
 
-    def loadSensors(self):
-        self.personSensor = PersonSensor(self.cameras)
+    def loadSensors(self,cv_path):
+        self.personSensor = PersonSensor(self.cameras,cv_path)
         self.audience = Audience(self.personSensor)
 
     def loadReactors(self):
         self.reactors.append(LonelinessReactor(self.emotion_module))
         self.reactors.append(NewPersonReactor(self.emotion_module))
+        self.reactors.append(LeftReactor(self.emotion_module))
+        self.reactors.append(RightReactor(self.emotion_module))
 
     def update(self):
         self.audience.update()
+        for reactor in self.reactors:
+            reactor.update(self.audience)
         self.emotion_module.update(self.audience)
