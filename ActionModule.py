@@ -21,9 +21,9 @@ class ActionModule(object):
         # https://docs.google.com/spreadsheets/d/1XPwe3iQbNzOgRDWYDuqAxW8JrQiBvvqikn3oN0fImSs/edit#gid=0
         self.angles = {}
         self.angles['rest'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.angles['rightHandFullRaise'] = [None, -980, None, -2298, None, None, None, None, None, None, -1919, None]
-        self.angles['leftHandFullRaise'] = [None, None, -980, None, -2298, None, None, None, None, None, None, -1919]
-        self.angles['bothHandFullRaise'] = [None, -980, -980, -2298, -2298, None, None, None, None, None, -1919, -1919]
+        self.angles['rightHandFullRaise'] = [None, -122, None, -1035, None, None, None, None, None, None, -1920, None]
+        self.angles['leftHandFullRaise'] = [None, None, -20, None, -841, None, None, None, None, None, None, -1717]
+        self.angles['bothHandFullRaise'] = [None, -122, -80, -1035, -990, None, None, None, None, None, -1920, -1920]
 
         self.speed = {}
         self.speed['slow'] = 40
