@@ -12,6 +12,8 @@ from Marionette import *
 #      FR/FL = Foot Right and Left
 #      AR/ALL = Arm Right and Left
 #      WR/WL = Wrist Right and Left
+# - One for each eye:
+#      ER/EL: x=front, y=left, z=up
 #
 
 class ReferenceSpace:
@@ -34,6 +36,29 @@ class ReferenceSpace:
 
     def motorAToMotorB(self, motorA, motorB):
         return np.dot(np.linalg.inv(self.motorToWorld(motorB)), self.motorToWorld(motorA))
+
+    def eyeToWorld(self, eye):
+        """Get the eye to World transform matrix
+            Assumes that the marionette's node position is up to date
+            i.e. computeNodesPosition has been run"""
+        # Head to world:
+        # Matrix with HR as origin, head RL dir as X, up as Y -> Z is pointing front
+        headToWorld = BuildTransformMatrix(self.marionette.nodes['HR'], self.marionette.nodes['HL'], (0, 0, 0))
+        # Rotate -90 degrees around X to get Z up and Y back
+        headToWorld = RotateX(headToWorld, -90)
+        # Rotate -90 degrees around Z to get X front and Y left (World coord)
+        headToWorld = RotateZ(headToWorld, -90)
+        eyeID = ''
+        for key in ['ER', 'EL']:
+            if eye == self.marionette.eye[key]:
+                eyeID = key
+                break
+        eyeToHead = Translate(np.identity(4), self.marionette.eyeOffset[eyeID])
+        eyeToWorld = np.dot(headToWorld, eyeToHead)
+        return eyeToWorld
+
+    def pupilToWorld(self, eye):
+        return np.dot(self.eyeToWorld(eye), eye.pupilToEye())
 
 
 if __name__ == '__main__':
