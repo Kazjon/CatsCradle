@@ -1,5 +1,6 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 
 from MatrixUtil import *
 from Marionette import *
@@ -40,6 +41,12 @@ class MarionetteOpenGL:
         glVertex3fv(tuple(p1))
         glVertex3fv(tuple(p2))
         glEnd()
+
+    def drawSphere(self, radius, center):
+        glPushMatrix()
+        glTranslatef(center[0], center[1], center[2])
+        glutSolidSphere(radius * 100, 50, 50)
+        glPopMatrix()
 
     def drawWorldRef(self, size):
         glColor3f(1.0, 1.0, 1.0)
@@ -118,6 +125,14 @@ class MarionetteOpenGL:
         pFL = marionette.nodes['FL']
         glColor3f(1.0, 0.0, 0.0)
         self.drawPoint(pointRadius, pFL)
+
+        # Draw Eyes points
+        pER = marionette.nodes['ER']
+        glColor3f(0.0, 1.0, 1.0) # Cyan
+        self.drawSphere(pointRadius * 4, pER)
+        pEL = marionette.nodes['EL']
+        self.drawSphere(pointRadius * 4, pEL)
+
 
     def drawMotors(self, marionette):
         ref = ReferenceSpace(marionette)

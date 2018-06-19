@@ -1,3 +1,4 @@
+from Eye import *
 from MatrixUtil import *
 from Motor import *
 from ReferenceSpace import *
@@ -13,6 +14,7 @@ from truss import truss
 #      FR/FL = Foot Right and Left
 #      AR/AL = Arm Right and Left
 #      WR/WL = Wrist Right and Left
+#      ER/EL = Eye Right and Left
 #
 #        WR  FR     W     FL   WL    -> Fixed on ceiling
 #                   |
@@ -20,7 +22,7 @@ from truss import truss
 #        SR_________S__________SL    -> Horizontal rotation (Shoulders)
 #          AR__|    |      |__AL
 #                   |
-#             HR____H____HL          -> Horizontal rotation (Head)
+#            HR_ER__H__EL_HL          -> Horizontal rotation (Head)
 #
 #
 
@@ -49,15 +51,15 @@ class Marionette:
         offset['WL'] = ( 255,  255, -25) # offset of the motor WL on the ceiling (marionette's top attachment)
         offset['WR'] = ( 255, -255, -25) # offset of the motor WR on the ceiling (marionette's top attachment)
         self.length = {}
-        self.length['SR'] = 930  # Initial length of string on SR (at 0 degrees rotation)
-        self.length['SL'] = 930  # Initial length of string on SL (at 0 degrees rotation)
-        self.length['AR'] = 1190  # Initial length of string on AR (at 0 degrees rotation)
-        self.length['AL'] = 1170  # Initial length of string on AL (at 0 degrees rotation)
+        self.length['SR'] = 1110  # Initial length of string on SR (at 0 degrees rotation)
+        self.length['SL'] = 1110  # Initial length of string on SL (at 0 degrees rotation)
+        self.length['AR'] = 1300  # Initial length of string on AR (at 0 degrees rotation)
+        self.length['AL'] = 1300  # Initial length of string on AL (at 0 degrees rotation)
         self.length['HR'] = 740  # Initial length of string on HR (at 0 degrees rotation)
         self.length['HL'] = 740  # Initial length of string on HL (at 0 degrees rotation)
         self.length['FR'] = 2100 # Initial length of string on FR (at 0 degrees rotation)
         self.length['FL'] = 2100 # Initial length of string on FL (at 0 degrees rotation)
-        self.length['WL'] = 1470  # Initial length of string on WL (at 0 degrees rotation)
+        self.length['WL'] = 1500  # Initial length of string on WL (at 0 degrees rotation)
         self.length['WR'] = 1500  # Initial length of string on WR (at 0 degrees rotation)
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
@@ -71,6 +73,10 @@ class Marionette:
         self.armLengthL = 250
         self.forearmLengthR = 260
         self.forearmLengthL = 260
+        # eyes offset from the head RIGHT attachment point, along the HR/HL line
+        self.eyeOffset = {}
+        self.eyeOffset['ER'] = ( 15, 25, 40)
+        self.eyeOffset['EL'] = ( 15, self.headWidth - 25, 40)
 
         # Motors
         self.motor = {}
@@ -81,6 +87,13 @@ class Marionette:
         # TODO: define realistic min and max angle for each motor
         # The current min for motor driving strings is the angle at which the string length is 0
         # But this is can be improved with ranges describing the real marionette motion
+
+        # Eyes
+        self.eye = {}
+        self.eyeList = []
+        for key in ['ER', 'EL']:
+            self.eye[key] = Eye('eye' + key)
+            self.eyeList.append(self.eye[key])
 
         # Define the path from one reference space to world
         self.pathToWorld = {}
@@ -135,7 +148,7 @@ class Marionette:
 
         # Marionettes attachment points position
         self.nodes = {}
-        for key in ['SR', 'SL', 'AR', 'AL', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
+        for key in ['SR', 'SL', 'AR', 'AL', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL', 'ER', 'EL']:
             self.nodes[key] = [0, 0, 0]
 
         # Truss for the Head position (0: motorHR, 1: motorHL, 2: headR, 3: headL)
@@ -320,6 +333,12 @@ class Marionette:
             motorToWorld = ref.motorToWorld(motor)
             pointInMotor = motor.getStringPoint()
             self.nodes[key] = TransformPoint(pointInMotor, motorToWorld)
+
+        # Eyes position
+        for key in ['ER', 'EL']:
+            eye = self.eye[key]
+            eyeToWorld = ref.eyeToWorld(eye)
+            self.nodes[key] = GetMatrixOrigin(eyeToWorld)
 
         return True
 
