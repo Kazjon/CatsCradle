@@ -52,6 +52,12 @@ class App(QWidget):
             self.labelMotorAngle[motor] = QLabel(str(0))
             self.labelMotorStringLength[motor] = QLabel('')
 
+        # Eye control widgets
+        self.sliderYaw = QSlider(Qt.Horizontal)
+        self.labelYaw = QLabel("Yaw")
+        self.sliderPitch = QSlider(Qt.Horizontal)
+        self.labelPitch = QLabel("Pitch")
+
         # commands widgets
         self.resetAnglesBtn = QPushButton('Reset angles')
         self.resetStringsBtn = QPushButton('Reset strings')
@@ -76,21 +82,24 @@ class App(QWidget):
         self.createStringCmdLayout()
         self.createMotorCmdLayout()
         self.createMotorNameLayout()
+        self.createEyeCmdLayout()
         self.createCommandsLayout()
         self.createGotoLayout()
 
         windowLayout = QGridLayout()
-        # column 1
+        # Line 1
         windowLayout.addWidget(self.nameGroupBox, 1, 1)
         windowLayout.addWidget(self.motorGroupBox, 1, 2)
         windowLayout.addWidget(self.stringGroupBox, 1, 3)
 
-        windowLayout.addWidget(self.commandsGroupBox, 2, 1, 1, 2)
-        windowLayout.addWidget(self.gotoGroupBox, 2, 3, 1, 1)
-        # column 2
-        windowLayout.addWidget(self.visualWindow, 1, 4)
+        # Line 2
+        windowLayout.addWidget(self.eyeGroupBox, 2, 1, 1, 3)
+        windowLayout.addWidget(self.commandsGroupBox, 3, 1, 1, 2)
+        windowLayout.addWidget(self.gotoGroupBox, 3, 3, 1, 1)
 
-        windowLayout.addWidget(self.viewGroupBox, 2, 4)
+        windowLayout.addWidget(self.visualWindow, 1, 4, 2, 1)
+
+        windowLayout.addWidget(self.viewGroupBox, 3, 4)
         self.setLayout(windowLayout)
 
         # View rotation slider around Z axis
@@ -150,6 +159,16 @@ class App(QWidget):
                 slider.valueChanged.connect(functools.partial(self.updateStringLength, motor))
                 slider.setTickInterval(1)
 
+        # Eye control settings
+        for slider in [self.sliderPitch, self.sliderYaw]:
+            slider.setEnabled(True)
+            slider.setToolTip('Rotate eyes')
+            slider.valueChanged.connect(self.moveEyes)
+            slider.setMinimum(-20)
+            slider.setMaximum(20)
+            slider.setValue(0)
+            slider.setTickInterval(1)
+
         # Reset string length button
         self.resetStringsBtn.setToolTip('Reset the strings initial length to their original values')
         self.resetStringsBtn.clicked.connect(self.resetStringLength)
@@ -203,6 +222,20 @@ class App(QWidget):
                 j += 1
             i += 1
         self.viewGroupBox.setLayout(layout)
+
+
+    def createEyeCmdLayout(self):
+        self.eyeGroupBox = QGroupBox("Eyes commands")
+        layout = QGridLayout()
+        i = 1
+        for btnList in [[self.labelPitch, self.sliderPitch],
+                        [self.labelYaw, self.sliderYaw]]:
+            j = 1
+            for btn in btnList:
+                layout.addWidget(btn, i, j)
+                j += 1
+            i += 1
+        self.eyeGroupBox.setLayout(layout)
 
 
     def createCommandsLayout(self):
@@ -281,6 +314,13 @@ class App(QWidget):
 
     def zoomView(self):
         self.visualWindow.zoom = self.zoomSlider.value() / 100.0
+        self.visualWindow.updateGL()
+
+
+    def moveEyes(self):
+        for key in ['ER', 'EL']:
+            self.marionette.eye[key].angleY = self.sliderPitch.value()
+            self.marionette.eye[key].angleZ = self.sliderYaw.value()
         self.visualWindow.updateGL()
 
 

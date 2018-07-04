@@ -9,7 +9,8 @@ from ReferenceSpace import *
 class MarionetteOpenGL:
     def __init__(self):
         display = (650, 650)
-        gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+        aspect = display[0] / display[1]
+        gluPerspective(45, aspect, 0.1, 50.0)
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -17,7 +18,7 @@ class MarionetteOpenGL:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         zoom = 0.001
-        glScale(zoom, zoom, zoom)
+        glScale(zoom, zoom * aspect, zoom)
         # Matrix to apply to the marionette points to get them in view space:
         # xView = Right
         # yView = Up
@@ -127,12 +128,31 @@ class MarionetteOpenGL:
         self.drawPoint(pointRadius, pFL)
 
         # Draw Eyes points
+        eyeR = marionette.eye['ER']
         pER = marionette.nodes['ER']
-        glColor3f(0.0, 1.0, 1.0) # Cyan
-        self.drawSphere(pointRadius * 4, pER)
-        pEL = marionette.nodes['EL']
-        self.drawSphere(pointRadius * 4, pEL)
+        glPushMatrix()
+        glTranslatef(pER[0], pER[1], pER[2])
+        glRotatef(eyeR.angleZ, 0, 0, 1)
+        glRotatef(eyeR.angleY, 0, 1, 0)
 
+        glColor3f(1.0, 1.0, 1.0) # White
+        self.drawSphere(pointRadius * 5, (0, 0, 0))
+        glColor3f(0.0, 0.0, 0.0) # Cyan
+        self.drawSphere(pointRadius * 3, (pointRadius * 400, 0, 0))
+        glPopMatrix()
+
+        eyeL = marionette.eye['EL']
+        pEL = marionette.nodes['EL']
+        glPushMatrix()
+        glTranslatef(pEL[0], pEL[1], pEL[2])
+        glRotatef(eyeL.angleZ, 0, 0, 1)
+        glRotatef(eyeL.angleY, 0, 1, 0)
+
+        glColor3f(1.0, 1.0, 1.0) # White
+        self.drawSphere(pointRadius * 5, (0, 0, 0))
+        glColor3f(0.0, 0.0, 0.0) # Black
+        self.drawSphere(pointRadius * 3, (pointRadius * 400, 0, 0))
+        glPopMatrix()
 
     def drawMotors(self, marionette):
         ref = ReferenceSpace(marionette)

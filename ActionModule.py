@@ -34,7 +34,7 @@ class ActionModule(object):
         self.currentAngles = Marionette().getAngles()
 
         # Thread related variables
-        self.q = Queue.Queue()
+        self.qMotorAngles = Queue.Queue()
 
     def moveTo(self, targetKey, speedKey):
         if targetKey not in self.angles.keys():
@@ -50,8 +50,41 @@ class ActionModule(object):
         sequence = action.getAngleSequenceToTarget(self.currentAngles, speed)
         self.currentAngles = sequence[-1]
         for a in sequence:
-            self.q.put(a)
+            self.qMotorAngles.put(a)
         return sequence
+
+    def eyeTargetToAngles(self, eyeToWorld, target):
+        """Compute the eye angles (pitch and yaw) using the eye transform matrix
+            in world space to have the marionette look at target
+            Should be computed for each position sent to the marionette
+        """
+        # Get the target coordinates in Eye space
+        worldToEye = np.linalg.inv(eyeToWorld)
+        targetEye = TransformPoint(target, worldToEye)
+
+        ### Compute the eye rotation around Y axis (pitch)
+        # Project target vector on plane orthogonal to Y:
+        targetEyeY[0] = targetEye[0]
+        targetEyeY[1] = 0
+        targetEyeY[2] = targetEye[2]
+        norm = np.linalg.norm(targetEyeY);
+        targetEyeY[0] = targetEyeY[0] / norm
+        targetEyeY[2] = targetEyeY[2] / norm
+        # Get the angle between the X axis and that vector
+        angleY = arccos(np.dot((1, 0, 0), targetEyeY))
+
+        # Compute the eye rotation around Z axis (yaw)
+        # Project target vector on plane orthogonal to Z:
+        targetEyeZ[0] = targetEye[0]
+        targetEyeZ[1] = targetEye[1]
+        targetEyeZ[2] = 0
+        norm = np.linalg.norm(targetEyeZ);
+        targetEyeZ[0] = targetEyeZ[0] / norm
+        targetEyeZ[2] = targetEyeZ[2] / norm
+        # Get the angle between the X axis and that vector
+        angleZ = arccos(np.dot((1, 0, 0), targetEyeZ))
+
+        return (angleY, angleZ)
 
 
 if __name__ == '__main__':
@@ -98,8 +131,8 @@ if __name__ == '__main__':
 
         def updateVisual(self, n):
             for i in range(n):
-                if not self.motionGen.actionModule.q.empty():
-                    angles = self.motionGen.actionModule.q.get()
+                if not self.motionGen.actionModule.qMotorAngles.empty():
+                    angles = self.motionGen.actionModule.qMotorAngles.get()
                     self.win2.marionette.setAngles(angles)
                     self.win2.marionette.computeNodesPosition()
                     self.win2.updateGL()

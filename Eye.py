@@ -1,3 +1,5 @@
+from MatrixUtil import *
+
 class Eye:
     """Class to handle the eye and eyelid motions
     Eye reference space:
@@ -22,4 +24,3 @@ class Eye:
         transform = RotateY(transform, self.angleY)
         transform = RotateZ(transform, self.angleZ)
         return transform
-        

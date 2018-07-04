@@ -42,7 +42,7 @@ class MarionetteWidget(QGLWidget):
     def paintGL(self):
         glPushMatrix()
         glRotatef(self.angleZ, 0, 0, 1)
-        glScale(self.zoom, self.zoom, self.zoom)
+        glScale(self.zoom, self.zoom * (640 / 480), self.zoom)
         glTranslatef(0, 0, self.offsetZ)
         self.marionetteView.draw(self.marionette)
         glPopMatrix()
