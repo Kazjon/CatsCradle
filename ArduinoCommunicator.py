@@ -3,13 +3,21 @@ import struct
 
 class ArduinoCommunicator(object):
     def __init__(self, port):
-        self.serial_port = serial.Serial(port, 9600)
+        self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
         self.servo_min = -25;
         self.servo_max = 25;
+
+        # Wait a bit for the arduino to get ready
+        time.sleep(2)
 
     def send(self, data):
         print "Sending"
         self.serial_port.write(data)
+        self.serial_port.flush()
+
+    def receive(self):
+        print "Receiving"
+        return self.serial_port.readline()
 
     def _checkLookAtInput(self, angle):
         """
@@ -42,10 +50,14 @@ class ArduinoCommunicator(object):
         if not self._checkLookAtInput(right_yaw):
             print "Error: right eye yaw angle {} is out of allowed range.".format(right_yaw)
             return
-
+        # Send four integers to control the eyes
         self.send(struct.pack('>BBBB', -left_pitch + offset, left_yaw + offset, right_pitch + offset, right_yaw + offset))
 
-
+    def getRPY(self):
+        # Send any single character to receive the roll pitch yaw reading.
+        self.send(struct.pack('>c', 'a'))
+        time.sleep(0.01)
+        print self.receive()
 
 if __name__ == "__main__":
 
@@ -53,15 +65,7 @@ if __name__ == "__main__":
 
     ac = ArduinoCommunicator("/dev/ttyACM0")
     while True:
-        ac.lookAt(0, 0, 0, 0)
+        ac.getRPY()
         time.sleep(1)
-        ac.lookAt(0, 0, 0, -20)
-        time.sleep(1)
-        ac.lookAt(0, 0, -20, 0)
-        time.sleep(1)
-        ac.lookAt(0, -20, 0, 0)
-        time.sleep(1)
-        ac.lookAt(-20, 0, 0, 0)
-        time.sleep(1)
-        ac.lookAt(-20, 0, 0, 60)
+        ac.lookAt(20,0,0,0)
         time.sleep(1)
