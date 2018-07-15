@@ -4,8 +4,10 @@ import struct
 class ArduinoCommunicator(object):
     def __init__(self, port):
         self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
-        self.servo_min = -25;
-        self.servo_max = 25;
+        self.servo_min = -25
+        self.servo_max = 25
+        self.head_angle_max = 90
+        self.head_angle_min = -90
 
         # Wait a bit for the arduino to get ready
         time.sleep(2)
@@ -26,6 +28,16 @@ class ArduinoCommunicator(object):
         if angle > self.servo_max:
             return False
         if angle < self.servo_min:
+            return False
+        return True
+
+    def _checkHeadAngleInput(self, angle):
+        """
+        Check if the look at input is in range defined by servo_max and servo_min
+        """
+        if angle > self.head_angle_max:
+            return False
+        if angle < self.head_angle_min:
             return False
         return True
 
@@ -59,13 +71,18 @@ class ArduinoCommunicator(object):
         time.sleep(0.01)
         print self.receive()
 
+    def rotateHead(self, angle):
+        if not self._checkHeadAngleInput(angle):
+            print "Error: Head angle {} is out of allowed range.".format(angle)
+            return
+        self.send(struct.pack('>cb', 'h', angle))
+
 if __name__ == "__main__":
 
     import time
 
-    ac = ArduinoCommunicator("/dev/ttyACM0")
+    ac = ArduinoCommunicator("COM4")
     while True:
-        ac.getRPY()
-        time.sleep(1)
-        ac.lookAt(20,0,0,0)
+        a = raw_input("Angle")
+        ac.rotateHead(int(a))
         time.sleep(1)
