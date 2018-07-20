@@ -1,25 +1,30 @@
 import serial
+import random
 import struct
 
 class ArduinoCommunicator(object):
     def __init__(self, port):
         self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
-        self.servo_min = -25
-        self.servo_max = 25
+        self.servo_min = -35
+        self.servo_max = 35
         self.head_angle_max = 90
         self.head_angle_min = -90
+
+        self.motor_name_list = ['ls','la','lh','lf','lh','rs','ra','rh','rf','rh']
+        self.motor_cmd_dict = {}
+        for name in self.motor_name_list:
+            self.motor_cmd_dict[name] = 0
 
         # Wait a bit for the arduino to get ready
         time.sleep(2)
 
     def send(self, data):
-        print "Sending"
+        print "Sending: ", data
         self.serial_port.write(data)
         self.serial_port.flush()
 
     def receive(self):
-        print "Receiving"
-        return self.serial_port.readline()
+        print "Receiving " + self.serial_port.readline()
 
     def _checkLookAtInput(self, angle):
         """
@@ -41,6 +46,33 @@ class ArduinoCommunicator(object):
             return False
         return True
 
+    def move(self, cmd_dict = None):
+
+        if cmd_dict is None: cmd_dict = self.motor_cmd_dict
+
+        # Make sure all motors are given a command
+        for name in self.motor_name_list:
+            if name not in cmd_dict.keys():
+                print "No command given for {!r}, default to 0".format(name)
+                cmd_dict[name] = 0
+
+        # First send the command character
+        self.send(struct.pack('>c', 'm'))
+
+        # Pack command
+        for name in self.motor_name_list:
+            # Convert command to string
+            cmd = str(cmd_dict[name])+'z'
+            # Pack data
+            data = struct.pack('>' + 'c'*len(cmd), *cmd)
+            # Send
+            self.send(data)
+
+    def eyeClose(self):
+        self.send(struct.pack('>cBB', 'b', 110, 70))
+
+    def eyeOpen(self):
+        self.send(struct.pack('>cBB', 'b', 70, 110))
 
     def lookAt(self, left_pitch, left_yaw, right_pitch, right_yaw):
         """
@@ -63,7 +95,7 @@ class ArduinoCommunicator(object):
             print "Error: right eye yaw angle {} is out of allowed range.".format(right_yaw)
             return
         # Send four integers to control the eyes
-        self.send(struct.pack('>BBBB', -left_pitch + offset, left_yaw + offset, right_pitch + offset, right_yaw + offset))
+        self.send(struct.pack('>cBBBB', 'e', -left_pitch + offset, left_yaw + offset, right_pitch + offset, right_yaw + offset))
 
     def getRPY(self):
         # Send any single character to receive the roll pitch yaw reading.
@@ -82,7 +114,12 @@ if __name__ == "__main__":
     import time
 
     ac = ArduinoCommunicator("COM4")
+    """
     while True:
-        a = raw_input("Angle")
-        ac.rotateHead(int(a))
+        a = raw_input("Angle ")
+        for i in ac.motor_name_list:
+            ac.motor_cmd_dict[i] = random.randint(100,101)
+        #ac.motor_cmd_dict['la'] = int(a)
+        ac.move()
         time.sleep(1)
+    """

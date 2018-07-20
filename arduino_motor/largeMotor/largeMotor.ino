@@ -1,78 +1,174 @@
-/*
-  String to Integer conversion
+#include <AccelStepper.h>
+#include <Encoder.h>
 
-  Reads a serial input string until it sees a newline, then converts the string
-  to a number if the characters are digits.
+// For motors other than shoulder and head rotation
+const int num_of_motors = 10;
+int motors_cmd[num_of_motors];
+AccelStepper motors[num_of_motors];
+int motor_start_pin = 51;
 
-  The circuit:
-  - No external components needed.
+// For head rotation
+int head_speed;
+int head_target_angle = 0;
+bool new_head_angle = false;
+Encoder myEnc(5, 6);
+long head_current_angle = 0;
 
-  created 29 Nov 2010
-  by Tom Igoe
+void setupMotors() {
+  for (int i = 0; i < num_of_motors; i++)
+  {
+    int step_pin = motor_start_pin - 2 * i -1;
+    int dire_pin = motor_start_pin - 2 * i;
+    motors[i] = AccelStepper(1, step_pin, dire_pin);
+    motors[i].setMaxSpeed(200 * 16);
+  }
+}
 
-  This example code is in the public domain.
+void setupHeadMotor() {
+  // initialize software serial object with baud rate of 19.2 kbps
+  Serial1.begin(19200);
+  // the Simple Motor Controller must be running for at least 1 ms
+  // before we try to send serial data, so we delay here for 5 ms
+  delay(5);
+ 
+  // if the Simple Motor Controller has automatic baud detection
+  // enabled, we first need to send it the byte 0xAA (170 in decimal)
+  // so that it can learn the baud rate
+  Serial1.write(0xAA);  // send baud-indicator byte
+ 
+  // next we need to send the Exit Safe Start command, which
+  // clears the safe-start violation and lets the motor run
+  Serial1.write(0x83);  // clear the safe-start violation and let the motor run
+}
 
-  http://www.arduino.cc/en/Tutorial/StringToInt
-*/
+void runHeadMotor() {
+  if (new_head_angle && (abs(head_current_angle-head_target_angle * 23) > 10))
+  {
+    if (head_current_angle > head_target_angle * 23)
+    {
+      head_speed = 200;
+    }
+    else if (head_current_angle < head_target_angle * 23)
+    {
+      head_speed = -200;
+    }
+  }
+  else
+  {
+    head_speed = 0;
+    new_head_angle = false;
+  }
+  setMotorSpeed('h', head_speed);
+}
 
-String inString = "";    // string to hold input
+// speed should be a number from -3200 to 3200
+void setMotorSpeed(char motor_id, int speed)
+{
+  if (speed < 0)
+  {
+    if (motor_id == 'h')
+    {
+      Serial1.write(0x86);  // motor reverse command
+    }
+    else if (motor_id == 's')
+    {
+      Serial2.write(0x86);  // motor reverse command
+    }
+    speed = -speed;  // make speed positive
+  }
+  else
+  {
+    if (motor_id == 'h')
+    {
+      Serial1.write(0x85);  // motor forwardrse command
+    }
+    else if (motor_id == 's')
+    {
+      Serial2.write(0x85);  // motor forward command
+    }
+  }
+
+  if (motor_id == 'h')
+  {
+    Serial1.write(speed & 0x1F);
+    Serial1.write(speed >> 5);
+  }
+  else if (motor_id == 's')
+  {
+    Serial2.write(speed & 0x1F);
+    Serial2.write(speed >> 5);
+  }
+}
+
+void setupShoulderMotor() {
+  // initialize software serial object with baud rate of 19.2 kbps
+  Serial2.begin(19200);
+  // the Simple Motor Controller must be running for at least 1 ms
+  // before we try to send serial data, so we delay here for 5 ms
+  delay(5);
+ 
+  // if the Simple Motor Controller has automatic baud detection
+  // enabled, we first need to send it the byte 0xAA (170 in decimal)
+  // so that it can learn the baud rate
+  Serial2.write(0xAA);  // send baud-indicator byte
+ 
+  // next we need to send the Exit Safe Start command, which
+  // clears the safe-start violation and lets the motor run
+  Serial2.write(0x83);  // clear the safe-start violation and let the motor run
+}
 
 void setup() {
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  setupMotors();
 
-  // send an intro:
-  //Serial.println("\n\nString toInt():");
-  //Serial.println();
+  ////////////////// this is for head rotation ///////////////////
+  
+}
+
+void runAllMotors() {
+  for (int i = 0; i < num_of_motors; i++)
+  {
+    motors[i].runSpeed();
+  }
 }
 
 void loop() {
+
+  // Read encoders
+  head_current_angle = myEnc.read();
+  
   // Read serial input:
-  while (Serial.available() > 0) {
-    //int inChar = Serial.read();
-    byte data[4];
-    //Serial.readBytesUntil('z',data, 4);
-    int num = Serial.parseInt();
-    if (num != 0)
+  while (Serial.available() > 0) 
+  {
+    char cmd_type = Serial.read();
+    if (cmd_type == 'm') // Move all motors
     {
-       Serial.print("Value:");
-      Serial.println(num);
+      for (int i = 0; i < 10; ++i)
+      {
+        int num = Serial.parseInt();
+        char end_char = Serial.read();
+        motors[i].setSpeed(num * 16);
+      }
+    }
+    else if (cmd_type == 's') // Shoulder spin
+    {
       
     }
-     
-      //Serial.print("String: ");
-      //Serial.println(data);
-      // clear the string for new input:
+    else if (cmd_type == 'h') // Head spin
+    {
+      head_target_angle = Serial.read();
+      if (head_target_angle>90)
+      {
+        head_target_angle -= 256;
+      }
+      new_head_angle = true;
+    }
   }
-  /*
-   * In [78]: port.write(struct.pack('>cccccc','-','2','3','z','4','5'))
-KeyboardInterrupt
-
-In [78]: args = ['-','2','3','z','4','5']
-
-In [79]: port.write(struct.pack('>cccccc',args*))
-  File "<ipython-input-79-0c32fcfc9106>", line 1
-    port.write(struct.pack('>cccccc',args*))
-                                          ^
-SyntaxError: invalid syntax
-
-
-In [80]: port.write(struct.pack('>cccccc',*args))
-Out[80]: 6
-
-In [81]: port.readline()
-Out[81]: 'Value:-23\r\n'
-
-In [82]: port.readline()
-Out[82]: 'Value:45\r\n'
-
-In [83]: a = '>'+'c'*5
-
-In [84]: a
-Out[84]: '>ccccc'*/
-
-   */
+  
+  runHeadMotor();
+  runAllMotors();
 }
