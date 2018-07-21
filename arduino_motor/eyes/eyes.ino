@@ -72,8 +72,6 @@ void setup()
   servo_ry.attach(right_horizontal);
   servo_lb.attach(left_blink);
   servo_rb.attach(right_blink);
-
-  pinMode(LED_BUILTIN, OUTPUT);
 }
  
  
@@ -106,23 +104,25 @@ void loop()
                    
   //control the servo's direction and the position of the motor
 
-  while (Serial.available() > 0)
+  if (Serial.available() == 5)
   {
-    char cmd_type = Serial.read();
-    if (cmd_type == 'e') // For eye movement
-    {
-      servo_lp.write(Serial.read());
-      servo_ly.write(Serial.read());
-      servo_rp.write(Serial.read());
-      servo_ry.write(Serial.read());
-      digitalWrite(LED_BUILTIN, LOW);
-    }
-    else if (cmd_type == 'b') // For blink
-    {
-      servo_lb.write(Serial.read());
-      servo_rb.write(Serial.read());
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
+      char cmd_type = Serial.read();
+      if (cmd_type == 'e')
+      {
+        servo_lp.write(Serial.read());
+        servo_ly.write(Serial.read());
+        servo_rp.write(Serial.read());
+        servo_ry.write(Serial.read()); 
+      } 
+  
+    
+      else if (cmd_type == 'b')
+      {
+        servo_lb.write(Serial.read());
+        servo_rb.write(Serial.read()); 
+        Serial.read();
+        Serial.read();
+      }
   }
   /*else
   {
