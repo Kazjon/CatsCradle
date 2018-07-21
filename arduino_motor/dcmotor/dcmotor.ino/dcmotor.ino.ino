@@ -67,6 +67,8 @@ void setup() {
 
 void loop() {
   long newPosition = myEnc.read();
+  //Serial.println(newPosition);
+  
   if (Serial.available() == 2)
   {
     char cmd = Serial.read();
@@ -85,16 +87,15 @@ void loop() {
     }
   }
   
-
   if (new_head_angle && (abs(newPosition-head_target_angle * 23) > 10))
   {
     if (newPosition > head_target_angle * 23)
     {
-      head_speed = 200;
+      head_speed = -200;
     }
     else if (newPosition < head_target_angle * 23)
     {
-      head_speed = -200;
+      head_speed = 200;
     }
   }
   else
