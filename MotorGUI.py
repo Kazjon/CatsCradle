@@ -18,9 +18,9 @@ import time
 
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
-
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("COM7")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/tty.usbmodem1421")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
+
         self.label_list = []
         self.up_btn_list = []
         self.down_btn_list = []
@@ -47,8 +47,11 @@ class MyFrame(wx.Frame):
             label.SetBackgroundColour(wx.Colour(255, 127, 0))
             label.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.BOLD, 1, ""))
 
-            slider = wx.Slider(self.notebook_1_Steppers, wx.ID_ANY, 0, 0, 60, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
-
+            if name == "Left hand" or name == "Right hand":
+                slider = wx.Slider(self.notebook_1_Steppers, wx.ID_ANY, 0, 0, 80, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
+            else:
+                slider = wx.Slider(self.notebook_1_Steppers, wx.ID_ANY, 0, 0, 60, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
+            
             up_btn = wx.Button(self.notebook_1_Steppers, wx.ID_ANY, "Up")
             up_btn.SetFont(wx.Font(40, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
             up_btn.Bind(wx.EVT_LEFT_DOWN, self.onUpBtnDown)
