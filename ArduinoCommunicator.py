@@ -4,8 +4,11 @@ import struct
 import time
 
 class ArduinoCommunicator(object):
-    def __init__(self, port):
-        self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
+    def __init__(self, port = ""):
+        if port == "":
+            self.serial_port = None
+        else:
+            self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
         self.servo_min = -35
         self.servo_max = 35
         self.head_angle_max = 90
@@ -13,7 +16,7 @@ class ArduinoCommunicator(object):
         self.shoulder_angle_min = -45
         self.shoulder_angle_max = 45
 
-        self.motor_name_list = ['rhead','lhead','rhand','lhand','lfoot','rfoot','rarm','larm','lshoulder','rshoulder']
+        self.motor_name_list = ['Right head','Left head','Right hand','Left hand','Left foot','Right foot','Right arm','Left arm','Left shoulder','Right shoulder']
         self.motor_sign_list = [-1, 1, -1, -1, -1, 1, -1, 1, -1, 1]
         self.motor_sign_dict = {}
 
