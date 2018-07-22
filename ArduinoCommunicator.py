@@ -9,15 +9,15 @@ class ArduinoCommunicator(object):
             self.serial_port = None
         else:
             self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
-        self.servo_min = -35
-        self.servo_max = 35
+        self.servo_min = -50
+        self.servo_max = 50
         self.head_angle_max = 90
         self.head_angle_min = -90
         self.shoulder_angle_min = -45
         self.shoulder_angle_max = 45
 
         self.motor_name_list = ['Right head','Left head','Right hand','Left hand','Left foot','Right foot','Right arm','Left arm','Left shoulder','Right shoulder']
-        self.motor_sign_list = [-1, 1, -1, -1, -1, 1, -1, 1, -1, 1]
+        self.motor_sign_list = [-1, 1, -1, -1, -1, 1, -1, 1, -1, -1]
         self.motor_sign_dict = {}
 
         self.motor_cmd_dict = {}
@@ -30,8 +30,9 @@ class ArduinoCommunicator(object):
 
     def send(self, data):
         print "Sending: ", data
-        self.serial_port.write(data)
-        self.serial_port.flush()
+        if self.serial_port is not None:
+            self.serial_port.write(data)
+            self.serial_port.flush()
 
     def receive(self):
         print "Receiving " + self.serial_port.readline()
@@ -87,7 +88,7 @@ class ArduinoCommunicator(object):
             self.send(data)
 
     def eyeClose(self):
-        self.send(struct.pack('>cBBBB', 'b', 110, 70, 0, 0))
+        self.send(struct.pack('>cBBBB', 'b', 120, 60, 0, 0))
 
     def eyeOpen(self):
         self.send(struct.pack('>cBBBB', 'b', 70, 110, 0, 0))
@@ -121,17 +122,17 @@ class ArduinoCommunicator(object):
         time.sleep(0.01)
         print self.receive()
 
-    def rotateHead(self, angle):
+    def rotateHead(self, angle, speed = 4):
         if not self._checkHeadAngleInput(angle):
             print "Error: Head angle {} is out of allowed range.".format(angle)
             return
-        self.send(struct.pack('>cb', 'h', angle))
+        self.send(struct.pack('>cbb', 'h', angle, speed))
 
-    def rotateShoulder(self, angle):
+    def rotateShoulder(self, angle, speed = 10):
         if not self._checkShoulderAngleInput(angle):
             print "Error: Shoulder angle {} is out of allowed range.".format(angle)
             return
-        self.send(struct.pack('>cb', 's', angle))
+        self.send(struct.pack('>cbb', 's', angle, speed))
 
     def receiveLines(self, num_of_times):
         for i in xrange(num_of_times):
@@ -186,7 +187,7 @@ if __name__ == "__main__":
 
     import time
 
-    ac = ArduinoCommunicator("COM7")
+    ac = ArduinoCommunicator("COM8")
     """
     while True:
         a = raw_input("Angle ")
