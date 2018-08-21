@@ -103,3 +103,4 @@ ENV/
 
 *.xml
 .idea/
+*.DS_Store
