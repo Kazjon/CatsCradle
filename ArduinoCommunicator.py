@@ -11,13 +11,13 @@ class ArduinoCommunicator(object):
             self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
         self.servo_min = -50
         self.servo_max = 50
-        self.head_angle_max = 90
-        self.head_angle_min = -90
-        self.shoulder_angle_min = -45
-        self.shoulder_angle_max = 45
+        self.head_angle_max = 1000
+        self.head_angle_min = -1000
+        self.shoulder_angle_min = -100
+        self.shoulder_angle_max = 137
 
         self.motor_name_list = ['Right head','Left head','Right hand','Left hand','Left foot','Right foot','Right arm','Left arm','Left shoulder','Right shoulder']
-        self.motor_sign_list = [-1, 1, -1, -1, -1, 1, -1, 1, -1, -1]
+        self.motor_sign_list = [-1, -1, 1, 1, 1, -1, -1, 1, 1, -1]
         self.motor_sign_dict = {}
 
         self.motor_cmd_dict = {}
@@ -126,13 +126,17 @@ class ArduinoCommunicator(object):
         if not self._checkHeadAngleInput(angle):
             print "Error: Head angle {} is out of allowed range.".format(angle)
             return
-        self.send(struct.pack('>cbb', 'h', angle, speed))
+        cmd = 'h,' + str(angle) + ',' + str(speed)
+        self.send(cmd)
+        # self.send(struct.pack('>cbb', 'h', angle, speed))
 
     def rotateShoulder(self, angle, speed = 10):
         if not self._checkShoulderAngleInput(angle):
             print "Error: Shoulder angle {} is out of allowed range.".format(angle)
             return
-        self.send(struct.pack('>cbb', 's', angle, speed))
+        cmd = 's,' + str(angle) + ',' + str(speed)
+        self.send(cmd)
+        # self.send(struct.pack('>cbb', 's', angle, speed))
 
     def receiveLines(self, num_of_times):
         for i in xrange(num_of_times):

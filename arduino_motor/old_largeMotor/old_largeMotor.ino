@@ -5,8 +5,6 @@
 #include <DueTimer.h>
 #include "RunningMedian.h"
 
-#define DEBUG 0
-
 // For motors other than shoulder and head rotation
 const int num_of_motors = 10;
 int motors_cmd[num_of_motors];
@@ -14,32 +12,18 @@ AccelStepper motors[num_of_motors];
 int motor_start_pin = 51;
 
 // For head rotation
-float head_speed = 4.0;
-int head_target_position = 0;
-bool new_head_position = false;
+int head_speed = 4;
+int head_target_angle = 0;
+bool new_head_angle = false;
 Encoder myEnc(5, 6);
-int head_current_position = 0;
-int head_current_reading = 0;
-#define head_negative_max -2837
-#define head_positive_max 2837
-#define head_interface_negative_max -1000
-#define head_interface_positive_max 1000
-#define medium_head_speed 2.5
-#define slow_head_speed 2
+long head_current_angle = 0;
 
 // For shoulder rotation
 #define shoulder_pot_pin 56
 int shoulder_speed = 10;
-int shoulder_target_position = 0;
-bool new_shoulder_position = false;
-int shoulder_current_position = 0;
-int shoulder_current_reading = 600;
-#define shoulder_negative_max 965
-#define shoulder_positive_max 50
-#define shoulder_interface_negative_max -100
-#define shoulder_interface_positive_max 137
-//fix it so that it goes from -100 to +120 with 0 at the known 0 value
-
+int shoulder_target_angle = 0;
+bool new_shoulder_angle = false;
+int shoulder_current_angle = 0;
 RunningMedian samples = RunningMedian(50);
 
 void setupMotors() {
@@ -57,9 +41,7 @@ void setupMotors() {
 void setupHeadMotor() {
   // initialize software serial object with baud rate of 19.2 kbps
   Serial1.begin(19200);
-  if (DEBUG > 0) {
-    Serial.begin(19200);
-  }
+//  Serial.begin(19200);
   // the Simple Motor Controller must be running for at least 1 ms
   // before we try to send serial data, so we delay here for 5 ms
   delay(5);
@@ -75,85 +57,43 @@ void setupHeadMotor() {
 }
 
 void runHeadMotor() {
-  // 0: 0
-  //max negative (-100): -2837, max positive (100): 2837
-  float speed_cmd = 0.0;
-  int position_diff = abs(head_current_position - head_target_position);
-//  if (new_head_position && position_diff > 0)
-  if (position_diff > 10)
-  {
-    if (head_current_position > head_target_position)
-    //move in the negative direction
-    {
-      if (position_diff > 300)
-      //regular speed
-      {
-        speed_cmd = -1.0 * head_speed * 100.0;
-      } else if (position_diff <= 300 && position_diff > 100) 
-      //medium speed
-      {
-        //get the slowdown to be proportional
-        speed_cmd = -1.0 * medium_head_speed * 100.0;
-      } else 
-      //slowest speed
-      {
-        speed_cmd = -1.0 * slow_head_speed * 100.0;
-      }
-      
-    }
-    else if (head_current_position < head_target_position)
-    //move in the positive direction
-    {
-      if (position_diff >= 300)
-      //regular speed
-      {
-        speed_cmd = 1.0 * head_speed * 100.0;
-      } else if (position_diff <= 300 && position_diff > 100) 
-      //medium speed
-      {
-        speed_cmd = 1.0 * medium_head_speed * 100.0;
-      } else 
-      //slowest speed
-      {
-        speed_cmd = 1.0 * slow_head_speed * 100.0;
-      }
-    }
-    else 
-    {
-      speed_cmd = 0.0;
-      new_head_position = false;
-    }
-  } else 
-  {
-    speed_cmd = 0.0;
-    new_head_position = false;
-  }
-    setMotorSpeed('h', (int)speed_cmd);
-}
-
-void runShoulderMotor() {
-  // 0: 600
-  //max negative (-100): 967, max positive (100): 50
   int speed_cmd = 0;
-  if (new_shoulder_position && abs(shoulder_current_position - shoulder_target_position) >= 3)
+  if (new_head_angle && (abs(head_current_angle-(head_target_angle * 23)) > 10))
   {
-    if (shoulder_current_position > shoulder_target_position)
+    if (head_current_angle > head_target_angle * 23)
     {
-      speed_cmd = -1 * shoulder_speed * 100;
+      speed_cmd = -1 * head_speed * 100;
     }
-    else if (shoulder_current_position < shoulder_target_position)
+    else if (head_current_angle < head_target_angle * 23)
     {
-      speed_cmd = 1 * shoulder_speed * 100;
-    }
-    else {
-      speed_cmd = 0;
-      new_shoulder_position = false;
+      speed_cmd = 1 * head_speed * 100;
     }
   }
   else
   {
     speed_cmd = 0;
-    new_shoulder_position = false;
+    new_head_angle = false;
+  }
+  setMotorSpeed('h', speed_cmd);
+}
+
+void runShoulderMotor() {
+  int speed_cmd = 0;
+  if (new_shoulder_angle && (abs(shoulder_current_angle-shoulder_target_angle * 5) > 5))
+  {
+    if (shoulder_current_angle > shoulder_target_angle * 5)
+    {
+      speed_cmd = 1 * shoulder_speed * 100;
+    }
+    else if (shoulder_current_angle < shoulder_target_angle * 5)
+    {
+      speed_cmd = -1 * shoulder_speed * 100;
+    }
+  }
+  else
+  {
+    speed_cmd = 0;
+    new_shoulder_angle = false;
   }
   setMotorSpeed('s', speed_cmd);
 }
@@ -225,10 +165,6 @@ void setup() {
   setupHeadMotor();
   setupShoulderMotor();
 
-  shoulder_target_position = 0;
-  new_shoulder_position = true;
-  shoulder_speed = 30;
-
   ////////////////// this is for head rotation ///////////////////
 
 }
@@ -245,30 +181,31 @@ void loop() {
   int shoulder_raw_data = analogRead(shoulder_pot_pin);     // read the input pin
 
   samples.add(shoulder_raw_data);
-  shoulder_current_reading = samples.getMedian();
-  shoulder_current_position = map(shoulder_current_reading, shoulder_negative_max, shoulder_positive_max, shoulder_interface_negative_max, shoulder_interface_positive_max);
-  if (DEBUG == 1) {
-    Serial.print("Reading from shoulder potentiometer: ");
-    Serial.println(shoulder_current_reading);
-    Serial.print("Shoulder current position: ");
-    Serial.println(shoulder_current_position);
-  }
-  // shoulder_current_position -= 425;
+  shoulder_current_angle = samples.getMedian();
+ // Serial.print("Reading from shoulder potentiometer: ");
+ // Serial.println(shoulder_current_angle);
+ // 0: 600
+  //max negative (-100): 967, max positive (100): 50
+
+  shoulder_current_angle -= 425;
 
   // Read encoders
-  head_current_reading = myEnc.read();
-  head_current_position = map(head_current_reading, head_negative_max, head_positive_max, head_interface_negative_max, head_interface_positive_max);
-  if (DEBUG == 2) {
-    Serial.print("Reading from head encoder: ");
-    Serial.println(head_current_reading);
-    Serial.print("Head current position: ");
-    Serial.println(head_current_position);
-    Serial.print("Head target position: ");
-    Serial.println(head_target_position);
-  }
+  head_current_angle = myEnc.read();
+//  Serial.print("Reading from head encoder: ");
+//  Serial.println(head_current_angle);
+  // 0: 0
+   //max negative (-100): -2837, max positive (100): 2837
 
   // Read serial input:
   while (Serial.available() > 0)
+  // {
+  //   char cmd_type = Serial.read();
+  //   if (cmd_type == 'h') // Head spin
+  //   {
+  //
+  //   }
+  //
+  // }
    {
      char cmd_type = Serial.read();
      if (cmd_type == 'm') // Move all motors
@@ -285,39 +222,44 @@ void loop() {
      {
        //read out a comma
        Serial.read();
-       shoulder_target_position = Serial.parseInt();
-       //add limits
+       shoulder_target_angle = Serial.parseInt();
        //read out a comma
        Serial.read();
        shoulder_speed = Serial.parseInt();
-       // Serial.println('I');
-       // Serial.println(shoulder_target_position);
-       // Serial.println(shoulder_speed);
-       // if (shoulder_target_position>90)
+       Serial.println('I');
+       Serial.println(shoulder_target_angle);
+       Serial.println(shoulder_speed);
+       // if (shoulder_target_angle>90)
        // {
-       //   shoulder_target_position -= 256;
+       //   shoulder_target_angle -= 256;
        // }
-       new_shoulder_position = shoulder_target_position != shoulder_current_position;
+       new_shoulder_angle = true;
      }
      else if (cmd_type == 'h') // Head spin
      {
        //read out a comma
        Serial.read();
-       head_target_position = Serial.parseInt();
-       //add limits
+       head_target_angle = Serial.parseInt();
        //read out a comma
        Serial.read();
-       head_speed = Serial.parseFloat();
-       // if (head_target_position>90)
+       head_speed = Serial.parseInt();
+        Serial.print("Head current angle: ");
+        Serial.println(head_current_angle);
+        Serial.print("Head target angle: ");
+        Serial.println(head_target_angle);
+       // if (head_target_angle>90)
        // {
-       //   head_target_position -= 256;
+       //   head_target_angle -= 256;
        // }
-//       new_head_position = true;
-       new_head_position = head_target_position != head_current_position;
+       new_head_angle = true;
+        Serial.print("Head current angle: ");
+        Serial.println(head_current_angle);
+        Serial.print("Head target angle: ");
+        Serial.println(head_target_angle);
      }
    }
 
-   runAllMotors();
-   runShoulderMotor();
    runHeadMotor();
+   runShoulderMotor();
+   runAllMotors();
 }

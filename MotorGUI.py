@@ -18,7 +18,7 @@ import time
 
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/tty.usbmodem1421")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/cu.usbmodem1411")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
 
         self.label_list = []
@@ -51,7 +51,7 @@ class MyFrame(wx.Frame):
                 slider = wx.Slider(self.notebook_1_Steppers, wx.ID_ANY, 0, 0, 80, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
             else:
                 slider = wx.Slider(self.notebook_1_Steppers, wx.ID_ANY, 0, 0, 60, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
-            
+
             up_btn = wx.Button(self.notebook_1_Steppers, wx.ID_ANY, "Up")
             up_btn.SetFont(wx.Font(40, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
             up_btn.Bind(wx.EVT_LEFT_DOWN, self.onUpBtnDown)
@@ -85,11 +85,11 @@ class MyFrame(wx.Frame):
         self.notebook_1.AddPage(self.notebook_1_Steppers, "Steppers")
 
         self.notebook_1.AddPage(self.notebook_1_HeadandShoulderRotation, "Head and Shoulder Rotation")
-        self.slider_20 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -50, 50, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
+        self.slider_20 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -1000, 1000, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
         self.slider_s_speed = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 2, 2, 15, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
         self.button_41 = wx.Button(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, "Move Head")
         self.Bind(wx.EVT_BUTTON, self.onMoveHead, self.button_41)
-        self.slider_21 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -30, 30, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
+        self.slider_21 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -100, 137, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
         self.slider_h_speed = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 4, 4, 10, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
         self.button_42 = wx.Button(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, "Move Shoulder")
         self.Bind(wx.EVT_BUTTON, self.onMoveShoulder, self.button_42)
@@ -138,13 +138,13 @@ class MyFrame(wx.Frame):
         sizer_4.Add(self.button_blink, 1, wx.EXPAND, 0)
         sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
         self.notebook_1_Eyes.SetSizer(sizer_2)
-        
+
         self.Bind(wx.EVT_COMMAND_SCROLL_ENDSCROLL, self.onEyeMove, self.slider_up_down)
         self.Bind(wx.EVT_COMMAND_SCROLL_ENDSCROLL, self.onEyeMove, self.slider_left_right)
         self.Bind(wx.EVT_BUTTON, self.onCloseEye, self.button_close)
         self.Bind(wx.EVT_BUTTON, self.onOpenEye, self.button_open)
         self.Bind(wx.EVT_BUTTON, self.onBlink, self.button_blink)
-        
+
         sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
         self.Layout()
@@ -191,12 +191,12 @@ class MyFrame(wx.Frame):
         speed = int(self.slider_s_speed.GetValue())
         print(speed)
         self.ac.rotateShoulder(pose, speed)
-        
+
     def onEyeMove(self, event):  # wxGlade: MyFrame.<event_handler>
         angle_up_down = -self.slider_up_down.GetValue()
         angle_left_rght = self.slider_left_right.GetValue()
         self.ac_head.lookAt(angle_up_down, angle_left_rght, angle_up_down, angle_left_rght)
-        
+
     def onCloseEye(self, event):  # wxGlade: MyFrame.<event_handler>
         self.ac_head.eyeClose()
 
@@ -207,7 +207,7 @@ class MyFrame(wx.Frame):
         self.onCloseEye(event)
         time.sleep(0.2)
         self.onOpenEye(event)
-        
+
 
 # end of class MyFrame
 
