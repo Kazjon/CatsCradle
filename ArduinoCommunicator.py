@@ -5,10 +5,15 @@ import time
 
 class ArduinoCommunicator(object):
     def __init__(self, port = ""):
-        if port == "":
-            self.serial_port = None
-        else:
-            self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
+        self.serial_port = None
+        if not port == "":
+            try:
+                self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
+            except:
+                print "Invalid port :", port
+
+        print "Using port : ", self.serial_port
+        
         self.servo_min = -50
         self.servo_max = 50
         self.head_angle_max = 1000

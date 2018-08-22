@@ -10,6 +10,8 @@
 import Queue
 import threading
 
+import ArduinoCommunicator
+
 from Action import *
 from Marionette import *
 from UIUtils import MarionetteWidget
@@ -17,6 +19,9 @@ from UIUtils import MarionetteWidget
 class ActionModule(object):
 
     def __init__(self, config):
+        """ port = usb port of the arduino controling the motors
+            set to "" on a computer without arduino
+        """
         # TODO: Get full list of motions from
         # https://docs.google.com/spreadsheets/d/1XPwe3iQbNzOgRDWYDuqAxW8JrQiBvvqikn3oN0fImSs/edit#gid=0
         self.angles = {}
@@ -33,8 +38,69 @@ class ActionModule(object):
         # Initialize the angles to the marionette's default (0 everywhere)
         self.currentAngles = Marionette().getAngles()
 
+        # Flag True if successfully connected to the arduino
+        self.connectedToArduino = False
+
         # Thread related variables
         self.qMotorAngles = Queue.Queue()
+        self.running = False
+        self.arduino_thread = None
+        self.start()
+
+    def __del__(self):
+        self.stop()
+
+    def stop(self):
+        if self.running:
+            self.running = False
+            self.arduino_thread.join()
+
+    def start(self):
+        if not self.running:
+            # Starts the thread
+            self.running = True
+            self.arduino_thread = threading.Thread(name='Arduino', target=self.threadFunc)
+            self.arduino_thread.setDaemon(True)
+            self.arduino_thread.start()
+
+    def threadFunc(self):
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/cu.usbmodem1411")
+        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
+
+        if self.ac.serial_port is not None:
+            # Watch out:
+            # Not really thread safe but only writen here and read later in Simulator
+            self.connectedToArduino = True
+
+        while(self.running):
+            if not self.qMotorAngles.empty():
+                angles = self.qMotorAngles.get()
+                # Translate the angles for the arduino commands
+                # angles order : [S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL]
+                self.ac.motor_cmd_dict['Right shoulder'] = angles[1]
+                self.ac.motor_cmd_dict['Left shoulder'] = angles[2]
+                self.ac.motor_cmd_dict['Right arm'] = angles[3]
+                self.ac.motor_cmd_dict['Left arm'] = angles[4]
+                self.ac.motor_cmd_dict['Right head'] = angles[6]
+                self.ac.motor_cmd_dict['Left head'] = angles[7]
+                self.ac.motor_cmd_dict['Right foot'] = angles[8]
+                self.ac.motor_cmd_dict['Left foot'] = angles[9]
+                self.ac.motor_cmd_dict['Right hand'] = angles[10]
+                self.ac.motor_cmd_dict['Left hand'] = angles[11]
+                self.ac.move()
+                speed = 1
+                self.ac.rotateHead(angles[5], speed)
+                self.ac.rotateShoulder(angles[0], speed)
+        print "Arduino thread stopped"
+        self.ac.stopAllSteppers()
+
+    def moveToAngles(self, target, speed):
+        action = Action(target)
+        sequence = action.getAngleSequenceToTarget(self.currentAngles, speed)
+        self.currentAngles = sequence[-1]
+        for a in sequence:
+            self.qMotorAngles.put(a)
+        return sequence
 
     def moveTo(self, targetKey, speedKey):
         if targetKey not in self.angles.keys():
@@ -46,12 +112,7 @@ class ActionModule(object):
 
         target = self.angles[targetKey]
         speed = self.speed[speedKey]
-        action = Action(target)
-        sequence = action.getAngleSequenceToTarget(self.currentAngles, speed)
-        self.currentAngles = sequence[-1]
-        for a in sequence:
-            self.qMotorAngles.put(a)
-        return sequence
+        return self.moveToAngles(target, speed)
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -86,7 +147,6 @@ class ActionModule(object):
 
         return (angleY, angleZ)
 
-
 if __name__ == '__main__':
     import time, sys
     from PyQt5 import QtGui, QtCore, QtWidgets
@@ -97,7 +157,7 @@ if __name__ == '__main__':
 
         newPos  = QtCore.pyqtSignal(int)
 
-        def __init__(self, parent=None, delay=5):
+        def __init__(self, parent=None, delay=50):
             QtCore.QObject.__init__(self)
             self.parent = parent
             self.delay  = delay
