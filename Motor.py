@@ -4,7 +4,7 @@ from math import pi
 class Motor:
     """Class to handle the rotation motor
     Motor reference space:
-    Static motor (with string, do not rotate with motor)
+    Static motor (stepper with string, do not rotate with motor)
         origin = string fixed point (hole in rod (HR, HL, SR, SL), or contact with motor(AL, HD, FR, FL))
         x axis = axis perpendicular to the string pointing toward the string
         y axis = down
@@ -15,8 +15,9 @@ class Motor:
         y axis = rod axis, pointing left
         z axis = axis of positive rotation"""
 
-    def __init__(self, name, radius, stringLength = 0):
+    def __init__(self, name, radius, microSteps, stringLength = 0):
         self.name = name
+        self.microSteps = microSteps # Only for stepper motor (static)
         self.radius = radius
         self.initialLength = stringLength # String length when angle = 0
         self.isStatic = (self.initialLength > 0)
@@ -31,6 +32,33 @@ class Motor:
             self.minAngle = -180
             self.maxAngle = 180
 
+    def motorIncrementFromAngle(self, angle):
+        """Computes the motor increment to rotate <angle>
+            Returns angle for rotation motors (H and S)
+            Returns the speed at which the motor should turn during 1s for steppers
+        """
+        if self.isStatic:
+            length = self.stringLengthFromAngle(angle)
+            distance = length - self.initialLength
+            speedScale = 16
+            numStepPerRevolution = 200
+            speed = distance / speedScale * numStepPerRevolution * self.microSteps / (pi * self.radius * 2)
+            return speed
+        else:
+            return angle
+
+    def angleFromMotorIncrement(self, incr):
+        """Return the angle for incr steps of the stepper motor
+            Return incr for the rotation motors (H and S)
+        """
+        if self.isStatic:
+            speedScale = 16
+            numStepPerRevolution = 200
+            distance = incr * speedScale / numStepPerRevolution / self.microSteps * (pi * self.radius * 2)
+            length = self.initialLength + distance
+            return self.angleFromStringLength(length)
+        else:
+            return incr
 
     def angleFromStringLength(self, length):
         """Returns the rotation angle in degrees needed to get a string of 'length' length"""
@@ -84,7 +112,7 @@ class Motor:
 
 if __name__ == '__main__':
     # Tests
-    m = Motor("motor", 10, 100)
+    m = Motor("motor", 10, 8, 100)
 
     print m.angle
     print m.getRotationMatrix()
@@ -105,5 +133,9 @@ if __name__ == '__main__':
     angle = 50
     length = m.stringLengthFromAngle(angle)
     a = m.angleFromStringLength(length)
+    incr = m.motorIncrementFromAngle(angle)
+    a2 = m.angleFromMotorIncrement(incr)
     print "stringLengthFromAngle(", angle, ") = ", length
     print "angleFromStringLength(", length, ") = ", a
+    print "motorIncrementFromAngle(", angle, ") = ", incr
+    print "angleFromMotorIncrement(", incr, ") = ", a2

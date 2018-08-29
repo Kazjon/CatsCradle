@@ -64,7 +64,22 @@ class Marionette:
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
         self.length['H'] = 0
-        radius = 25.5 # All motors have the same radius????
+        # Motors settings
+        radius = 25.5 # All motors have the same radius (1 inch)????
+        # Number of microsteps of the stepper motors (2 for Arms and Wrists, 8 otherwise)
+        self.motorMicrosteps = {}
+        self.motorMicrosteps['S'] = 0
+        self.motorMicrosteps['SR'] = 8
+        self.motorMicrosteps['SL'] = 8
+        self.motorMicrosteps['AR'] = 2
+        self.motorMicrosteps['AL'] = 2
+        self.motorMicrosteps['H'] = 0
+        self.motorMicrosteps['HR'] = 8
+        self.motorMicrosteps['HL'] = 8
+        self.motorMicrosteps['FR'] = 8
+        self.motorMicrosteps['FL'] = 8
+        self.motorMicrosteps['WL'] = 2
+        self.motorMicrosteps['WR'] = 2
 
         # Marionette's measurements (mm):
         self.headWidth = 176
@@ -82,7 +97,7 @@ class Marionette:
         self.motor = {}
         self.motorList = []
         for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
-            self.motor[key] = Motor('motor' + key, radius, self.length[key])
+            self.motor[key] = Motor('motor' + key, radius, self.motorMicrosteps[key], self.length[key])
             self.motorList.append(self.motor[key])
         # TODO: define realistic min and max angle for each motor
         # The current min for motor driving strings is the angle at which the string length is 0
