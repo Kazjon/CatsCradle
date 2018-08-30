@@ -11,6 +11,7 @@ import Queue
 import threading
 
 import ArduinoCommunicator
+import time
 
 from Action import *
 from Marionette import *
@@ -30,9 +31,12 @@ class ActionModule(object):
         self.angles['leftHandFullRaise'] = [None, None, -20, None, -841, None, None, None, None, None, None, -1717]
         self.angles['bothHandFullRaise'] = [None, -122, -80, -1035, -990, None, None, None, None, None, -1920, -1920]
 
+        self.timeInterval = 0.25 # (1/4 second)
+
+        # duration of the move in s
         self.speed = {}
-        self.speed['slow'] = 40
-        self.speed['fast'] = 20
+        self.speed['slow'] = 5
+        self.speed['fast'] = 2
         self.speed['jump'] = 1
 
         # Initialize the angles to the marionette's default (0 everywhere)
@@ -42,7 +46,7 @@ class ActionModule(object):
         self.connectedToArduino = False
 
         # Thread related variables
-        self.qMotorAngles = Queue.Queue()
+        self.qMotorSteps = Queue.Queue()
         self.running = False
         self.arduino_thread = None
         self.start()
@@ -67,40 +71,49 @@ class ActionModule(object):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/cu.usbmodem1411")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
 
+        # Good speed values for head and shoulder rotation (Jim)
+        headSpeed = 4
+        shoulderSpeed = 10
+
         if self.ac.serial_port is not None:
             # Watch out:
-            # Not really thread safe but only writen here and read later in Simulator
+            # Not really thread safe but only written here and read later in Simulator
             self.connectedToArduino = True
 
         while(self.running):
-            if not self.qMotorAngles.empty():
-                angles = self.qMotorAngles.get()
+            if not self.qMotorSteps.empty():
+                step = self.qMotorSteps.get()
+                #print "step = ", step
+                duration = step[0]
+                speed = step[1]
                 # Translate the angles for the arduino commands
                 # angles order : [S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL]
-                self.ac.motor_cmd_dict['Right shoulder'] = angles[1]
-                self.ac.motor_cmd_dict['Left shoulder'] = angles[2]
-                self.ac.motor_cmd_dict['Right arm'] = angles[3]
-                self.ac.motor_cmd_dict['Left arm'] = angles[4]
-                self.ac.motor_cmd_dict['Right head'] = angles[6]
-                self.ac.motor_cmd_dict['Left head'] = angles[7]
-                self.ac.motor_cmd_dict['Right foot'] = angles[8]
-                self.ac.motor_cmd_dict['Left foot'] = angles[9]
-                self.ac.motor_cmd_dict['Right hand'] = angles[10]
-                self.ac.motor_cmd_dict['Left hand'] = angles[11]
+                self.ac.motor_cmd_dict['Right shoulder'] = speed[1]
+                self.ac.motor_cmd_dict['Left shoulder'] = speed[2]
+                self.ac.motor_cmd_dict['Right arm'] = speed[3]
+                self.ac.motor_cmd_dict['Left arm'] = speed[4]
+                self.ac.motor_cmd_dict['Right head'] = speed[6]
+                self.ac.motor_cmd_dict['Left head'] = speed[7]
+                self.ac.motor_cmd_dict['Right foot'] = speed[8]
+                self.ac.motor_cmd_dict['Left foot'] = speed[9]
+                self.ac.motor_cmd_dict['Right hand'] = speed[10]
+                self.ac.motor_cmd_dict['Left hand'] = speed[11]
+                # For head and shoulder speed = angle
+                self.ac.rotateHead(speed[5], headSpeed)
+                self.ac.rotateShoulder(speed[0], shoulderSpeed)
                 self.ac.move()
-                speed = 1
-                self.ac.rotateHead(angles[5], speed)
-                self.ac.rotateShoulder(angles[0], speed)
+                time.sleep(duration)
+                self.ac.stopAllSteppers()
         print "Arduino thread stopped"
-        self.ac.stopAllSteppers()
 
-    def moveToAngles(self, target, speed):
-        action = Action(target)
-        sequence = action.getAngleSequenceToTarget(self.currentAngles, speed)
-        self.currentAngles = sequence[-1]
+    def moveToAngles(self, target, duration):
+        action = Action(target, self.timeInterval)
+        sequence = action.getSpeedToTarget(self.currentAngles, duration)
+        self.currentAngles = action.lastTargetAngles
         for a in sequence:
-            self.qMotorAngles.put(a)
-        return sequence
+            #print "a = ", a
+            self.qMotorSteps.put(a)
+        return self.currentAngles
 
     def moveTo(self, targetKey, speedKey):
         if targetKey not in self.angles.keys():
@@ -191,8 +204,17 @@ if __name__ == '__main__':
 
         def updateVisual(self, n):
             for i in range(n):
-                if not self.motionGen.actionModule.qMotorAngles.empty():
-                    angles = self.motionGen.actionModule.qMotorAngles.get()
+                if not self.motionGen.actionModule.qMotorSteps.empty():
+                    step = self.motionGen.actionModule.qMotorSteps.get()
+                    duration = step[0]
+                    speeds = step[1]
+                    angles = []
+                    previousAngles = self.win2.marionette.getAngles()
+                    for speed, previousAngle, motor in zip(speeds, previousAngles, self.win2.marionette.motorList):
+                        if motor.isStatic:
+                            angles.append(previousAngle + motor.angleFromMotorIncrement(speed))
+                        else:
+                            angles.append(speed)
                     self.win2.marionette.setAngles(angles)
                     self.win2.marionette.computeNodesPosition()
                     self.win2.updateGL()

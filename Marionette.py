@@ -102,6 +102,10 @@ class Marionette:
         # TODO: define realistic min and max angle for each motor
         # The current min for motor driving strings is the angle at which the string length is 0
         # But this is can be improved with ranges describing the real marionette motion
+        self.motor['S'].minAngle = -39
+        self.motor['S'].maxAngle =  39
+        self.motor['H'].minAngle = -20
+        self.motor['H'].maxAngle =  20
 
         # Eyes
         self.eye = {}

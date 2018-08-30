@@ -372,7 +372,10 @@ class App(QWidget):
             if self.marionette.computeNodesPosition():
                 self.visualWindow.updateGL()
         else:
-            self.actionModule.moveToAngles(self.marionette.getAngles(), 10)
+            # 20 rotation per sec max ????
+            numFullRotation = int(abs(motor.angle - previousAngle) / 2 / pi)
+            duration = numFullRotation / 20.0
+            self.actionModule.moveToAngles(self.marionette.getAngles(), duration)
 
         if self.recordFile:
             angles = ''
@@ -387,11 +390,7 @@ class App(QWidget):
         # Update motor string length
         motor.initialLength = self.sliderString[motor].value()
         if self.simulate:
-            if not self.marionette.computeNodesPosition():
-                motor.initialLength = previousLength
-                self.sliderString[motor].setValue(previousLength)
-            else:
-                # Redraw
+            if self.marionette.computeNodesPosition():
                 self.visualWindow.updateGL()
         self.labelMotorStringLength[motor].setText(str(motor.initialLength))
 
@@ -399,17 +398,8 @@ class App(QWidget):
     def resetMotorAngle(self, motorList):
         previousAngles = {}
         for motor in motorList:
-            previousAngles[motor] = motor.angle
-            motor.angle = 0
-        if self.simulate:
-            if not self.marionette.computeNodesPosition():
-                # Restore previous angles
-                for motor in motorList:
-                    motor.angle = previousAngles[motor]
-                    self.sliderMotor[motor].setValue(motor.angle)
-            else:
-                self.visualWindow.updateGL()
-        self.updateSlider()
+            self.sliderMotor[motor].setValue(0)
+            self.sliderMotor[motor].repaint()
 
     def resetStringLength(self):
         m = self.marionette
@@ -455,7 +445,7 @@ class App(QWidget):
                     self.marionette.computeNodesPosition()
                     self.visualWindow.updateGL()
                 else:
-                    self.actionModule.moveToAngles(angles, 10)
+                    self.actionModule.moveToAngles(angles, 0.5)
             f.close()
             self.updateSlider()
 
@@ -471,8 +461,8 @@ class App(QWidget):
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = self.anglesComboBox.currentText()
         speed = self.speedComboBox.currentText()
-        for angles in self.actionModule.moveTo(target, speed):
-            self.marionette.setAngles(angles)
+        angles = self.actionModule.moveTo(target, speed)
+        self.marionette.setAngles(angles)
 
         if self.simulate:
             self.marionette.computeNodesPosition()

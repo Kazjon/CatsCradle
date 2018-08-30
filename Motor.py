@@ -27,10 +27,10 @@ class Motor:
         if self.isStatic:
             # min angle possible (l >= 0)
             self.minAngle = self.angleFromStringLength(0)
-            self.maxAngle = 3000 # TODO: Limit = max length of string
+            self.maxAngle = 1000 # TODO: Limit = max length of string
         else:
-            self.minAngle = -180
-            self.maxAngle = 180
+            self.minAngle = -90
+            self.maxAngle = 90
 
     def motorIncrementFromAngle(self, angle):
         """Computes the motor increment to rotate <angle>
