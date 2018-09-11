@@ -24,10 +24,11 @@ class Motor:
         self.signZ = 1 # positive (allow flexibility if z axis is reverse rotation axis)
         self.angle = 0 # current angle (degrees)
         self.circumference = 2 * pi * self.radius
+        self.maxSpeed = 0 # degrees per second
         if self.isStatic:
             # min angle possible (l >= 0)
             self.minAngle = self.angleFromStringLength(0)
-            self.maxAngle = 1000 # TODO: Limit = max length of string
+            self.maxAngle = self.angleFromStringLength(self.initialLength)
         else:
             self.minAngle = -90
             self.maxAngle = 90
@@ -42,7 +43,7 @@ class Motor:
             distance = length - self.initialLength
             speedScale = 16
             numStepPerRevolution = 200
-            speed = distance / speedScale * numStepPerRevolution * self.microSteps / (pi * self.radius * 2)
+            speed = distance / speedScale * numStepPerRevolution * self.microSteps / self.circumference
             return speed
         else:
             return angle
@@ -54,7 +55,7 @@ class Motor:
         if self.isStatic:
             speedScale = 16
             numStepPerRevolution = 200
-            distance = incr * speedScale / numStepPerRevolution / self.microSteps * (pi * self.radius * 2)
+            distance = incr * speedScale / numStepPerRevolution / self.microSteps * self.circumference
             length = self.initialLength + distance
             return self.angleFromStringLength(length)
         else:

@@ -65,7 +65,7 @@ class Marionette:
         self.length['S'] = 0
         self.length['H'] = 0
         # Motors settings
-        radius = 25.5 # All motors have the same radius (1 inch)????
+        radius = 25.5 / 2 # All motors have the same diameter (1 inch)
         # Number of microsteps of the stepper motors (2 for Arms and Wrists, 8 otherwise)
         self.motorMicrosteps = {}
         self.motorMicrosteps['S'] = 0
@@ -101,11 +101,31 @@ class Marionette:
             self.motorList.append(self.motor[key])
         # TODO: define realistic min and max angle for each motor
         # The current min for motor driving strings is the angle at which the string length is 0
+        # The current max for motor driving strings is the angle at which the string length is at its inital length
         # But this is can be improved with ranges describing the real marionette motion
         self.motor['S'].minAngle = -39
         self.motor['S'].maxAngle =  39
         self.motor['H'].minAngle = -20
         self.motor['H'].maxAngle =  20
+        # max speeds from Lilla's email:      -> motor.angleFromStringLength(motor.initialLength + lengthPerSecondInMM)
+        # Head -  		2” in .5 seconds      -> ~456 degrees /sec (1.25 revolutions /sec)
+        # Shoulder - 	.5” in .25 seconds    -> ~228 degrees /sec (0.75 revolution / sec)
+        # Rt Arm - 		12” in 1 second       -> ~1369 degrees / sec (3.8 revolutions / sec)
+        # Rt Hand - 	12” in 1 second       -> ~1369 degrees / sec
+        # Left Arm - 	25” in 1 second       -> ~2853 degrees / sec (8 revolutions / sec)
+        # Left Hand -	25” in 1 second       -> ~2853 degrees / sec
+        # Rt. Foot -	2” in .5 seconds      -> ~456 degrees /sec
+        # Left Foot - 	2” in .5 seconds      -> ~456 degrees /sec
+        self.motor['HR'].maxSpeed = 456
+        self.motor['HL'].maxSpeed = 456
+        self.motor['SR'].maxSpeed = 228
+        self.motor['SL'].maxSpeed = 228
+        self.motor['AR'].maxSpeed = 1369
+        self.motor['WR'].maxSpeed = 1369
+        self.motor['AL'].maxSpeed = 2853
+        self.motor['WL'].maxSpeed = 2853
+        self.motor['FR'].maxSpeed = 456
+        self.motor['FL'].maxSpeed = 456
 
         # Eyes
         self.eye = {}

@@ -1,5 +1,6 @@
 import sys
 import functools
+import decimal
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -219,6 +220,7 @@ class App(QWidget):
         self.printBtn.setEnabled(True)
 
         # GoTo controls
+        self.anglesComboBox.addItem("Current slider angles")
         for key in self.actionModule.angles.keys():
             self.anglesComboBox.addItem(key)
         for key in self.actionModule.speed.keys():
@@ -365,24 +367,22 @@ class App(QWidget):
 
 
     def updateMotorPos(self, motor):
-        previousAngle = motor.angle
         # Update motor angle
-        motor.angle = self.sliderMotor[motor].value()
         if self.simulate:
+            motor.angle = self.sliderMotor[motor].value()
             if self.marionette.computeNodesPosition():
                 self.visualWindow.updateGL()
-        else:
-            # 20 rotation per sec max ????
-            numFullRotation = int(abs(motor.angle - previousAngle) / 2 / pi)
-            duration = numFullRotation / 20.0
-            self.actionModule.moveToAngles(self.marionette.getAngles(), duration)
 
-        if self.recordFile:
-            angles = ''
-            for motor in self.marionette.motorList:
-                angles += ' ' + str(motor.angle)
-            self.recordFile.write(angles + '\n')
-        self.labelMotorAngle[motor].setText(str(motor.angle))
+            if self.recordFile:
+                angles = ''
+                for motor in self.marionette.motorList:
+                    angles += ' ' + str(motor.angle)
+                self.recordFile.write(angles + '\n')
+        else:
+            # Wait until GoToTarget button is pressed to send angles to marionette
+            pass
+
+        self.labelMotorAngle[motor].setText(str(self.sliderMotor[motor].value()))
 
 
     def updateStringLength(self, motor):
@@ -456,12 +456,24 @@ class App(QWidget):
             angles.append(motor.angle)
         print angles
 
+    def sliderAngles(self):
+        # Return current angles
+        angles = []
+        for motor in self.marionette.motorList:
+            angles.append(self.sliderMotor[motor].value())
+        return angles
+
     def gotoTarget(self):
         # Go to selected target
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = self.anglesComboBox.currentText()
         speed = self.speedComboBox.currentText()
-        angles = self.actionModule.moveTo(target, speed)
+        # print "target = ", target
+        if target == "Current slider angles":
+            # print "angles = ", self.sliderAngles()
+            angles = self.actionModule.moveToAngles(self.sliderAngles(), self.actionModule.speed[speed])
+        else:
+            angles = self.actionModule.moveTo(target, speed)
         self.marionette.setAngles(angles)
 
         if self.simulate:
@@ -475,8 +487,9 @@ class App(QWidget):
         for motor in self.marionette.motorList:
             self.sliderMotor[motor].setValue(motor.angle)
             self.sliderMotor[motor].repaint()
-            self.labelMotorAngle[motor].setText(str(motor.angle))
-
+            # angle with precision 1
+            angle = decimal.Decimal(motor.angle).quantize(decimal.Decimal('1'))
+            self.labelMotorAngle[motor].setText(str(angle))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
