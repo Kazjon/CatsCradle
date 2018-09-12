@@ -68,7 +68,7 @@ class ActionModule(object):
             self.arduino_thread.start()
 
     def threadFunc(self):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/cu.usbmodem1411")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
 
         # Good speed values for head and shoulder rotation (Jim)

@@ -22,7 +22,7 @@ class ArduinoCommunicator(object):
         self.shoulder_angle_max = 137
 
         self.motor_name_list = ['Right head','Left head','Right hand','Left hand','Left foot','Right foot','Right arm','Left arm','Left shoulder','Right shoulder']
-        self.motor_sign_list = [-1, -1, 1, 1, 1, -1, -1, 1, 1, -1]
+        self.motor_sign_list = [-1, 1, 1, 1, 1, -1, -1, 1, 1, -1]
         self.motor_sign_dict = {}
 
         self.motor_cmd_dict = {}

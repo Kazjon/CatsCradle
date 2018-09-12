@@ -18,7 +18,7 @@ import time
 
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/cu.usbmodem1411")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
 
         self.label_list = []
