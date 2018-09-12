@@ -67,6 +67,9 @@ class Action(object):
             origin: list of motor angles in the same order as motorList
             duration: time to get to the target (seconds).
 
+            If the required speed of one motor is above its max speed, adjust the
+            action duration to go as fast as possible to the target
+
             Format of return value:
             [[duration [incr1 incr2 incr3...]
              [duration [incr1 incr2 incr3...]
@@ -82,6 +85,18 @@ class Action(object):
 
         if len(self.target) != len(origin):
             raise InvalidSizeError
+
+        # Check max speed of stepper motors and adjust duration if necessary
+        for originAngle, targetAngle, motor in zip(origin, self.target, self.marionette.motorList):
+            if motor.isStatic:
+                deltaAngle = 0
+                if targetAngle is not None:
+                    deltaAngle = abs(targetAngle - originAngle)
+                minDuration = deltaAngle / motor.maxSpeed
+                if minDuration > duration:
+                    print "Warning: speed required (", deltaAngle / duration, ") above max speed (", motor.maxSpeed, ") for motor ", motor.name,  "."
+                    print  "Increase action's duration from ", duration, " seconds to ", minDuration, "seconds."
+                    duration = minDuration
 
         numSteps = int(duration / self.timeInterval)
         finalStepDuration = duration - numSteps * self.timeInterval
@@ -102,7 +117,9 @@ class Action(object):
             else:
                 totalAngle = targetAngle - originAngle
                 totalIncr = motor.motorIncrementFromAngle(totalAngle)
-                incr = round(totalIncr / numSteps)
+                incr = 0
+                if not numSteps == 0:
+                    incr = round(totalIncr / numSteps)
                 remaining = totalIncr - incr * numSteps
                 #print "totalAngle = ", totalAngle
                 #print "totalIncr = ", totalIncr
@@ -244,4 +261,8 @@ if __name__ == '__main__':
 
     print "Speed to target:"
     for step in action.getSpeedToTarget(marionette.getAngles(), 5):
+        print ' '.join(map(str, step))
+
+    print "Speed to target too fast:"
+    for step in action.getSpeedToTarget(marionette.getAngles(), 3):
         print ' '.join(map(str, step))

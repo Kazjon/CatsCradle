@@ -107,15 +107,15 @@ class Marionette:
         self.motor['S'].maxAngle =  39
         self.motor['H'].minAngle = -20
         self.motor['H'].maxAngle =  20
-        # max speeds from Lilla's email:      -> motor.angleFromStringLength(motor.initialLength + lengthPerSecondInMM)
-        # Head -  		2” in .5 seconds      -> ~456 degrees /sec (1.25 revolutions /sec)
-        # Shoulder - 	.5” in .25 seconds    -> ~228 degrees /sec (0.75 revolution / sec)
-        # Rt Arm - 		12” in 1 second       -> ~1369 degrees / sec (3.8 revolutions / sec)
-        # Rt Hand - 	12” in 1 second       -> ~1369 degrees / sec
-        # Left Arm - 	25” in 1 second       -> ~2853 degrees / sec (8 revolutions / sec)
-        # Left Hand -	25” in 1 second       -> ~2853 degrees / sec
-        # Rt. Foot -	2” in .5 seconds      -> ~456 degrees /sec
-        # Left Foot - 	2” in .5 seconds      -> ~456 degrees /sec
+        # max speeds from Lilla's email:            -> motor.angleFromStringLength(motor.initialLength + lengthPerSecondInMM)
+        # Head -        2 inches in .5 seconds      -> 456 degrees /sec (1.25 revolutions /sec)
+        # Shoulder - 	.5 inch in .25 seconds      -> 228 degrees /sec (0.75 revolution / sec)
+        # Rt Arm - 		12 inches in 1 second       -> 1369 degrees / sec (3.8 revolutions / sec)
+        # Rt Hand - 	12 inches in 1 second       -> 1369 degrees / sec
+        # Left Arm - 	25 inches in 1 second       -> 2853 degrees / sec (8 revolutions / sec)
+        # Left Hand -	25 inches in 1 second       -> 2853 degrees / sec
+        # Rt. Foot -	2 inches in .5 seconds      -> 456 degrees /sec
+        # Left Foot - 	2 inches in .5 seconds      -> 456 degrees /sec
         self.motor['HR'].maxSpeed = 456
         self.motor['HL'].maxSpeed = 456
         self.motor['SR'].maxSpeed = 228
@@ -126,6 +126,9 @@ class Marionette:
         self.motor['WL'].maxSpeed = 2853
         self.motor['FR'].maxSpeed = 456
         self.motor['FL'].maxSpeed = 456
+        # TODO: Not sure about those speed
+        self.motor['H'].maxSpeed = 10
+        self.motor['S'].maxSpeed = 20
 
         # Eyes
         self.eye = {}
