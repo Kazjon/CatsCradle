@@ -204,11 +204,11 @@ class App(QWidget):
         # Record poses button
         self.recordBtn.setToolTip('Start recording the motor angles')
         self.recordBtn.clicked.connect(self.record)
-        self.recordBtn.setEnabled(True)
+        self.recordBtn.setEnabled(self.simulate)
         # Play motion button
         self.playBtn.setToolTip('Play the motion stored in a file')
         self.playBtn.clicked.connect(self.play)
-        self.playBtn.setEnabled(True)
+        self.playBtn.setEnabled(self.simulate)
 
         # Close button
         self.closeBtn.setToolTip('Close the Simulator window')
