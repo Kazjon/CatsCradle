@@ -29,7 +29,6 @@ class MarionetteOpenGL:
         glRotatef(-3, 0, 1, 0)
         # Translate to center marionette on view
         glTranslatef(0, 0, 900)
-        glutInit(sys.argv)
 
     def drawPoint(self, radius, p):
         glPointSize(radius * 100)
