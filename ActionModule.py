@@ -72,7 +72,7 @@ class ActionModule(object):
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
 
         # Good speed values for head and shoulder rotation (Jim)
-        headSpeed = 4
+        headSpeed = 10
         shoulderSpeed = 10
 
         if self.ac.serial_port is not None:
@@ -88,19 +88,20 @@ class ActionModule(object):
                 speed = step[1]
                 # Translate the angles for the arduino commands
                 # angles order : [S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL]
-                self.ac.motor_cmd_dict['Right shoulder'] = speed[1]
-                self.ac.motor_cmd_dict['Left shoulder'] = speed[2]
-                self.ac.motor_cmd_dict['Right arm'] = speed[3]
-                self.ac.motor_cmd_dict['Left arm'] = speed[4]
-                self.ac.motor_cmd_dict['Right head'] = speed[6]
-                self.ac.motor_cmd_dict['Left head'] = speed[7]
-                self.ac.motor_cmd_dict['Right foot'] = speed[8]
-                self.ac.motor_cmd_dict['Left foot'] = speed[9]
-                self.ac.motor_cmd_dict['Right hand'] = speed[10]
-                self.ac.motor_cmd_dict['Left hand'] = speed[11]
-                # For head and shoulder speed = angle
-                self.ac.rotateHead(speed[5], headSpeed)
-                self.ac.rotateShoulder(speed[0], shoulderSpeed)
+                self.ac.motor_cmd_dict['Right shoulder'] = int(speed[1])
+                self.ac.motor_cmd_dict['Left shoulder'] = int(speed[2])
+                self.ac.motor_cmd_dict['Right arm'] = int(speed[3])
+                self.ac.motor_cmd_dict['Left arm'] = int(speed[4])
+                self.ac.motor_cmd_dict['Right head'] = int(speed[6])
+                self.ac.motor_cmd_dict['Left head'] = int(speed[7])
+                self.ac.motor_cmd_dict['Right foot'] = int(speed[8])
+                self.ac.motor_cmd_dict['Left foot'] = int(speed[9])
+                self.ac.motor_cmd_dict['Right hand'] = int(speed[10])
+                self.ac.motor_cmd_dict['Left hand'] = int(speed[11])
+                # For head and shoulder speed = function(angle)
+                # TODO: find out function (Ishan)
+                #self.ac.rotateHead(int(speed[5]), headSpeed)
+                #self.ac.rotateShoulder(int(speed[0]), shoulderSpeed)
                 self.ac.move()
                 time.sleep(duration)
                 self.ac.stopAllSteppers()

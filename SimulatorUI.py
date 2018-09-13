@@ -37,7 +37,7 @@ class App(QWidget):
         # If False, use the controls to move the real marionette
         self.simulate = not self.actionModule.connectedToArduino
         #### To test arduino command without the connection uncomment:
-        #self.simulate = False
+        self.simulate = False
 
         # GL window
         self.visualWindow = None
