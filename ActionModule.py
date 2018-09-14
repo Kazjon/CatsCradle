@@ -90,7 +90,8 @@ class ActionModule(object):
                 # angles order : [S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL]
                 self.ac.motor_cmd_dict['Right shoulder'] = int(speed[1])
                 self.ac.motor_cmd_dict['Left shoulder'] = int(speed[2])
-                self.ac.motor_cmd_dict['Right arm'] = int(speed[3])
+                # No motor on right arm
+                #self.ac.motor_cmd_dict['Right arm'] = int(speed[3])
                 self.ac.motor_cmd_dict['Left arm'] = int(speed[4])
                 self.ac.motor_cmd_dict['Right head'] = int(speed[6])
                 self.ac.motor_cmd_dict['Left head'] = int(speed[7])

@@ -183,6 +183,11 @@ class App(QWidget):
             button.clicked.connect(functools.partial(self.resetMotorAngle, [motor]))
             button.setEnabled(True)
 
+        # Disable Rigth Arm slider since there is no motor on that joint
+        motor = self.marionette.motor['AR']
+        slider = self.sliderMotor[motor]
+        slider.setEnabled(False)
+
         # Eye control settings
         for slider in [self.sliderPitch, self.sliderYaw]:
             slider.setEnabled(True)
