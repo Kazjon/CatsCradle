@@ -1,0 +1,58 @@
+{
+    "rightHandFullRaise": [
+        null, 
+        -122, 
+        null, 
+        -1035, 
+        null, 
+        null, 
+        null, 
+        null, 
+        null, 
+        null, 
+        -1920, 
+        null
+    ], 
+    "bothHandFullRaise": [
+        null, 
+        -122, 
+        -80, 
+        -1035, 
+        -990, 
+        null, 
+        null, 
+        null, 
+        null, 
+        null, 
+        -1920, 
+        -1920
+    ], 
+    "leftHandFullRaise": [
+        null, 
+        null, 
+        -20, 
+        null, 
+        -841, 
+        null, 
+        null, 
+        null, 
+        null, 
+        null, 
+        null, 
+        -1717
+    ], 
+    "rest": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ]
+}

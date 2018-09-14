@@ -9,6 +9,7 @@
 
 import Queue
 import threading
+import json
 
 import ArduinoCommunicator
 import time
@@ -23,13 +24,9 @@ class ActionModule(object):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """
-        # TODO: Get full list of motions from
-        # https://docs.google.com/spreadsheets/d/1XPwe3iQbNzOgRDWYDuqAxW8JrQiBvvqikn3oN0fImSs/edit#gid=0
-        self.angles = {}
-        self.angles['rest'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.angles['rightHandFullRaise'] = [None, -122, None, -1035, None, None, None, None, None, None, -1920, None]
-        self.angles['leftHandFullRaise'] = [None, None, -20, None, -841, None, None, None, None, None, None, -1717]
-        self.angles['bothHandFullRaise'] = [None, -122, -80, -1035, -990, None, None, None, None, None, -1920, -1920]
+        # Read the positions from the Positions.json file
+        with open("Positions.json", "r") as read_file:
+            self.angles = json.load(read_file)
 
         self.timeInterval = 0.25 # (1/4 second)
 
