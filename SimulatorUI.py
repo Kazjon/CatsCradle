@@ -83,7 +83,8 @@ class App(QWidget):
 
         # Goto controls
         self.anglesComboBox = QComboBox()
-        self.speedComboBox = QComboBox()
+        self.durationSlider = QSlider(Qt.Horizontal)
+        self.durationLabel = QLabel('1s')
         self.gotoBtn = QPushButton('GoTo Target')
 
         self.initUI()
@@ -223,9 +224,12 @@ class App(QWidget):
         self.anglesComboBox.addItem("Current slider angles")
         for key in self.actionModule.angles.keys():
             self.anglesComboBox.addItem(key)
-        for key in self.actionModule.speed.keys():
-            self.speedComboBox.addItem(key)
-        self.gotoBtn.setToolTip('Move the marionette to the selected pose at the selected speed')
+        self.durationSlider.setTickInterval(0.5)
+        self.durationSlider.setMinimum(5) # min duration = 5 / 10 = 0.5 sec
+        self.durationSlider.setMaximum(50) # max duration = 50 / 10 = 5 sec
+        self.durationSlider.setValue(10)
+        self.durationSlider.valueChanged.connect(self.updateDurationLabel)
+        self.gotoBtn.setToolTip('Move the marionette to the selected pose in the selected duration time')
         self.gotoBtn.clicked.connect(self.gotoTarget)
         self.gotoBtn.setEnabled(True)
 
@@ -281,7 +285,7 @@ class App(QWidget):
         layout = QGridLayout()
         i = 1
         for ctrlList in [[self.anglesComboBox],
-                        [self.speedComboBox],
+                        [self.durationSlider, self.durationLabel],
                         [self.gotoBtn]]:
             j = 1
             for ctrl in ctrlList:
@@ -463,17 +467,21 @@ class App(QWidget):
             angles.append(self.sliderMotor[motor].value())
         return angles
 
+    def updateDurationLabel(self):
+        duration = self.durationSlider.value() / 10.0
+        self.durationLabel.setText(str(duration) + 's')
+
     def gotoTarget(self):
         # Go to selected target
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = self.anglesComboBox.currentText()
-        speed = self.speedComboBox.currentText()
+        duration = self.durationSlider.value() / 10.0
         # print "target = ", target
         if target == "Current slider angles":
             # print "angles = ", self.sliderAngles()
-            angles = self.actionModule.moveToAngles(self.sliderAngles(), self.actionModule.speed[speed])
+            angles = self.actionModule.moveToAngles(self.sliderAngles(), duration)
         else:
-            angles = self.actionModule.moveTo(target, speed)
+            angles = self.actionModule.moveTo(target, duration)
         self.marionette.setAngles(angles)
 
         if self.simulate:

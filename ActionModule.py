@@ -116,17 +116,14 @@ class ActionModule(object):
             self.qMotorSteps.put(a)
         return self.currentAngles
 
-    def moveTo(self, targetKey, speedKey):
+    def moveTo(self, targetKey, duration):
         if targetKey not in self.angles.keys():
             raise InvalidTargetKeyError
-        if speedKey not in self.speed.keys():
-            raise InvalidSpeedKeyError
 
-        print "move to ", targetKey, " ", speedKey
+        print "move to ", targetKey, " during ", duration, " sec"
 
         target = self.angles[targetKey]
-        speed = self.speed[speedKey]
-        return self.moveToAngles(target, speed)
+        return self.moveToAngles(target, duration)
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -183,9 +180,9 @@ if __name__ == '__main__':
             print "started"
             while self.run:
                 actionKey = random.choice(self.actionModule.angles.keys())
-                speedKey = random.choice(self.actionModule.speed.keys())
-                print "move ", actionKey, " ", speedKey
-                seq = self.actionModule.moveTo(actionKey, speedKey)
+                duration = random.choice([1, 2, 5])
+                print "move ", actionKey, " during ", duration, " sec"
+                seq = self.actionModule.moveTo(actionKey, duration)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 
