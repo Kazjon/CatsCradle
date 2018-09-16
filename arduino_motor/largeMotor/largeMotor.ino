@@ -5,7 +5,7 @@
 #include <DueTimer.h>
 #include "RunningMedian.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 // For motors other than shoulder and head rotation
 const int num_of_motors = 10;
@@ -241,6 +241,7 @@ void runAllMotors() {
 }
 
 void loop() {
+  delay(100);
 
   int shoulder_raw_data = analogRead(shoulder_pot_pin);     // read the input pin
 
@@ -271,15 +272,34 @@ void loop() {
   while (Serial.available() > 0)
    {
      char cmd_type = Serial.read();
-     if (cmd_type == 'm') // Move all motors
+     if (cmd_type == 'd') // Debug steppers - using left hand
+     {
+       //read out a comma
+       Serial.read();
+       int num = Serial.parseInt();
+       //read out a comma
+       Serial.read();
+       int motor_to_move_for_debug = 5;
+       motors[motor_to_move_for_debug].setSpeed(num * 16);
+       if (DEBUG == 3) {
+         Serial.print("Setting motor ");
+         Serial.print(motor_to_move_for_debug);
+         Serial.print(" to speed ");
+         Serial.println(num*16);
+       }
+     }
+     else if (cmd_type == 'm') // Move all motors
      {
        for (int i = 0; i < 10; ++i)
        {
          int num = Serial.parseInt();
          char end_char = Serial.read();
          motors[i].setSpeed(num * 16);
-         if (DEBUG > 0) {
-           Serial.println("Setting motor " + i + " to speed " + num*16);
+         if (DEBUG == 3) {
+           Serial.print("Setting motor ");
+           Serial.print(i);
+           Serial.print(" to speed ");
+           Serial.println(num*16);
          }
 
        }
