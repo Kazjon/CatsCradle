@@ -5,7 +5,7 @@
 #include <DueTimer.h>
 #include "RunningMedian.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 // For motors other than shoulder and head rotation
 const int num_of_motors = 10;
@@ -89,17 +89,17 @@ void runHeadMotor() {
       //regular speed
       {
         speed_cmd = -1.0 * head_speed * 100.0;
-      } else if (position_diff <= 300 && position_diff > 100) 
+      } else if (position_diff <= 300 && position_diff > 100)
       //medium speed
       {
         //get the slowdown to be proportional
         speed_cmd = -1.0 * medium_head_speed * 100.0;
-      } else 
+      } else
       //slowest speed
       {
         speed_cmd = -1.0 * slow_head_speed * 100.0;
       }
-      
+
     }
     else if (head_current_position < head_target_position)
     //move in the positive direction
@@ -108,22 +108,22 @@ void runHeadMotor() {
       //regular speed
       {
         speed_cmd = 1.0 * head_speed * 100.0;
-      } else if (position_diff <= 300 && position_diff > 100) 
+      } else if (position_diff <= 300 && position_diff > 100)
       //medium speed
       {
         speed_cmd = 1.0 * medium_head_speed * 100.0;
-      } else 
+      } else
       //slowest speed
       {
         speed_cmd = 1.0 * slow_head_speed * 100.0;
       }
     }
-    else 
+    else
     {
       speed_cmd = 0.0;
       new_head_position = false;
     }
-  } else 
+  } else
   {
     speed_cmd = 0.0;
     new_head_position = false;
@@ -277,8 +277,11 @@ void loop() {
        {
          int num = Serial.parseInt();
          char end_char = Serial.read();
-         //Serial.println(num * 16);
          motors[i].setSpeed(num * 16);
+         if (DEBUG > 0) {
+           Serial.println("Setting motor " + i + " to speed " + num*16);
+         }
+
        }
      }
      else if (cmd_type == 's') // Shoulder spin
