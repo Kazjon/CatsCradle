@@ -79,7 +79,7 @@ class App(QWidget):
         self.playBtn = QPushButton('Play')
         self.recordBtn = QPushButton('Record')
         self.closeBtn = QPushButton('Close')
-        self.printBtn = QPushButton('Print Angles')
+        self.printBtn = QPushButton('Save Position')
 
         # Goto controls
         self.anglesComboBox = QComboBox()
@@ -221,14 +221,12 @@ class App(QWidget):
         self.closeBtn.clicked.connect(self.close)
         self.closeBtn.setEnabled(True)
         # Print button
-        self.printBtn.setToolTip('Print the current motor angles')
+        self.printBtn.setToolTip('Save the current motor angles')
         self.printBtn.clicked.connect(self.printAngles)
         self.printBtn.setEnabled(True)
 
         # GoTo controls
-        self.anglesComboBox.addItem("Current slider angles")
-        for key in self.actionModule.angles.keys():
-            self.anglesComboBox.addItem(key)
+        self.updateTargetComboBox()
         self.durationSlider.setTickInterval(0.5)
         self.durationSlider.setMinimum(5) # min duration = 5 / 10 = 0.5 sec
         self.durationSlider.setMaximum(50) # max duration = 50 / 10 = 5 sec
@@ -459,11 +457,24 @@ class App(QWidget):
             self.updateSlider()
 
     def printAngles(self):
-        # Print current angles
+        # Get current angles
         angles = []
         for motor in self.marionette.motorList:
             angles.append(motor.angle)
-        print angles
+        # create dialog to enter name
+        text, ok = QInputDialog.getText(self, 'Save current position', 'Name:')
+        if ok:
+            self.actionModule.addPosition(text, angles)
+        # Update target dropdown
+        self.updateTargetComboBox()
+
+
+    def updateTargetComboBox(self):
+        self.anglesComboBox.clear()
+        self.anglesComboBox.addItem("Current slider angles")
+        for key in self.actionModule.angles.keys():
+            self.anglesComboBox.addItem(key)
+
 
     def sliderAngles(self):
         # Return current angles

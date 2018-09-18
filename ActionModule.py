@@ -156,6 +156,22 @@ class ActionModule(object):
 
         return (angleY, angleZ)
 
+    def addPosition(self, name, angles):
+        # Check angles length
+        if not len(angles) == len(self.currentAngles):
+            print 'Invalid angles: ', angles
+            raise InvalidAnglesParameter
+
+        # Check for overwrite and print overwritten angles inc ase we want to recover
+        if name in self.angles.keys():
+            print 'WARNING: Overwrite "', name, '" angles (old values: ', self.angles[name], ').'
+
+        # Add a position to the Position.json file
+        self.angles[name] = angles
+        with open("Positions.json", "w") as write_file:
+            json.dump(self.angles, write_file, indent=4, sort_keys=True)
+
+
 if __name__ == '__main__':
     import time, sys
     from PyQt5 import QtGui, QtCore, QtWidgets
