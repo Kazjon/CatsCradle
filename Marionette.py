@@ -106,10 +106,10 @@ class Marionette:
         self.motor['AR'].minAngle = 0
         self.motor['AL'].minAngle = -673
         self.motor['HR'].minAngle = -200
-        self.motor['HL'].minAngle = -200
+        self.motor['HL'].minAngle = -270
         self.motor['FR'].minAngle = -105
         self.motor['FL'].minAngle = -150
-        self.motor['WR'].minAngle = -1156
+        self.motor['WR'].minAngle = -2300
         self.motor['WL'].minAngle = -2780
         # Head and Shoulder
         self.motor['S'].minAngle = -39
