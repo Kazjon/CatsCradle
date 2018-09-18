@@ -140,3 +140,6 @@ if __name__ == '__main__':
     print "angleFromStringLength(", length, ") = ", a
     print "motorIncrementFromAngle(", angle, ") = ", incr
     print "angleFromMotorIncrement(", incr, ") = ", a2
+
+    print "maxAngle = ", m.maxAngle
+    print "minAngle = ", m.minAngle
