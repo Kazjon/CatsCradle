@@ -112,14 +112,13 @@ class Action(object):
                 targetAngle = originAngle
 
             if not motor.isStatic:
-                incr = targetAngle / abs(motor.maxAngle - motor.minAngle)
+                incr = targetAngle / abs(float(motor.maxAngle - motor.minAngle))
                 # Head motor maps angles to -1000/1000 values
                 if motor.name == 'motorH':
                     incr = incr * 2000
                 # Shoulders motor maps angles to -100/137
                 if motor.name == 'motorS':
                     incr = incr * 237
-                incr = targetAngle
                 remaining = 0
             else:
                 totalAngle = targetAngle - originAngle

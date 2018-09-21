@@ -70,7 +70,7 @@ class ActionModule(object):
 
         # Good speed values for head and shoulder rotation (Jim)
         headSpeed = 10
-        shoulderSpeed = 10
+        shoulderSpeed = 25
 
         if self.ac.serial_port is not None:
             # Watch out:
@@ -97,9 +97,8 @@ class ActionModule(object):
                 self.ac.motor_cmd_dict['Right hand'] = int(speed[10])
                 self.ac.motor_cmd_dict['Left hand'] = int(speed[11])
                 # For head and shoulder speed = function(angle)
-                # TODO: find out function (Ishan)
-                #self.ac.rotateHead(int(speed[5]), headSpeed)
-                #self.ac.rotateShoulder(int(speed[0]), shoulderSpeed)
+                self.ac.rotateHead(int(speed[5]), headSpeed)
+                self.ac.rotateShoulder(int(speed[0]), shoulderSpeed)
                 self.ac.move()
                 time.sleep(duration)
                 self.ac.stopAllSteppers()
