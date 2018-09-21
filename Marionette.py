@@ -112,10 +112,10 @@ class Marionette:
         self.motor['WR'].minAngle = -2300
         self.motor['WL'].minAngle = -2780
         # Head and Shoulder
-        self.motor['S'].minAngle = -39
-        self.motor['S'].maxAngle =  39
-        self.motor['H'].minAngle = -20
-        self.motor['H'].maxAngle =  20
+        self.motor['S'].minAngle = -38
+        self.motor['S'].maxAngle =  38
+        self.motor['H'].minAngle = -60
+        self.motor['H'].maxAngle =  60
         # max speeds from Lilla's email:            -> motor.angleFromStringLength(motor.initialLength + lengthPerSecondInMM)
         # Head -        2 inches in .5 seconds      -> 456 degrees /sec (1.25 revolutions /sec)
         # Shoulder - 	.5 inch in .25 seconds      -> 228 degrees /sec (0.75 revolution / sec)
