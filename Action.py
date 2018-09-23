@@ -62,7 +62,7 @@ class Action(object):
         return angleList
 
     def getStepsToTarget(self, origin, duration):
-        """ Decompose the motion into self.interval seconds steps and
+        """ Decompose the static motors motion into self.interval seconds steps and
             return the sequence of increments and duration to be sent to the motors
             origin: list of motor angles in the same order as motorList
             duration: time to get to the target (seconds).
@@ -75,6 +75,10 @@ class Action(object):
              [duration [incr1 incr2 incr3...]
              :
              [duration [incr1 incr2 incr3...]]
+
+             [incr1...] is in the same order as the marionette motorList
+             without the non static motors (head and shoulders):
+             [SR, SL, AR, AL, HR, HL, FR, FL, WR, WL]
         """
         if duration == 0:
             return []
@@ -111,16 +115,7 @@ class Action(object):
             if targetAngle == None:
                 targetAngle = originAngle
 
-            if not motor.isStatic:
-                incr = targetAngle / abs(float(motor.maxAngle - motor.minAngle))
-                # Head motor maps angles to -1000/1000 values
-                if motor.name == 'motorH':
-                    incr = incr * 2000
-                # Shoulders motor maps angles to -100/137
-                if motor.name == 'motorS':
-                    incr = incr * 237
-                remaining = 0
-            else:
+            if motor.isStatic:
                 totalAngle = targetAngle - originAngle
                 totalIncr = motor.motorIncrementFromAngle(totalAngle)
                 incr = 0
@@ -131,9 +126,9 @@ class Action(object):
                 #print "totalIncr = ", totalIncr
                 #print "incr = ", incr
                 #print "remaining = ", remaining
-            stepIncr.append(incr)
-            remainingIncr.append(remaining)
-            finalIncr.append(incr + remaining)
+                stepIncr.append(incr)
+                remainingIncr.append(remaining)
+                finalIncr.append(incr + remaining)
 
         # Generate the steps
         stepList = []
@@ -162,34 +157,68 @@ class Action(object):
         return stepList
 
 
-    def getSpeedToTarget(self, origin, duration):
+    def getSpeedToTarget(self, origin, duration, headRotationSpeed, shoulderRotationSpeed):
         """ Decompose the motion into self.interval (0.5) seconds steps and
-            return the sequence of speeds and duration to be sent to the motors
+            return the sequence of speeds and duration to be sent to the stepper motors,
+            and the value/speed to be sent to the head and shoulder rotation motors
             origin: list of motor angles in the same order as motorList
             duration: time to get to the target (seconds).
+            headRotationSpeed: head rotation speed
+            shoulderRotationSpeed: shoulder rotation speed
 
             Format of return value:
-            [[duration [speed1 speed2 speed3...]
+            [['head' headValue headRotationSpeed] (optional)
+             ['shoulder' shoulderValue shoulderRotationSpeed] (optional)
+             [duration [speed1 speed2 speed3...]
              [duration [speed1 speed2 speed3...]
              :
              [duration [speed1 speed2 speed3...]]
+
+             Head and shoulder command should be sent first because the stepper motion will interrupt
+             the communication for each interval.
         """
         # print "origin = ", origin
         # print "duration = ", duration
         # print "target = ", self.target
+        headValue = 0
+        shoulderValue = 0
         totalIncr = []
         stepList = self.getStepsToTarget(origin, duration)
         # print "num of steps = ", len(stepList)
-        speedList = []
         remainings = []
+        speedList = []
         for originAngle, targetAngle, motor in zip(origin, self.target, self.marionette.motorList):
-            remainings.append(0)
             if motor.isStatic:
+                remainings.append(0)
                 totalIncr.append(0)
-            elif targetAngle is not None:
-                totalIncr.append(targetAngle)
             else:
-                totalIncr.append(originAngle)
+                if targetAngle is None or targetAngle == originAngle:
+                    # No motion requested: set the speed to 0
+                    if motor.name == 'motorH':
+                        headRotationSpeed = 0
+                    if motor.name == 'motorS':
+                        shoulderRotationSpeed = 0
+                else:
+                    incr = targetAngle / abs(float(motor.maxAngle - motor.minAngle))
+                    # Head motor maps angles to -1000/1000 values
+                    if motor.name == 'motorH':
+                        headValue = incr * 2000
+                    # Shoulders motor maps angles to -100/137
+                    if motor.name == 'motorS':
+                        shoulderValue = incr * 237
+
+        if headRotationSpeed > 0:
+            info = []
+            info.append('head')
+            info.append(headValue)
+            info.append(headRotationSpeed)
+            speedList.append(info)
+        if shoulderRotationSpeed > 0:
+            info = []
+            info.append('shoulder')
+            info.append(shoulderValue)
+            info.append(shoulderRotationSpeed)
+            speedList.append(info)
 
         for step in stepList:
             duration = step[0]
@@ -197,16 +226,12 @@ class Action(object):
             speeds = []
             remainings = []
             currentIncr = []
-            for incr, motor in zip(increments, self.marionette.motorList):
+            for incr, motor in zip(increments, self.marionette.stepperMotorList):
                 if motor.isStatic:
                     speed = round(incr / duration)
                     speeds.append(speed)
                     remainings.append(incr - duration * speed)
                     currentIncr.append(duration * speed)
-                else:
-                    speeds.append(incr)
-                    remainings.append(0)
-                    currentIncr.append(0)
 
             totalIncr = np.add(totalIncr, currentIncr)
 
@@ -216,11 +241,13 @@ class Action(object):
             speedList.append(newStep)
 
         self.lastTargetAngles = []
-        for originAngle, incr, motor in zip(origin, totalIncr, self.marionette.motorList):
+        idx = 0
+        for originAngle, targetAngle, motor in zip(origin, self.target, self.marionette.motorList):
             if motor.isStatic:
-                self.lastTargetAngles.append(originAngle + motor.angleFromMotorIncrement(incr))
+                self.lastTargetAngles.append(originAngle + motor.angleFromMotorIncrement(totalIncr[idx]))
+                idx += 1
             else:
-                self.lastTargetAngles.append(incr)
+                self.lastTargetAngles.append(targetAngle)
 
         return speedList
 
@@ -247,7 +274,7 @@ if __name__ == '__main__':
         print ' '.join(map(str, step))
 
     print "Speed to target:"
-    for step in action.getSpeedToTarget(marionette.getAngles(), 5):
+    for step in action.getSpeedToTarget(marionette.getAngles(), 5, 10, 30):
         print ' '.join(map(str, step))
 
     # Define motion of only 4 motors (S, SR, AR, WR)
@@ -266,9 +293,9 @@ if __name__ == '__main__':
         print ' '.join(map(str, step))
 
     print "Speed to target:"
-    for step in action.getSpeedToTarget(marionette.getAngles(), 5):
+    for step in action.getSpeedToTarget(marionette.getAngles(), 5, 10, 30):
         print ' '.join(map(str, step))
 
     print "Speed to target too fast:"
-    for step in action.getSpeedToTarget(marionette.getAngles(), 3):
+    for step in action.getSpeedToTarget(marionette.getAngles(), 3, 5, 15):
         print ' '.join(map(str, step))
