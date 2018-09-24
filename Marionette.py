@@ -96,9 +96,12 @@ class Marionette:
         # Motors
         self.motor = {}
         self.motorList = []
+        self.stepperMotorList = []
         for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
             self.motor[key] = Motor('motor' + key, radius, self.motorMicrosteps[key], self.length[key])
             self.motorList.append(self.motor[key])
+            if self.motor[key].isStatic:
+                self.stepperMotorList.append(self.motor[key])
         # The max for motor driving strings is the angle at which the string length is at its inital length (0 degrees)
         # Stepper (from Lilla's tests)
         self.motor['SR'].minAngle = -70
@@ -135,9 +138,12 @@ class Marionette:
         self.motor['WL'].maxSpeed = 2853
         self.motor['FR'].maxSpeed = 456
         self.motor['FL'].maxSpeed = 456
-        # TODO: Not sure about those speed
+        # Rotation motors
         self.motor['H'].maxSpeed = 10
-        self.motor['S'].maxSpeed = 20
+        # BUG: Shoulders can go up to 32, but then:
+        # After the first command asking for a speed higher than 32, the
+        # shoulders motor can't rotate anymore and Arduino needs to be restarted
+        self.motor['S'].maxSpeed = 32
 
         # Eyes
         self.eye = {}

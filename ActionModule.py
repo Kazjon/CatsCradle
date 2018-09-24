@@ -30,12 +30,6 @@ class ActionModule(object):
 
         self.timeInterval = 0.25 # (1/4 second)
 
-        # duration of the move in s
-        self.speed = {}
-        self.speed['slow'] = 5
-        self.speed['fast'] = 2
-        self.speed['jump'] = 1
-
         # Initialize the angles to the marionette's default (0 everywhere)
         self.currentAngles = Marionette().getAngles()
 
@@ -67,11 +61,9 @@ class ActionModule(object):
     def threadFunc(self):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
-
         # Good speed values for head and shoulder rotation (Jim)
         headSpeed = 10
         shoulderSpeed = 0
-
         if self.ac.serial_port is not None:
             # Watch out:
             # Not really thread safe but only written here and read later in Simulator
@@ -80,47 +72,49 @@ class ActionModule(object):
         while(self.running):
             if not self.qMotorSteps.empty():
                 step = self.qMotorSteps.get()
-                #print "step = ", step
-                duration = step[0]
-                speed = step[1]
-                # Translate the angles for the arduino commands
-                # angles order : [S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL]
-                self.ac.motor_cmd_dict['Right shoulder'] = int(speed[1])
-                self.ac.motor_cmd_dict['Left shoulder'] = int(speed[2])
-                # No motor on right arm
-                #self.ac.motor_cmd_dict['Right arm'] = int(speed[3])
-                self.ac.motor_cmd_dict['Left arm'] = int(speed[4])
-                self.ac.motor_cmd_dict['Right head'] = int(speed[6])
-                self.ac.motor_cmd_dict['Left head'] = int(speed[7])
-                self.ac.motor_cmd_dict['Right foot'] = int(speed[8])
-                self.ac.motor_cmd_dict['Left foot'] = int(speed[9])
-                self.ac.motor_cmd_dict['Right hand'] = int(speed[10])
-                self.ac.motor_cmd_dict['Left hand'] = int(speed[11])
-                # For head and shoulder speed = function(angle)
-                self.ac.rotateHead(int(speed[5]), headSpeed)
-                self.ac.rotateShoulder(int(speed[0]), shoulderSpeed)
-                self.ac.move()
-                time.sleep(duration)
-                self.ac.stopAllSteppers()
+                # print "step = ", step
+                if step[0] == 'head':
+                    self.ac.rotateHead(int(step[1]), int(step[2]))
+                elif step[0] == 'shoulder':
+                    self.ac.rotateShoulder(int(step[1]), int(step[2]))
+                else:
+                    duration = step[0]
+                    speed = step[1]
+                    # Translate the angles for the arduino commands
+                    # angles order : [SR, SL, AR, AL, HR, HL, FR, FL, WR, WL]
+                    self.ac.motor_cmd_dict['Right shoulder'] = int(speed[0])
+                    self.ac.motor_cmd_dict['Left shoulder'] = int(speed[1])
+                    # No motor on right arm
+                    #self.ac.motor_cmd_dict['Right arm'] = int(speed[2])
+                    self.ac.motor_cmd_dict['Left arm'] = int(speed[3])
+                    self.ac.motor_cmd_dict['Right head'] = int(speed[4])
+                    self.ac.motor_cmd_dict['Left head'] = int(speed[5])
+                    self.ac.motor_cmd_dict['Right foot'] = int(speed[6])
+                    self.ac.motor_cmd_dict['Left foot'] = int(speed[7])
+                    self.ac.motor_cmd_dict['Right hand'] = int(speed[8])
+                    self.ac.motor_cmd_dict['Left hand'] = int(speed[9])
+                    self.ac.move()
+                    time.sleep(duration)
+                    self.ac.stopAllSteppers()
         print "Arduino thread stopped"
 
-    def moveToAngles(self, target, duration):
+    def moveToAngles(self, target, duration, headRotationSpeed, shoulderRotationSpeed):
         action = Action(target, self.timeInterval)
-        sequence = action.getSpeedToTarget(self.currentAngles, duration)
+        sequence = action.getSpeedToTarget(self.currentAngles, duration, headRotationSpeed, shoulderRotationSpeed)
         self.currentAngles = action.lastTargetAngles
         for a in sequence:
             #print "a = ", a
             self.qMotorSteps.put(a)
         return self.currentAngles
 
-    def moveTo(self, targetKey, duration):
+    def moveTo(self, targetKey, duration, headRotationSpeed, shoulderRotationSpeed):
         if targetKey not in self.angles.keys():
             raise InvalidTargetKeyError
 
         print "move to ", targetKey, " during ", duration, " sec"
 
         target = self.angles[targetKey]
-        return self.moveToAngles(target, duration)
+        return self.moveToAngles(target, duration, headRotationSpeed, shoulderRotationSpeed)
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -195,7 +189,7 @@ if __name__ == '__main__':
                 actionKey = random.choice(self.actionModule.angles.keys())
                 duration = random.choice([1, 2, 5])
                 print "move ", actionKey, " during ", duration, " sec"
-                seq = self.actionModule.moveTo(actionKey, duration)
+                seq = self.actionModule.moveTo(actionKey, duration, 5, 15)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 
@@ -217,18 +211,35 @@ if __name__ == '__main__':
             for i in range(n):
                 if not self.motionGen.actionModule.qMotorSteps.empty():
                     step = self.motionGen.actionModule.qMotorSteps.get()
-                    duration = step[0]
-                    speeds = step[1]
-                    angles = []
                     previousAngles = self.win2.marionette.getAngles()
-                    for speed, previousAngle, motor in zip(speeds, previousAngles, self.win2.marionette.motorList):
-                        if motor.isStatic:
-                            angles.append(previousAngle + motor.angleFromMotorIncrement(speed))
-                        else:
-                            angles.append(speed)
-                    self.win2.marionette.setAngles(angles)
-                    self.win2.marionette.computeNodesPosition()
-                    self.win2.updateGL()
+                    angles = []
+
+                    if step[0] == 'head':
+                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
+                            if motor.name == 'motorH':
+                                angles.append(step[1])
+                            else:
+                                angles.append(previousAngle)
+                    elif step[0] == 'shoulder':
+                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
+                            if motor.name == 'motorS':
+                                angles.append(step[1])
+                            else:
+                                angles.append(previousAngle)
+                    else:
+                        duration = step[0]
+                        speeds = step[1]
+                        idx = 0
+                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
+                            if motor.isStatic:
+                                angles.append(previousAngle + motor.angleFromMotorIncrement(speeds[idx]))
+                                idx += 1
+                            else:
+                                angles.append(previousAngle)
+
+                        self.win2.marionette.setAngles(angles)
+                        self.win2.marionette.computeNodesPosition()
+                        self.win2.updateGL()
 
 
     app = QtWidgets.QApplication(sys.argv)

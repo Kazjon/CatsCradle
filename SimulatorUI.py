@@ -452,7 +452,7 @@ class App(QWidget):
                     self.marionette.computeNodesPosition()
                     self.visualWindow.updateGL()
                 else:
-                    self.actionModule.moveToAngles(angles, 0.5)
+                    self.actionModule.moveToAngles(angles, 0.5, 5, 15)
             f.close()
             self.updateSlider()
 
@@ -492,12 +492,19 @@ class App(QWidget):
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = self.anglesComboBox.currentText()
         duration = self.durationSlider.value() / 10.0
+        sliderRange = abs(self.durationSlider.maximum() - self.durationSlider.minimum())
+        sliderRatio = self.durationSlider.value() / sliderRange
+        # Update head rotation speed from 1 (slow <-> 5s) to 10 (fast <-> 0.5s)
+        headRotationSpeed = 1 + sliderRatio * (self.marionette.motor['H'].maxSpeed - 1)
+        # Update shoulder rotation speed from 20 (slow <-> 5s) to 30 (fast <-> 0.5s)
+        shoulderRotationSpeed = 20 + sliderRatio * (self.marionette.motor['S'].maxSpeed - 20)
+
         # print "target = ", target
         if target == "Current slider angles":
             # print "angles = ", self.sliderAngles()
-            angles = self.actionModule.moveToAngles(self.sliderAngles(), duration)
+            angles = self.actionModule.moveToAngles(self.sliderAngles(), duration, headRotationSpeed, shoulderRotationSpeed)
         else:
-            angles = self.actionModule.moveTo(target, duration)
+            angles = self.actionModule.moveTo(target, duration, headRotationSpeed, shoulderRotationSpeed)
         self.marionette.setAngles(angles)
 
         if self.simulate:
