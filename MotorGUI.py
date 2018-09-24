@@ -19,7 +19,7 @@ import time
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
-        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
+        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
         self.label_list = []
         self.up_btn_list = []
@@ -86,7 +86,7 @@ class MyFrame(wx.Frame):
 
         self.notebook_1.AddPage(self.notebook_1_HeadandShoulderRotation, "Head and Shoulder Rotation")
         self.slider_20 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -1000, 1000, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
-        self.slider_s_speed = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 2, 2, 15, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
+        self.slider_s_speed = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 2, 2, 35, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
         self.button_41 = wx.Button(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, "Move Head")
         self.Bind(wx.EVT_BUTTON, self.onMoveHead, self.button_41)
         self.slider_21 = wx.Slider(self.notebook_1_HeadandShoulderRotation, wx.ID_ANY, 0, -100, 137, style=wx.SL_HORIZONTAL | wx.SL_LABELS)
@@ -194,7 +194,7 @@ class MyFrame(wx.Frame):
 
     def onEyeMove(self, event):  # wxGlade: MyFrame.<event_handler>
         angle_up_down = -self.slider_up_down.GetValue()
-        angle_left_rght = self.slider_left_right.GetValue()
+        angle_left_rght = -self.slider_left_right.GetValue()
         self.ac_head.lookAt(angle_up_down, angle_left_rght, angle_up_down, angle_left_rght)
 
     def onCloseEye(self, event):  # wxGlade: MyFrame.<event_handler>

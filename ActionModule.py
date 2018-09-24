@@ -70,7 +70,7 @@ class ActionModule(object):
 
         # Good speed values for head and shoulder rotation (Jim)
         headSpeed = 10
-        shoulderSpeed = 25
+        shoulderSpeed = 0
 
         if self.ac.serial_port is not None:
             # Watch out:
