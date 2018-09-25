@@ -5,7 +5,7 @@
 #include <DueTimer.h>
 #include "RunningMedian.h"
 
-#define DEBUG 0
+int DEBUG = 1;
 
 // For motors other than shoulder and head rotation
 const int num_of_motors = 10;
@@ -33,14 +33,17 @@ int shoulder_speed = 10;
 int shoulder_target_position = 0;
 bool new_shoulder_position = false;
 int shoulder_current_position = 0;
-int shoulder_current_reading = 600;
-#define shoulder_negative_max 965
-#define shoulder_positive_max 50
+int shoulder_current_reading = 590;
+#define shoulder_negative_max 960
+#define shoulder_positive_max 65
 #define shoulder_interface_negative_max -100
-#define shoulder_interface_positive_max 137
+#define shoulder_interface_positive_max 130
 //fix it so that it goes from -100 to +120 with 0 at the known 0 value
+//580 potentiometer value is 0 human value
+//65 is max on right
+//960 is max on left
 
-RunningMedian samples = RunningMedian(50);
+RunningMedian samples = RunningMedian(10);
 
 void setupMotors() {
   for (int i = 0; i < num_of_motors; i++)
@@ -135,23 +138,27 @@ void runShoulderMotor() {
   // 0: 600
   //max negative (-100): 967, max positive (100): 50
   int speed_cmd = 0;
-  if (new_shoulder_position && abs(shoulder_current_position - shoulder_target_position) >= 3)
+  if (new_shoulder_position && abs(shoulder_current_position - shoulder_target_position) >= 2)
   {
     if (shoulder_current_position > shoulder_target_position)
     {
       speed_cmd = -1 * shoulder_speed * 100;
+      DEBUG = 1;
     }
     else if (shoulder_current_position < shoulder_target_position)
     {
       speed_cmd = 1 * shoulder_speed * 100;
+      DEBUG = 1;
     }
     else {
+      DEBUG = 0;
       speed_cmd = 0;
       new_shoulder_position = false;
     }
   }
   else
   {
+    DEBUG = 0;
     speed_cmd = 0;
     new_shoulder_position = false;
   }
@@ -228,9 +235,7 @@ void setup() {
   shoulder_target_position = 0;
   new_shoulder_position = true;
   shoulder_speed = 30;
-
   ////////////////// this is for head rotation ///////////////////
-
 }
 
 void runAllMotors() {
@@ -241,11 +246,15 @@ void runAllMotors() {
 }
 
 void loop() {
-  delay(100);
-
   int shoulder_raw_data = analogRead(shoulder_pot_pin);     // read the input pin
-
-  samples.add(shoulder_raw_data);
+  if (samples.getCount() > 30) {
+    if (abs(samples.getMedian() - shoulder_raw_data) < 50)
+    {
+      samples.add(shoulder_raw_data);
+    } 
+   } else {
+     samples.add(shoulder_raw_data);
+   }
   shoulder_current_reading = samples.getMedian();
   shoulder_current_position = map(shoulder_current_reading, shoulder_negative_max, shoulder_positive_max, shoulder_interface_negative_max, shoulder_interface_positive_max);
   if (DEBUG == 1) {
@@ -253,6 +262,8 @@ void loop() {
     Serial.println(shoulder_current_reading);
     Serial.print("Shoulder current position: ");
     Serial.println(shoulder_current_position);
+    Serial.print("Shoulder target position: ");
+    Serial.println(shoulder_target_position);
   }
   // shoulder_current_position -= 425;
 
@@ -344,3 +355,4 @@ void loop() {
    runShoulderMotor();
    runHeadMotor();
 }
+
