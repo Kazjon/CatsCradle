@@ -60,7 +60,7 @@ class ActionModule(object):
 
     def threadFunc(self):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
-        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("")
+        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
         # Good speed values for head and shoulder rotation (Jim)
         headSpeed = 10
         shoulderSpeed = 0
