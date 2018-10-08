@@ -159,9 +159,16 @@ class App(QWidget):
             # lambda does not work (all slider use the last motor)... why???
             # slider.valueChanged.connect(lambda: self.updateStringLength(motor))
             slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
-            slider.setMinimum(motor.minAngle)
-            slider.setMaximum(motor.maxAngle)
-            slider.setValue(0)
+            min = motor.minAngle
+            max = motor.maxAngle
+            defaultValue = 0
+            if motor.isStatic:
+                min = motor.stringLengthFromAngle(motor.minAngle)
+                max = motor.stringLengthFromAngle(motor.maxAngle)
+                defaultValue = motor.stringLengthFromAngle(0)
+            slider.setMinimum(min)
+            slider.setMaximum(max)
+            slider.setValue(defaultValue)
             slider.setTickInterval(1)
 
             # String length slider (+/- 100mm around initial length)
@@ -376,7 +383,10 @@ class App(QWidget):
     def updateMotorPos(self, motor):
         # Update motor angle
         if self.simulate:
-            motor.angle = self.sliderMotor[motor].value()
+            value = self.sliderMotor[motor].value()
+            if motor.isStatic:
+                value = motor.angleFromStringLength(value)
+            motor.angle = value
             if self.marionette.computeNodesPosition():
                 self.visualWindow.updateGL()
 
@@ -405,7 +415,10 @@ class App(QWidget):
     def resetMotorAngle(self, motorList):
         previousAngles = {}
         for motor in motorList:
-            self.sliderMotor[motor].setValue(0)
+            value = 0
+            if motor.isStatic:
+                value = motor.stringLengthFromAngle(0)
+            self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
 
     def resetStringLength(self):
@@ -480,7 +493,11 @@ class App(QWidget):
         # Return current angles
         angles = []
         for motor in self.marionette.motorList:
-            angles.append(self.sliderMotor[motor].value())
+            value = self.sliderMotor[motor].value()
+            angle = value
+            if motor.isStatic:
+                angle = motor.angleFromStringLength(value)
+            angles.append(angle)
         return angles
 
     def updateDurationLabel(self):
@@ -516,7 +533,10 @@ class App(QWidget):
     def updateSlider(self):
         # Update the sliders angle
         for motor in self.marionette.motorList:
-            self.sliderMotor[motor].setValue(motor.angle)
+            value = motor.angle
+            if motor.isStatic:
+                motor.stringLengthFromAngle(motor.angle)
+            self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
             # angle with precision 1
             angle = decimal.Decimal(motor.angle).quantize(decimal.Decimal('1'))
