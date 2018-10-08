@@ -71,50 +71,49 @@ class ActionModule(object):
 
         while(self.running):
             if not self.qMotorSteps.empty():
-                step = self.qMotorSteps.get()
-                # print "step = ", step
-                if step[0] == 'head':
-                    self.ac.rotateHead(int(step[1]), int(step[2]))
-                elif step[0] == 'shoulder':
-                    self.ac.rotateShoulder(int(step[1]), int(step[2]))
-                else:
-                    duration = step[0]
-                    speed = step[1]
-                    # Translate the angles for the arduino commands
-                    # angles order : [SR, SL, AR, AL, HR, HL, FR, FL, WR, WL]
-                    self.ac.motor_cmd_dict['Right shoulder'] = int(speed[0])
-                    self.ac.motor_cmd_dict['Left shoulder'] = int(speed[1])
-                    # No motor on right arm
-                    #self.ac.motor_cmd_dict['Right arm'] = int(speed[2])
-                    self.ac.motor_cmd_dict['Left arm'] = int(speed[3])
-                    self.ac.motor_cmd_dict['Right head'] = int(speed[4])
-                    self.ac.motor_cmd_dict['Left head'] = int(speed[5])
-                    self.ac.motor_cmd_dict['Right foot'] = int(speed[6])
-                    self.ac.motor_cmd_dict['Left foot'] = int(speed[7])
-                    self.ac.motor_cmd_dict['Right hand'] = int(speed[8])
-                    self.ac.motor_cmd_dict['Left hand'] = int(speed[9])
-                    self.ac.move()
-                    time.sleep(duration)
-                    self.ac.stopAllSteppers()
+                steps = self.qMotorSteps.get()
+                for step in steps:                    
+                    print "step = ", step
+                # if step[0] == 'motorH':
+                #     self.ac.rotateHead(int(step[1]), int(step[2]))
+                # elif step[0] == 'motorS':
+                #     self.ac.rotateShoulder(int(step[1]), int(step[2]))
+                # else:
+                #     duration = step[0]
+                #     speed = step[1]
+                #     # Translate the angles for the arduino commands
+                #     # angles order : [SR, SL, AR, AL, HR, HL, FR, FL, WR, WL]
+                #     self.ac.motor_cmd_dict['Right shoulder'] = int(speed[0])
+                #     self.ac.motor_cmd_dict['Left shoulder'] = int(speed[1])
+                #     # No motor on right arm
+                #     #self.ac.motor_cmd_dict['Right arm'] = int(speed[2])
+                #     self.ac.motor_cmd_dict['Left arm'] = int(speed[3])
+                #     self.ac.motor_cmd_dict['Right head'] = int(speed[4])
+                #     self.ac.motor_cmd_dict['Left head'] = int(speed[5])
+                #     self.ac.motor_cmd_dict['Right foot'] = int(speed[6])
+                #     self.ac.motor_cmd_dict['Left foot'] = int(speed[7])
+                #     self.ac.motor_cmd_dict['Right hand'] = int(speed[8])
+                #     self.ac.motor_cmd_dict['Left hand'] = int(speed[9])
+                #     self.ac.move()
+                #     time.sleep(duration)
+                #     self.ac.stopAllSteppers()
         print "Arduino thread stopped"
 
-    def moveToAngles(self, target, duration, headRotationSpeed, shoulderRotationSpeed):
+    def moveToAngles(self, target, rotationSpeed):
         action = Action(target, self.timeInterval)
-        sequence = action.getSpeedToTarget(self.currentAngles, duration, headRotationSpeed, shoulderRotationSpeed)
-        self.currentAngles = action.lastTargetAngles
-        for a in sequence:
-            #print "a = ", a
-            self.qMotorSteps.put(a)
+        output = action.getSpeedToTarget(self.currentAngles, rotationSpeed)
+        self.currentAngles = target
+        self.qMotorSteps.put(output)
         return self.currentAngles
 
-    def moveTo(self, targetKey, duration, headRotationSpeed, shoulderRotationSpeed):
+    def moveTo(self, targetKey, duration, rotationSpeed):
         if targetKey not in self.angles.keys():
             raise InvalidTargetKeyError
 
         print "move to ", targetKey, " during ", duration, " sec"
 
         target = self.angles[targetKey]
-        return self.moveToAngles(target, duration, headRotationSpeed, shoulderRotationSpeed)
+        return self.moveToAngles(target, rotationSpeed)
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -189,7 +188,7 @@ if __name__ == '__main__':
                 actionKey = random.choice(self.actionModule.angles.keys())
                 duration = random.choice([1, 2, 5])
                 print "move ", actionKey, " during ", duration, " sec"
-                seq = self.actionModule.moveTo(actionKey, duration, 5, 15)
+                seq = self.actionModule.moveTo(actionKey, 5)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 
