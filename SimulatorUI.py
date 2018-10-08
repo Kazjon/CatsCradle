@@ -535,12 +535,12 @@ class App(QWidget):
         for motor in self.marionette.motorList:
             value = motor.angle
             if motor.isStatic:
-                motor.stringLengthFromAngle(motor.angle)
+                value = motor.stringLengthFromAngle(motor.angle)
             self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
-            # angle with precision 1
-            angle = decimal.Decimal(motor.angle).quantize(decimal.Decimal('1'))
-            self.labelMotorAngle[motor].setText(str(angle))
+            # value with precision 1
+            value = decimal.Decimal(value).quantize(decimal.Decimal('1'))
+            self.labelMotorAngle[motor].setText(str(value))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
