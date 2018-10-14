@@ -231,6 +231,7 @@ class Marionette:
             'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
         """
         if len(angles) != len(self.motorList):
+            # print "angles = ", angles
             raise InvalidAnglesNumberError
         for m, a in zip(self.motorList, angles):
             m.angle = a

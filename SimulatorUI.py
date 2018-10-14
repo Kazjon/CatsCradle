@@ -236,7 +236,7 @@ class App(QWidget):
         self.updateTargetComboBox()
         self.speedSlider.setTickInterval(1)
         self.speedSlider.setMinimum(0) # min speed = 0
-        self.speedSlider.setMaximum(60) # max speed = 60
+        self.speedSlider.setMaximum(80) # max speed = 80
         self.speedSlider.setValue(10)
         self.speedSlider.valueChanged.connect(self.updateSpeedLabel)
         self.speedLabel.setFixedWidth(30)
@@ -466,7 +466,7 @@ class App(QWidget):
                     self.marionette.computeNodesPosition()
                     self.visualWindow.updateGL()
                 else:
-                    self.actionModule.moveToAngles(angles, 0.5, 5, 15)
+                    self.actionModule.moveToAngles(angles, 15)
             f.close()
             self.updateSlider()
 

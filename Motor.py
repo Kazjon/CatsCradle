@@ -33,34 +33,6 @@ class Motor:
             self.minAngle = -90
             self.maxAngle = 90
 
-    def motorIncrementFromAngle(self, angle):
-        """Computes the motor increment to rotate <angle>
-            Returns angle for rotation motors (H and S)
-            Returns the speed at which the motor should turn during 1s for steppers
-        """
-        if self.isStatic:
-            length = self.stringLengthFromAngle(angle)
-            distance = length - self.initialLength
-            speedScale = 16
-            numStepPerRevolution = 200
-            speed = distance / speedScale * numStepPerRevolution * self.microSteps / self.circumference
-            return speed
-        else:
-            return angle
-
-    def angleFromMotorIncrement(self, incr):
-        """Return the angle for incr steps of the stepper motor
-            Return incr for the rotation motors (H and S)
-        """
-        if self.isStatic:
-            speedScale = 16
-            numStepPerRevolution = 200
-            distance = incr * speedScale / numStepPerRevolution / self.microSteps * self.circumference
-            length = self.initialLength + distance
-            return self.angleFromStringLength(length)
-        else:
-            return incr
-
     def angleFromStringLength(self, length):
         """Returns the rotation angle in degrees needed to get a string of 'length' length"""
         if self.isStatic:
@@ -134,12 +106,8 @@ if __name__ == '__main__':
     angle = 50
     length = m.stringLengthFromAngle(angle)
     a = m.angleFromStringLength(length)
-    incr = m.motorIncrementFromAngle(angle)
-    a2 = m.angleFromMotorIncrement(incr)
     print "stringLengthFromAngle(", angle, ") = ", length
     print "angleFromStringLength(", length, ") = ", a
-    print "motorIncrementFromAngle(", angle, ") = ", incr
-    print "angleFromMotorIncrement(", incr, ") = ", a2
 
     print "maxAngle = ", m.maxAngle
     print "minAngle = ", m.minAngle

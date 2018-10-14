@@ -143,6 +143,11 @@ class ArduinoCommunicator(object):
         self.send(cmd)
         # self.send(struct.pack('>cbb', 's', angle, speed))
 
+    def rotateStringMotor(self, id, angle, speed = 10):
+        cmd = 'm,' + str(id) + ',' + str(angle) + ',' + str(speed)
+        self.send(cmd)
+        # self.send(struct.pack('>cbb', 'm', id, angle, speed))
+
     def receiveLines(self, num_of_times):
         for i in xrange(num_of_times):
             self.receive()

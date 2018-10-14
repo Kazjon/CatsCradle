@@ -41,10 +41,14 @@ class Action(object):
                 # No motion requested: pass
                 pass
             else:
+                speed = rotationSpeed
+                if motor.name == 'motorH':
+                    # Adapt the speed from 0-80 to 400-800
+                    speed = 400 + rotationSpeed / 80.0 * 400
                 info = []
                 info.append(motor.name)
                 info.append(targetAngle)
-                info.append(rotationSpeed)
+                info.append(speed)
                 output.append(info)
 
         return output

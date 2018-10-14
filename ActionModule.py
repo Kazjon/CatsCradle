@@ -36,6 +36,21 @@ class ActionModule(object):
         # Flag True if successfully connected to the arduino
         self.connectedToArduino = False
 
+        # Arduino motor id
+        self.arduinoID = {}
+        self.arduinoID['motorH'] = 'head'
+        self.arduinoID['motorS'] = 'shoulder'
+        self.arduinoID['motorHR'] = 0    # "Right head"
+        self.arduinoID['motorHL'] = 1    # "Left head"
+        self.arduinoID['motorSR'] = 9    # "Right shoulder"
+        self.arduinoID['motorSL'] = 8    # "Left shoulder"
+        self.arduinoID['motorAR'] = -1   # "Right arm"
+        self.arduinoID['motorAL'] = 7    # "Left arm"
+        self.arduinoID['motorWR'] = 2    # "Right hand"
+        self.arduinoID['motorWL'] = 3    # "Left hand"
+        self.arduinoID['motorFR'] = 5    # "Right foot"
+        self.arduinoID['motorFL'] = 4    # "Left foot"
+
         # Thread related variables
         self.qMotorSteps = Queue.Queue()
         self.running = False
@@ -72,31 +87,20 @@ class ActionModule(object):
         while(self.running):
             if not self.qMotorSteps.empty():
                 steps = self.qMotorSteps.get()
-                for step in steps:                    
-                    print "step = ", step
-                # if step[0] == 'motorH':
-                #     self.ac.rotateHead(int(step[1]), int(step[2]))
-                # elif step[0] == 'motorS':
-                #     self.ac.rotateShoulder(int(step[1]), int(step[2]))
-                # else:
-                #     duration = step[0]
-                #     speed = step[1]
-                #     # Translate the angles for the arduino commands
-                #     # angles order : [SR, SL, AR, AL, HR, HL, FR, FL, WR, WL]
-                #     self.ac.motor_cmd_dict['Right shoulder'] = int(speed[0])
-                #     self.ac.motor_cmd_dict['Left shoulder'] = int(speed[1])
-                #     # No motor on right arm
-                #     #self.ac.motor_cmd_dict['Right arm'] = int(speed[2])
-                #     self.ac.motor_cmd_dict['Left arm'] = int(speed[3])
-                #     self.ac.motor_cmd_dict['Right head'] = int(speed[4])
-                #     self.ac.motor_cmd_dict['Left head'] = int(speed[5])
-                #     self.ac.motor_cmd_dict['Right foot'] = int(speed[6])
-                #     self.ac.motor_cmd_dict['Left foot'] = int(speed[7])
-                #     self.ac.motor_cmd_dict['Right hand'] = int(speed[8])
-                #     self.ac.motor_cmd_dict['Left hand'] = int(speed[9])
-                #     self.ac.move()
-                #     time.sleep(duration)
-                #     self.ac.stopAllSteppers()
+                for step in steps:
+                    # print "step = ", step
+                    id = self.arduinoID[step[0]]
+                    angle = int(step[1])
+                    speed = int(step[2])
+                    if id == -1:
+                        # Obsolete motor AR
+                        continue
+                    if id == 'head':
+                        self.ac.rotateHead(angle, speed)
+                    elif id == 'shoulder':
+                        self.ac.rotateShoulder(angle, speed)
+                    else:
+                        self.ac.rotateStringMotor(id, angle, speed)
         print "Arduino thread stopped"
 
     def moveToAngles(self, target, rotationSpeed):
@@ -106,11 +110,11 @@ class ActionModule(object):
         self.qMotorSteps.put(output)
         return self.currentAngles
 
-    def moveTo(self, targetKey, duration, rotationSpeed):
+    def moveTo(self, targetKey, rotationSpeed):
         if targetKey not in self.angles.keys():
             raise InvalidTargetKeyError
 
-        print "move to ", targetKey, " during ", duration, " sec"
+        print "move to ", targetKey, " at speed  ", rotationSpeed
 
         target = self.angles[targetKey]
         return self.moveToAngles(target, rotationSpeed)
@@ -186,9 +190,9 @@ if __name__ == '__main__':
             print "started"
             while self.run:
                 actionKey = random.choice(self.actionModule.angles.keys())
-                duration = random.choice([1, 2, 5])
-                print "move ", actionKey, " during ", duration, " sec"
-                seq = self.actionModule.moveTo(actionKey, 5)
+                speed = random.choice([10, 20, 50, 80])
+                print "move ", actionKey, " at speed ", speed
+                seq = self.actionModule.moveTo(actionKey, speed)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 
@@ -209,36 +213,20 @@ if __name__ == '__main__':
         def updateVisual(self, n):
             for i in range(n):
                 if not self.motionGen.actionModule.qMotorSteps.empty():
-                    step = self.motionGen.actionModule.qMotorSteps.get()
+                    steps = self.motionGen.actionModule.qMotorSteps.get()
                     previousAngles = self.win2.marionette.getAngles()
                     angles = []
 
-                    if step[0] == 'head':
-                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
-                            if motor.name == 'motorH':
-                                angles.append(step[1])
-                            else:
-                                angles.append(previousAngle)
-                    elif step[0] == 'shoulder':
-                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
-                            if motor.name == 'motorS':
-                                angles.append(step[1])
-                            else:
-                                angles.append(previousAngle)
-                    else:
-                        duration = step[0]
-                        speeds = step[1]
-                        idx = 0
-                        for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
-                            if motor.isStatic:
-                                angles.append(previousAngle + motor.angleFromMotorIncrement(speeds[idx]))
-                                idx += 1
-                            else:
-                                angles.append(previousAngle)
+                    for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
+                        angle = previousAngle
+                        for step in steps:
+                            if step[0] == motor.name:
+                                angle = int(step[1])
+                        angles.append(angle)
 
-                        self.win2.marionette.setAngles(angles)
-                        self.win2.marionette.computeNodesPosition()
-                        self.win2.updateGL()
+                    self.win2.marionette.setAngles(angles)
+                    self.win2.marionette.computeNodesPosition()
+                    self.win2.updateGL()
 
 
     app = QtWidgets.QApplication(sys.argv)
