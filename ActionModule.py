@@ -52,7 +52,7 @@ class ActionModule(object):
         self.arduinoID['motorFL'] = 4    # "Left foot"
 
         # Thread related variables
-        self.qMotorSteps = Queue.Queue()
+        self.qMotorCmds = Queue.Queue()
         self.running = False
         self.arduino_thread = None
         self.start()
@@ -76,22 +76,19 @@ class ActionModule(object):
     def threadFunc(self):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
-        # Good speed values for head and shoulder rotation (Jim)
-        headSpeed = 10
-        shoulderSpeed = 0
         if self.ac.serial_port is not None:
             # Watch out:
             # Not really thread safe but only written here and read later in Simulator
             self.connectedToArduino = True
 
         while(self.running):
-            if not self.qMotorSteps.empty():
-                steps = self.qMotorSteps.get()
-                for step in steps:
+            if not self.qMotorCmds.empty():
+                cmds = self.qMotorCmds.get()
+                for cmd in cmds:
                     # print "step = ", step
-                    id = self.arduinoID[step[0]]
-                    angle = int(step[1])
-                    speed = int(step[2])
+                    id = self.arduinoID[cmd[0]]
+                    angle = int(cmd[1])
+                    speed = int(cmd[2])
                     if id == -1:
                         # Obsolete motor AR
                         continue
@@ -100,14 +97,15 @@ class ActionModule(object):
                     elif id == 'shoulder':
                         self.ac.rotateShoulder(angle, speed)
                     else:
+                        # Other motors
                         self.ac.rotateStringMotor(id, angle, speed)
         print "Arduino thread stopped"
 
     def moveToAngles(self, target, rotationSpeed):
         action = Action(target, self.timeInterval)
-        output = action.getSpeedToTarget(self.currentAngles, rotationSpeed)
+        output = action.getCmdsToTarget(self.currentAngles, rotationSpeed)
         self.currentAngles = target
-        self.qMotorSteps.put(output)
+        self.qMotorCmds.put(output)
         return self.currentAngles
 
     def moveTo(self, targetKey, rotationSpeed):
@@ -212,16 +210,16 @@ if __name__ == '__main__':
 
         def updateVisual(self, n):
             for i in range(n):
-                if not self.motionGen.actionModule.qMotorSteps.empty():
-                    steps = self.motionGen.actionModule.qMotorSteps.get()
+                if not self.motionGen.actionModule.qMotorCmds.empty():
+                    cmds = self.motionGen.actionModule.qMotorCmds.get()
                     previousAngles = self.win2.marionette.getAngles()
                     angles = []
 
                     for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
                         angle = previousAngle
-                        for step in steps:
-                            if step[0] == motor.name:
-                                angle = int(step[1])
+                        for cmd in cmds:
+                            if cmd[0] == motor.name:
+                                angle = int(cmd[1])
                         angles.append(angle)
 
                     self.win2.marionette.setAngles(angles)
