@@ -104,3 +104,5 @@ ENV/
 *.xml
 .idea/
 *.DS_Store
+
+Positions.json

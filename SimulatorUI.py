@@ -77,7 +77,6 @@ class App(QWidget):
 
         # commands widgets
         self.resetAnglesBtn = QPushButton('Reset angles')
-        self.resetStringsBtn = QPushButton('Reset strings')
         self.playBtn = QPushButton('Play')
         self.recordBtn = QPushButton('Record')
         self.closeBtn = QPushButton('Close')
@@ -223,10 +222,6 @@ class App(QWidget):
             slider.setValue(0)
             slider.setTickInterval(1)
 
-        # Reset string length button
-        self.resetStringsBtn.setToolTip('Reset the strings initial length to their original values')
-        self.resetStringsBtn.clicked.connect(self.resetStringLength)
-        self.resetStringsBtn.setEnabled(True)
         # Reset motor angles button
         self.resetAnglesBtn.setToolTip('Reset all motors rotation to 0 degree')
         self.resetAnglesBtn.clicked.connect(functools.partial(self.resetMotorAngle, self.marionette.motorList))
@@ -296,7 +291,7 @@ class App(QWidget):
         self.commandsGroupBox = QGroupBox("Commands")
         layout = QGridLayout()
         i = 1
-        for btnList in [[self.resetAnglesBtn, self.resetStringsBtn],
+        for btnList in [[self.resetAnglesBtn],
                         [self.playBtn, self.recordBtn],
                         [self.closeBtn, self.printBtn]]:
             j = 1
@@ -442,19 +437,6 @@ class App(QWidget):
             self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
 
-    def resetStringLength(self):
-        m = self.marionette
-        for key in m.motor.keys():
-            motor = m.motor[key]
-            motor.initialLength = m.length[key]
-            self.sliderSpeed[motor].setValue(motor.initialLength)
-            self.sliderSpeed[motor].repaint()
-
-        # Initial string length should be a valid positions
-        # no need to check ... unless motors are not at initial angle...
-        if self.simulate:
-            self.marionette.computeNodesPosition()
-            self.visualWindow.updateGL()
 
     def record(self):
         if self.recordFile == None:
