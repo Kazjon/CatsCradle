@@ -25,8 +25,12 @@ class ActionModule(object):
             set to "" on a computer without arduino
         """
         # Read the positions from the Positions.json file
-        with open("Positions.json", "r") as read_file:
-            self.positions = json.load(read_file)
+        self.positions = {}
+        try:
+            with open("Positions.json", "r") as read_file:
+                self.positions = json.load(read_file)
+        except:
+            pass
 
         self.timeInterval = 0.25 # (1/4 second)
 
