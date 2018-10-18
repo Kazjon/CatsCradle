@@ -55,16 +55,16 @@ class App(QWidget):
         # Marionette control widgets
         self.sliderMotor = {}
         self.labelMotorAngle = {}
-        self.sliderString = {}
+        self.sliderSpeed = {}
         self.labelMotorName = {}
-        self.labelMotorStringLength = {}
+        self.labelMotorSpeed = {}
         self.resetMotorBtn = {}
         for motor in self.marionette.motorList:
             self.sliderMotor[motor] = QSlider(Qt.Horizontal)
-            self.sliderString[motor] = QSlider(Qt.Horizontal)
+            self.sliderSpeed[motor] = QSlider(Qt.Horizontal)
             self.labelMotorName[motor] = QLabel(motor.name)
             self.labelMotorAngle[motor] = QLabel(str(0))
-            self.labelMotorStringLength[motor] = QLabel('')
+            self.labelMotorSpeed[motor] = QLabel('')
             self.resetMotorBtn[motor] = QPushButton('Reset')
 
         # Eye control widgets
@@ -83,8 +83,6 @@ class App(QWidget):
 
         # Goto controls
         self.anglesComboBox = QComboBox()
-        self.speedSlider = QSlider(Qt.Horizontal)
-        self.speedLabel = QLabel('10')
         self.gotoBtn = QPushButton('GoTo Target')
 
         self.initUI()
@@ -94,7 +92,7 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         self.createViewCmdLayout()
-        self.createStringCmdLayout()
+        self.createSpeedCmdLayout()
         self.createMotorCmdLayout()
         self.createMotorResetBtnLayout()
         self.createMotorNameLayout()
@@ -150,14 +148,14 @@ class App(QWidget):
         # Marionette settings (string length and motor rotation sliders)
         for motor in self.marionette.motorList:
             self.labelMotorAngle[motor].setMinimumSize(30, 0)
-            self.labelMotorStringLength[motor].setText(str(motor.initialLength))
+            self.labelMotorSpeed[motor].setMinimumSize(30, 0)
 
             # Motor rotation slider
             slider = self.sliderMotor[motor]
             slider.setEnabled(True)
             slider.setToolTip('Rotate ' + motor.name)
             # lambda does not work (all slider use the last motor)... why???
-            # slider.valueChanged.connect(lambda: self.updateStringLength(motor))
+            # slider.valueChanged.connect(lambda: self.updateMotorPos(motor))
             slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
             min = motor.minAngle
             max = motor.maxAngle
@@ -171,18 +169,17 @@ class App(QWidget):
             slider.setValue(defaultValue)
             slider.setTickInterval(1)
 
-            # String length slider (+/- 100mm around initial length)
-            slider = self.sliderString[motor]
-            slider.setEnabled(motor.isStatic)
-            if motor.isStatic:
-                slider.setToolTip('Set the length of the string of ' + motor.name)
-                slider.setMinimum(motor.initialLength - 100)
-                slider.setMaximum(motor.initialLength + 100)
-                slider.setValue(motor.initialLength)
-                # lambda does not work (all slider use the last motor)... why???
-                # slider.valueChanged.connect(lambda: self.updateStringLength(motor))
-                slider.valueChanged.connect(functools.partial(self.updateStringLength, motor))
-                slider.setTickInterval(1)
+            # Speed slider
+            slider = self.sliderSpeed[motor]
+            slider.setEnabled(1)
+            slider.setToolTip('Set the speed of the ' + motor.name)
+            slider.setMinimum(0)
+            slider.setMaximum(80)
+            # lambda does not work (all slider use the last motor)... why???
+            # slider.valueChanged.connect(lambda: self.updateSpeed(motor))
+            slider.valueChanged.connect(functools.partial(self.updateSpeed, motor))
+            slider.setValue(10)
+            slider.setTickInterval(1)
 
             # Reset button
             button = self.resetMotorBtn[motor]
@@ -190,9 +187,18 @@ class App(QWidget):
             button.clicked.connect(functools.partial(self.resetMotorAngle, [motor]))
             button.setEnabled(True)
 
+        # Speed values for the head motor are 400-800
+        motor = self.marionette.motor['H']
+        slider = self.sliderSpeed[motor]
+        slider.setMinimum(400)
+        slider.setMaximum(800)
+        slider.setValue(500)
+
         # Disable Rigth Arm slider since there is no motor on that joint
         motor = self.marionette.motor['AR']
         slider = self.sliderMotor[motor]
+        slider.setEnabled(False)
+        slider = self.sliderSpeed[motor]
         slider.setEnabled(False)
 
         # Eye control settings
@@ -222,6 +228,10 @@ class App(QWidget):
         self.playBtn.setToolTip('Play the motion stored in a file')
         self.playBtn.clicked.connect(self.play)
         self.playBtn.setEnabled(self.simulate)
+        # Record/Play not working
+        # Disabled until fixed
+        self.playBtn.setEnabled(0)
+        self.recordBtn.setEnabled(0)
 
         # Close button
         self.closeBtn.setToolTip('Close the Simulator window')
@@ -234,12 +244,6 @@ class App(QWidget):
 
         # GoTo controls
         self.updateTargetComboBox()
-        self.speedSlider.setTickInterval(1)
-        self.speedSlider.setMinimum(0) # min speed = 0
-        self.speedSlider.setMaximum(80) # max speed = 80
-        self.speedSlider.setValue(10)
-        self.speedSlider.valueChanged.connect(self.updateSpeedLabel)
-        self.speedLabel.setFixedWidth(30)
         self.gotoBtn.setToolTip('Move the marionette to the selected pose at the selected speed')
         self.gotoBtn.clicked.connect(self.gotoTarget)
         self.gotoBtn.setEnabled(True)
@@ -296,7 +300,6 @@ class App(QWidget):
         layout = QGridLayout()
         i = 1
         for ctrlList in [[self.anglesComboBox],
-                        [self.speedSlider, self.speedLabel],
                         [self.gotoBtn]]:
             j = 1
             for ctrl in ctrlList:
@@ -306,13 +309,13 @@ class App(QWidget):
         self.gotoGroupBox.setLayout(layout)
 
 
-    def createStringCmdLayout(self):
-        self.stringGroupBox = QGroupBox("String length at 0 degree (mm)")
+    def createSpeedCmdLayout(self):
+        self.stringGroupBox = QGroupBox("Motor Speed")
         layout = QGridLayout()
         n = 1
         for motor in self.marionette.motorList:
-            layout.addWidget(self.sliderString[motor], n, 1)
-            layout.addWidget(self.labelMotorStringLength[motor], n, 2)
+            layout.addWidget(self.sliderSpeed[motor], n, 1)
+            layout.addWidget(self.labelMotorSpeed[motor], n, 2)
             n += 1
         self.stringGroupBox.setMinimumSize(200, 0)
         self.stringGroupBox.setLayout(layout)
@@ -403,14 +406,9 @@ class App(QWidget):
         self.labelMotorAngle[motor].setText(str(self.sliderMotor[motor].value()))
 
 
-    def updateStringLength(self, motor):
-        previousLength = motor.initialLength
-        # Update motor string length
-        motor.initialLength = self.sliderString[motor].value()
-        if self.simulate:
-            if self.marionette.computeNodesPosition():
-                self.visualWindow.updateGL()
-        self.labelMotorStringLength[motor].setText(str(motor.initialLength))
+    def updateSpeed(self, motor):
+        speed = self.sliderSpeed[motor].value()
+        self.labelMotorSpeed[motor].setText(str(speed))
 
 
     def resetMotorAngle(self, motorList):
@@ -427,8 +425,8 @@ class App(QWidget):
         for key in m.motor.keys():
             motor = m.motor[key]
             motor.initialLength = m.length[key]
-            self.sliderString[motor].setValue(motor.initialLength)
-            self.sliderString[motor].repaint()
+            self.sliderSpeed[motor].setValue(motor.initialLength)
+            self.sliderSpeed[motor].repaint()
 
         # Initial string length should be a valid positions
         # no need to check ... unless motors are not at initial angle...
@@ -501,22 +499,26 @@ class App(QWidget):
             angles.append(angle)
         return angles
 
-    def updateSpeedLabel(self):
-        speed = self.speedSlider.value()
-        self.speedLabel.setText(str(speed))
+
+    def sliderSpeeds(self):
+        # Return current speeds
+        speeds = []
+        for motor in self.marionette.motorList:
+            speeds.append(self.sliderSpeed[motor].value())
+        return speeds
+
 
     def gotoTarget(self):
         # Go to selected target
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = self.anglesComboBox.currentText()
-        speed = self.speedSlider.value()
 
         # print "target = ", target
         if target == "Current slider angles":
             # print "angles = ", self.sliderAngles()
-            angles = self.actionModule.moveToAngles(self.sliderAngles(), speed)
+            angles = self.actionModule.moveToAngles(self.sliderAngles(), self.sliderSpeeds())
         else:
-            angles = self.actionModule.moveTo(target, speed)
+            angles = self.actionModule.moveTo(target, self.sliderSpeeds())
         self.marionette.setAngles(angles)
 
         if self.simulate:
@@ -524,6 +526,7 @@ class App(QWidget):
             self.visualWindow.updateGL()
 
         self.updateSlider()
+
 
     def updateSlider(self):
         # Update the sliders angle
@@ -536,6 +539,7 @@ class App(QWidget):
             # value with precision 1
             value = decimal.Decimal(value).quantize(decimal.Decimal('1'))
             self.labelMotorAngle[motor].setText(str(value))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

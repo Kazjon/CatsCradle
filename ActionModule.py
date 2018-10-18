@@ -101,21 +101,21 @@ class ActionModule(object):
                         self.ac.rotateStringMotor(id, angle, speed)
         print "Arduino thread stopped"
 
-    def moveToAngles(self, target, rotationSpeed):
+    def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
-        output = action.getCmdsToTarget(self.currentAngles, rotationSpeed)
+        output = action.getCmdsToTarget(self.currentAngles, speeds)
         self.currentAngles = target
         self.qMotorCmds.put(output)
         return self.currentAngles
 
-    def moveTo(self, targetKey, rotationSpeed):
+    def moveTo(self, targetKey, speeds):
         if targetKey not in self.angles.keys():
             raise InvalidTargetKeyError
 
-        print "move to ", targetKey, " at speed  ", rotationSpeed
+        print "move to ", targetKey, " at speed  ", speeds
 
         target = self.angles[targetKey]
-        return self.moveToAngles(target, rotationSpeed)
+        return self.moveToAngles(target, speeds)
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -189,8 +189,11 @@ if __name__ == '__main__':
             while self.run:
                 actionKey = random.choice(self.actionModule.angles.keys())
                 speed = random.choice([10, 20, 50, 80])
-                print "move ", actionKey, " at speed ", speed
-                seq = self.actionModule.moveTo(actionKey, speed)
+                speeds = []
+                for a in self.actionModule.currentAngles:
+                    speeds.append(speed)
+                print "move ", actionKey, " at speed ", speeds
+                seq = self.actionModule.moveTo(actionKey, speeds)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 

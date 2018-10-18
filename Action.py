@@ -19,11 +19,11 @@ class Action(object):
         self.marionette = Marionette()
 
 
-    def getCmdsToTarget(self, origin, rotationSpeed):
+    def getCmdsToTarget(self, origin, speeds):
         """ Return the commands (angle/speed) to be sent to each motor that needs to move
             motorName: motor name
             angleValue: target angle of the motor
-            rotationSpeed: motor rotation speed
+            speeds: motor rotation speeds
 
             Format of return value:
             [[motorName angleValue rotationSpeed] (optional)
@@ -33,18 +33,18 @@ class Action(object):
              ]
         """
         # print "origin = ", origin
-        # print "rotationSpeed = ", rotationSpeed
+        # print "speeds = ", speeds
         # print "target = ", self.target
+        if not len(self.target) == len(speeds):
+            print "Invalid speeds number ", len(speeds)
+            raise InvalidSpeedsNumber
+
         output = []
-        for originAngle, targetAngle, motor in zip(origin, self.target, self.marionette.motorList):
-            if targetAngle is None or targetAngle == originAngle:
+        for originAngle, targetAngle, speed, motor in zip(origin, self.target, speeds, self.marionette.motorList):
+            if targetAngle is None or targetAngle == originAngle or speed == 0:
                 # No motion requested: pass
                 pass
             else:
-                speed = rotationSpeed
-                if motor.name == 'motorH':
-                    # Adapt the speed from 0-80 to 400-800
-                    speed = 400 + rotationSpeed / 80.0 * 400
                 info = []
                 info.append(motor.name)
                 info.append(targetAngle)
@@ -66,10 +66,11 @@ if __name__ == '__main__':
     print "Full body motion"
 
     target = [21, -980, 0, -2298, 0, 73, 355, 0, -1573, 0, -1919, 821]
+    speeds = [ 5,   15, 0,     5, 5, 10,   5, 5,     5, 5,     5,   5]
     action = Action(target, 0.5)
 
     print "Commands to target:"
-    for cmd in action.getCmdsToTarget(marionette.getAngles(), 5):
+    for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
         print ' '.join(map(str, cmd))
 
     # Define motion of only 4 motors (S, SR, AR, WR)
@@ -82,9 +83,5 @@ if __name__ == '__main__':
     action = Action(target, 0.5)
 
     print "Commands to target:"
-    for cmd in action.getCmdsToTarget(marionette.getAngles(), 5):
-        print ' '.join(map(str, cmd))
-
-    print "Commands to target too fast:"
-    for cmd in action.getCmdsToTarget(marionette.getAngles(), 3):
+    for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
         print ' '.join(map(str, cmd))
