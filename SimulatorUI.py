@@ -56,6 +56,7 @@ class App(QWidget):
         self.sliderMotor = {}
         self.labelMotorAngle = {}
         self.sliderSpeed = {}
+        self.checkMotorSave = {}
         self.labelMotorName = {}
         self.labelMotorSpeed = {}
         self.resetMotorBtn = {}
@@ -66,6 +67,7 @@ class App(QWidget):
             self.labelMotorAngle[motor] = QLabel(str(0))
             self.labelMotorSpeed[motor] = QLabel('')
             self.resetMotorBtn[motor] = QPushButton('Reset')
+            self.checkMotorSave[motor] = QCheckBox()
 
         # Eye control widgets
         self.sliderYaw = QSlider(Qt.Horizontal)
@@ -82,7 +84,7 @@ class App(QWidget):
         self.printBtn = QPushButton('Save Position')
 
         # Goto controls
-        self.anglesComboBox = QComboBox()
+        self.positionsComboBox = QComboBox()
         self.gotoBtn = QPushButton('GoTo Target')
 
         self.initUI()
@@ -93,6 +95,7 @@ class App(QWidget):
 
         self.createViewCmdLayout()
         self.createSpeedCmdLayout()
+        self.createCheckSaveCmdLayout()
         self.createMotorCmdLayout()
         self.createMotorResetBtnLayout()
         self.createMotorNameLayout()
@@ -105,7 +108,8 @@ class App(QWidget):
         windowLayout.addWidget(self.nameGroupBox, 1, 1)
         windowLayout.addWidget(self.motorGroupBox, 1, 2)
         windowLayout.addWidget(self.resetGroupBox, 1, 3)
-        windowLayout.addWidget(self.stringGroupBox, 1, 4)
+        windowLayout.addWidget(self.speedGroupBox, 1, 4)
+        windowLayout.addWidget(self.checkSaveGroupBox, 1, 5)
 
         # Line 2
         windowLayout.addWidget(self.eyeGroupBox, 2, 1, 1, 3)
@@ -187,6 +191,11 @@ class App(QWidget):
             button.clicked.connect(functools.partial(self.resetMotorAngle, [motor]))
             button.setEnabled(True)
 
+            # Save checkbox
+            checkBox = self.checkMotorSave[motor]
+            checkBox.setChecked(1)
+            checkBox.setToolTip('Enable/Disable saving of the ' + motor.name + ' angle in the new position')
+
         # Speed values for the head motor are 400-800
         motor = self.marionette.motor['H']
         slider = self.sliderSpeed[motor]
@@ -200,6 +209,9 @@ class App(QWidget):
         slider.setEnabled(False)
         slider = self.sliderSpeed[motor]
         slider.setEnabled(False)
+        checkBox = self.checkMotorSave[motor]
+        checkBox.setChecked(0)
+        checkBox.setEnabled(False)
 
         # Eye control settings
         for slider in [self.sliderPitch, self.sliderYaw]:
@@ -239,7 +251,7 @@ class App(QWidget):
         self.closeBtn.setEnabled(True)
         # Print button
         self.printBtn.setToolTip('Save the current motor angles')
-        self.printBtn.clicked.connect(self.printAngles)
+        self.printBtn.clicked.connect(self.savePosition)
         self.printBtn.setEnabled(True)
 
         # GoTo controls
@@ -299,7 +311,7 @@ class App(QWidget):
         self.gotoGroupBox = QGroupBox("GoTo")
         layout = QGridLayout()
         i = 1
-        for ctrlList in [[self.anglesComboBox],
+        for ctrlList in [[self.positionsComboBox],
                         [self.gotoBtn]]:
             j = 1
             for ctrl in ctrlList:
@@ -310,15 +322,25 @@ class App(QWidget):
 
 
     def createSpeedCmdLayout(self):
-        self.stringGroupBox = QGroupBox("Motor Speed")
+        self.speedGroupBox = QGroupBox("Motor Speed")
         layout = QGridLayout()
         n = 1
         for motor in self.marionette.motorList:
             layout.addWidget(self.sliderSpeed[motor], n, 1)
             layout.addWidget(self.labelMotorSpeed[motor], n, 2)
             n += 1
-        self.stringGroupBox.setMinimumSize(200, 0)
-        self.stringGroupBox.setLayout(layout)
+        self.speedGroupBox.setMinimumSize(200, 0)
+        self.speedGroupBox.setLayout(layout)
+
+
+    def createCheckSaveCmdLayout(self):
+        self.checkSaveGroupBox = QGroupBox("Saved motor")
+        layout = QGridLayout()
+        n = 1
+        for motor in self.marionette.motorList:
+            layout.addWidget(self.checkMotorSave[motor], n, 1)
+            n += 1
+        self.checkSaveGroupBox.setLayout(layout)
 
 
     def createMotorCmdLayout(self):
@@ -466,26 +488,32 @@ class App(QWidget):
                 else:
                     self.actionModule.moveToAngles(angles, 15)
             f.close()
-            self.updateSlider()
+            self.updateSliders()
 
-    def printAngles(self):
+    def savePosition(self):
         # Get current angles
         angles = []
+        speeds = []
         for motor in self.marionette.motorList:
-            angles.append(motor.angle)
+            if self.checkMotorSave[motor].isChecked():
+                angles.append(motor.angle)
+                speeds.append(self.sliderSpeed[motor].value())
+            else:
+                angles.append(None)
+                speeds.append(0)
         # create dialog to enter name
         text, ok = QInputDialog.getText(self, 'Save current position', 'Name:')
         if ok:
-            self.actionModule.addPosition(text, angles)
+            self.actionModule.addPosition(text, angles, speeds)
         # Update target dropdown
         self.updateTargetComboBox()
 
 
     def updateTargetComboBox(self):
-        self.anglesComboBox.clear()
-        self.anglesComboBox.addItem("Current slider angles")
-        for key in self.actionModule.angles.keys():
-            self.anglesComboBox.addItem(key)
+        self.positionsComboBox.clear()
+        self.positionsComboBox.addItem("Current slider angles")
+        for key in sorted(self.actionModule.positions.keys()):
+            self.positionsComboBox.addItem(key)
 
 
     def sliderAngles(self):
@@ -511,24 +539,24 @@ class App(QWidget):
     def gotoTarget(self):
         # Go to selected target
         self.actionModule.currentAngles = self.marionette.getAngles()
-        target = self.anglesComboBox.currentText()
+        target = self.positionsComboBox.currentText()
 
         # print "target = ", target
         if target == "Current slider angles":
             # print "angles = ", self.sliderAngles()
             angles = self.actionModule.moveToAngles(self.sliderAngles(), self.sliderSpeeds())
         else:
-            angles = self.actionModule.moveTo(target, self.sliderSpeeds())
+            angles = self.actionModule.moveTo(target)
         self.marionette.setAngles(angles)
 
         if self.simulate:
             self.marionette.computeNodesPosition()
             self.visualWindow.updateGL()
 
-        self.updateSlider()
+        self.updateSliders()
 
 
-    def updateSlider(self):
+    def updateSliders(self):
         # Update the sliders angle
         for motor in self.marionette.motorList:
             value = motor.angle

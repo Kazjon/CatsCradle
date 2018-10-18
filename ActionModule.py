@@ -26,7 +26,7 @@ class ActionModule(object):
         """
         # Read the positions from the Positions.json file
         with open("Positions.json", "r") as read_file:
-            self.angles = json.load(read_file)
+            self.positions = json.load(read_file)
 
         self.timeInterval = 0.25 # (1/4 second)
 
@@ -89,6 +89,9 @@ class ActionModule(object):
                     id = self.arduinoID[cmd[0]]
                     angle = int(cmd[1])
                     speed = int(cmd[2])
+                    if angle is None or speed == 0:
+                        # No motion
+                        continue
                     if id == -1:
                         # Obsolete motor AR
                         continue
@@ -104,18 +107,25 @@ class ActionModule(object):
     def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
         output = action.getCmdsToTarget(self.currentAngles, speeds)
-        self.currentAngles = target
+        newAngles = []
+        for oldAngle, newAngle in zip(self.currentAngles, target):
+            if newAngle is None:
+                newAngles.append(oldAngle)
+            else:
+                newAngles.append(newAngle)
+        # print "self.currentAngles = ", self.currentAngles
+        # print "target = ", target
+        # print "newAngles = ", newAngles
+        self.currentAngles = newAngles
         self.qMotorCmds.put(output)
         return self.currentAngles
 
-    def moveTo(self, targetKey, speeds):
-        if targetKey not in self.angles.keys():
+    def moveTo(self, targetKey):
+        if targetKey not in self.positions.keys():
             raise InvalidTargetKeyError
 
-        print "move to ", targetKey, " at speed  ", speeds
-
-        target = self.angles[targetKey]
-        return self.moveToAngles(target, speeds)
+        position = self.positions[targetKey]
+        return self.moveToAngles(position['angles'], position['speeds'])
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -150,20 +160,27 @@ class ActionModule(object):
 
         return (angleY, angleZ)
 
-    def addPosition(self, name, angles):
+    def addPosition(self, name, angles, speeds):
         # Check angles length
         if not len(angles) == len(self.currentAngles):
             print 'Invalid angles: ', angles
             raise InvalidAnglesParameter
+        if not len(speeds) == len(self.currentAngles):
+            print 'Invalid speeds: ', speeds
+            raise InvalidSpeedsParameter
 
         # Check for overwrite and print overwritten angles inc ase we want to recover
-        if name in self.angles.keys():
-            print 'WARNING: Overwrite "', name, '" angles (old values: ', self.angles[name], ').'
+        if name in self.positions.keys():
+            print 'WARNING: Overwrite "', name, '" position (old values: ', self.positions[name], ').'
 
         # Add a position to the Position.json file
-        self.angles[name] = angles
+        position = {}
+        position['angles'] = angles
+        position['speeds'] = speeds
+        # print "position = ", position
+        self.positions[name] = position
         with open("Positions.json", "w") as write_file:
-            json.dump(self.angles, write_file, indent=4, sort_keys=True)
+            json.dump(self.positions, write_file, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
@@ -187,13 +204,13 @@ if __name__ == '__main__':
         def generateMotion(self):
             print "started"
             while self.run:
-                actionKey = random.choice(self.actionModule.angles.keys())
+                actionKey = random.choice(self.actionModule.positions.keys())
                 speed = random.choice([10, 20, 50, 80])
                 speeds = []
                 for a in self.actionModule.currentAngles:
                     speeds.append(speed)
-                print "move ", actionKey, " at speed ", speeds
-                seq = self.actionModule.moveTo(actionKey, speeds)
+                print "move to ", actionKey
+                seq = self.actionModule.moveTo(actionKey)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)
 
