@@ -10,6 +10,8 @@
 import Queue
 import threading
 import json
+import os
+import glob
 
 import ArduinoCommunicator
 import time
@@ -26,11 +28,19 @@ class ActionModule(object):
         """
         # Read the positions from the Positions.json file
         self.positions = {}
+
+        # Read the positions from the json files
+        fileList = ["Positions.json"]
         try:
-            with open("Positions.json", "r") as read_file:
-                self.positions = json.load(read_file)
+            os.chdir("./Positions")
+            for filename in glob.glob("*.json"):
+                fileList.append("Positions/" + filename)
+            os.chdir("..")
         except:
             pass
+
+        for filename in fileList:
+            self.loadPositionsFromFile(filename)
 
         self.timeInterval = 0.25 # (1/4 second)
 
@@ -185,6 +195,14 @@ class ActionModule(object):
         self.positions[name] = position
         with open("Positions.json", "w") as write_file:
             json.dump(self.positions, write_file, indent=4, sort_keys=True)
+
+    def loadPositionsFromFile(self, filename):
+        try:
+            with open(filename, "r") as read_file:
+                print "Loading positions from ", filename, "..."
+                self.positions.update(json.load(read_file))
+        except:
+            pass
 
 
 if __name__ == '__main__':

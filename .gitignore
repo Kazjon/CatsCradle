@@ -106,3 +106,4 @@ ENV/
 *.DS_Store
 
 Positions.json
+Positions/
