@@ -78,7 +78,7 @@ if __name__ == '__main__':
     print " "
     print "Right arm only"
 
-    target = [21, -980, None, -2298, None, None, None, None, None, None, -1919, None]
+    target = [21, -980, None, -2298, None, None, None, None, None, None, -1919, None, 90, None]
 
     action = Action(target, 0.5)
 

@@ -148,6 +148,11 @@ class ArduinoCommunicator(object):
         self.send(cmd)
         # self.send(struct.pack('>cbb', 'm', id, angle, speed))
 
+    def rotateEyes(self, angleX, angleY, speedX, speedY):
+        cmd = 'e,' + str(angleX) + ',' + str(angleY) + ',' + str(speedX) + ',' + str(speedY)
+        self.send(cmd)
+        # self.send(struct.pack('>cbb', 'e', angleX, angleY, speedX, speedY))
+
     def receiveLines(self, num_of_times):
         for i in xrange(num_of_times):
             self.receive()

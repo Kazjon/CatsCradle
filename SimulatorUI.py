@@ -69,12 +69,6 @@ class App(QWidget):
             self.resetMotorBtn[motor] = QPushButton('Reset')
             self.checkMotorSave[motor] = QCheckBox()
 
-        # Eye control widgets
-        self.sliderYaw = QSlider(Qt.Horizontal)
-        self.labelYaw = QLabel("Yaw")
-        self.sliderPitch = QSlider(Qt.Horizontal)
-        self.labelPitch = QLabel("Pitch")
-
         # commands widgets
         self.resetAnglesBtn = QPushButton('Reset angles')
         self.playBtn = QPushButton('Play')
@@ -98,7 +92,6 @@ class App(QWidget):
         self.createMotorCmdLayout()
         self.createMotorResetBtnLayout()
         self.createMotorNameLayout()
-        self.createEyeCmdLayout()
         self.createCommandsLayout()
         self.createGotoLayout()
 
@@ -111,7 +104,6 @@ class App(QWidget):
         windowLayout.addWidget(self.checkSaveGroupBox, 1, 5)
 
         # Line 2
-        windowLayout.addWidget(self.eyeGroupBox, 2, 1, 1, 3)
         windowLayout.addWidget(self.commandsGroupBox, 3, 1, 1, 2)
         windowLayout.addWidget(self.gotoGroupBox, 3, 3, 1, 1)
 
@@ -162,11 +154,12 @@ class App(QWidget):
             slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
             min = motor.minAngle
             max = motor.maxAngle
-            defaultValue = 0
+            defaultValue = motor.defaultAngle
+            print "motor ", motor.name, " default angle = ", motor.defaultAngle
             if motor.isStatic:
                 min = motor.stringLengthFromAngle(motor.minAngle)
                 max = motor.stringLengthFromAngle(motor.maxAngle)
-                defaultValue = motor.stringLengthFromAngle(0)
+                defaultValue = motor.stringLengthFromAngle(motor.defaultAngle)
             slider.setMinimum(min)
             slider.setMaximum(max)
             slider.setValue(defaultValue)
@@ -211,16 +204,6 @@ class App(QWidget):
         checkBox = self.checkMotorSave[motor]
         checkBox.setChecked(0)
         checkBox.setEnabled(False)
-
-        # Eye control settings
-        for slider in [self.sliderPitch, self.sliderYaw]:
-            slider.setEnabled(True)
-            slider.setToolTip('Rotate eyes')
-            slider.valueChanged.connect(self.moveEyes)
-            slider.setMinimum(-20)
-            slider.setMaximum(20)
-            slider.setValue(0)
-            slider.setTickInterval(1)
 
         # Reset motor angles button
         self.resetAnglesBtn.setToolTip('Reset all motors rotation to 0 degree')
@@ -271,20 +254,6 @@ class App(QWidget):
                 j += 1
             i += 1
         self.viewGroupBox.setLayout(layout)
-
-
-    def createEyeCmdLayout(self):
-        self.eyeGroupBox = QGroupBox("Eyes commands")
-        layout = QGridLayout()
-        i = 1
-        for btnList in [[self.labelPitch, self.sliderPitch],
-                        [self.labelYaw, self.sliderYaw]]:
-            j = 1
-            for btn in btnList:
-                layout.addWidget(btn, i, j)
-                j += 1
-            i += 1
-        self.eyeGroupBox.setLayout(layout)
 
 
     def createCommandsLayout(self):
@@ -393,14 +362,6 @@ class App(QWidget):
             self.visualWindow.updateGL()
 
 
-    def moveEyes(self):
-        for key in ['ER', 'EL']:
-            self.marionette.eye[key].angleY = self.sliderPitch.value()
-            self.marionette.eye[key].angleZ = self.sliderYaw.value()
-        if self.simulate:
-            self.visualWindow.updateGL()
-
-
     def updateMotorPos(self, motor):
         # Update motor angle
         if self.simulate:
@@ -431,9 +392,9 @@ class App(QWidget):
     def resetMotorAngle(self, motorList):
         previousAngles = {}
         for motor in motorList:
-            value = 0
+            value = motor.defaultAngle
             if motor.isStatic:
-                value = motor.stringLengthFromAngle(0)
+                value = motor.stringLengthFromAngle(motor.defaultAngle)
             self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
 

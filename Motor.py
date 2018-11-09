@@ -32,7 +32,8 @@ class Motor:
         else:
             self.minAngle = -90
             self.maxAngle = 90
-
+        self.defaultAngle = 0
+        
     def angleFromStringLength(self, length):
         """Returns the rotation angle in degrees needed to get a string of 'length' length"""
         if self.isStatic:

@@ -64,6 +64,8 @@ class ActionModule(object):
         self.arduinoID['motorWL'] = 3    # "Left hand"
         self.arduinoID['motorFR'] = 5    # "Right foot"
         self.arduinoID['motorFL'] = 4    # "Left foot"
+        self.arduinoID['motorEX'] = 'eyeX'    # "Eye horizontal"
+        self.arduinoID['motorEY'] = 'eyeY'    # "Eye vertical"
 
         # Thread related variables
         self.qMotorCmds = Queue.Queue()
@@ -98,6 +100,11 @@ class ActionModule(object):
         while(self.running):
             if not self.qMotorCmds.empty():
                 cmds = self.qMotorCmds.get()
+                eyeMotion = False
+                eyeAngleX = 90 # The eye angles needs an int. If it should be None,
+                eyeAngleY = 90 # speed will be 0 and no motion will be triggered
+                eyeSpeedX = 0
+                eyeSpeedY = 0
                 for cmd in cmds:
                     # print "step = ", step
                     id = self.arduinoID[cmd[0]]
@@ -113,9 +120,21 @@ class ActionModule(object):
                         self.ac.rotateHead(angle, speed)
                     elif id == 'shoulder':
                         self.ac.rotateShoulder(angle, speed)
+                    elif id == 'eyeX':
+                        eyeMotion = True
+                        eyeAngleX = angle
+                        eyeSpeedX = speed
+                    elif id == 'eyeY':
+                        eyeMotion = True
+                        eyeAngleY = angle
+                        eyeSpeedY = speed
                     else:
                         # Other motors
                         self.ac.rotateStringMotor(id, angle, speed)
+
+                if eyeMotion:
+                    self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
+
         print "Arduino thread stopped"
 
     def moveToAngles(self, target, speeds):
@@ -199,8 +218,22 @@ class ActionModule(object):
     def loadPositionsFromFile(self, filename):
         try:
             with open(filename, "r") as read_file:
-                print "Loading positions from ", filename, "..."
-                self.positions.update(json.load(read_file))
+                # print "Loading positions from ", filename, "..."
+                filePositions = json.load(read_file)
+                # print 'filePositions = ', filePositions.keys()
+                n = len(Marionette().motorList)
+                updatedPositions = {}
+                for name in filePositions.keys():
+                    # print "name = ", name
+                    pos = filePositions[name]
+                    while len(pos['angles']) < n:
+                        pos['angles'].append(None)
+                    while len(pos['speeds']) < n:
+                        pos['speeds'].append(0)
+                    # print "pos = ", pos
+                    updatedPositions[name] = pos
+                # print "updatedPositions = ", updatedPositions
+                self.positions.update(updatedPositions)
         except:
             pass
 

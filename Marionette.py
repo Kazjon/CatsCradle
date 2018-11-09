@@ -14,7 +14,7 @@ from truss import truss
 #      FR/FL = Foot Right and Left
 #      AR/AL = Arm Right and Left
 #      WR/WL = Wrist Right and Left
-#      ER/EL = Eye Right and Left
+#      EX/EY = Eye Horizontal (Pitch = x) and Vertical (Yawn = y)
 #
 #        WR  FR     W     FL   WL    -> Fixed on ceiling
 #                   |
@@ -31,7 +31,7 @@ class Marionette:
 
     def __init__(self):
         """motors is the list of Motors objects in the following order:
-        S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL"""
+        S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL, EX, EY"""
 
         # Marionette's dimensions in mm (to be updated)
         rod_O_S = 50 # length of upper vertical rod (shoulders)
@@ -50,6 +50,8 @@ class Marionette:
         offset['FR'] = (-255, -255, -25) # offset of the motor FR on the ceiling (marionette's top attachment)
         offset['WL'] = ( 255,  255, -25) # offset of the motor WL on the ceiling (marionette's top attachment)
         offset['WR'] = ( 255, -255, -25) # offset of the motor WR on the ceiling (marionette's top attachment)
+        offset['EX'] = ( 0, 0, 0) # offset of the motor EX in the Head
+        offset['EY'] = ( 0, 0, 0) # offset of the motor EY in the Head
         self.length = {}
         self.length['SR'] = 1314.45 # 51.75 inches  # Initial length of string on SR (at 0 degrees rotation)
         self.length['SL'] = 1314.45 # 51.75 inches  # Initial length of string on SL (at 0 degrees rotation)
@@ -64,6 +66,8 @@ class Marionette:
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
         self.length['H'] = 0
+        self.length['EX'] = 0
+        self.length['EY'] = 0
         # Motors settings
         radius = 25.5 / 2 # All motors have the same diameter (1 inch)
         # Number of microsteps of the stepper motors (2 for Arms and Wrists, 8 otherwise)
@@ -80,6 +84,8 @@ class Marionette:
         self.motorMicrosteps['FL'] = 8
         self.motorMicrosteps['WL'] = 2
         self.motorMicrosteps['WR'] = 2
+        self.motorMicrosteps['EX'] = 0
+        self.motorMicrosteps['EY'] = 0
 
         # Marionette's measurements (mm):
         self.headWidth = 176
@@ -97,11 +103,16 @@ class Marionette:
         self.motor = {}
         self.motorList = []
         self.stepperMotorList = []
-        for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
+        for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL', 'EX', 'EY']:
             self.motor[key] = Motor('motor' + key, radius, self.motorMicrosteps[key], self.length[key])
             self.motorList.append(self.motor[key])
             if self.motor[key].isStatic:
                 self.stepperMotorList.append(self.motor[key])
+
+        # Default angles for the eyes are 90
+        self.motor['EX'].defaultAngle = 90
+        self.motor['EY'].defaultAngle = 90
+
         # The max for motor driving strings is the angle at which the string length is at its inital length (0 degrees)
         # Stepper (from Lilla's tests)
         self.motor['SR'].minAngle = -70
@@ -114,6 +125,11 @@ class Marionette:
         self.motor['FL'].minAngle = -150
         self.motor['WR'].minAngle = -2300
         self.motor['WL'].minAngle = -2780
+        # Eyes
+        self.motor['EX'].minAngle = 40
+        self.motor['EY'].minAngle = 40
+        self.motor['EX'].maxAngle = 150
+        self.motor['EY'].maxAngle = 150
         # Head and Shoulder
         self.motor['S'].minAngle = -45
         self.motor['S'].maxAngle =  45
@@ -144,6 +160,9 @@ class Marionette:
         # After the first command asking for a speed higher than 32, the
         # shoulders motor can't rotate anymore and Arduino needs to be restarted
         self.motor['S'].maxSpeed = 32
+        # TODO: Update values
+        self.motor['EX'].maxSpeed = 32
+        self.motor['EY'].maxSpeed = 32
 
         # Eyes
         self.eye = {}
@@ -166,6 +185,9 @@ class Marionette:
         self.pathToWorld[self.motor['FL']] = []
         self.pathToWorld[self.motor['WR']] = []
         self.pathToWorld[self.motor['WL']] = []
+        # TODO: Also depends on HL and HR
+        self.pathToWorld[self.motor['EX']] = [self.motor['H']]
+        self.pathToWorld[self.motor['EY']] = [self.motor['H']]
 
         # From these dimensions we get the transform matrices from one referenceSpace to another (with no rotation of the motors)
         self.initialAToB = {}
@@ -191,6 +213,11 @@ class Marionette:
         for key in ['FR', 'FL', 'WR', 'WL']:
             self.initialAToB[self.motor[key]] = {}
             self.initialAToB[self.motor[key]]['World'] = RotateX(Translate(np.identity(4), offset[key]), -90)
+
+        # Initial transform of motors related to the eyes
+        for key in ['EX', 'EY']:
+            self.initialAToB[self.motor[key]] = {}
+            self.initialAToB[self.motor[key]][self.motor['H']] = np.identity(4)
 
         # Sanity check: makes sure all path inital tranforms have been defined
         for srcMotor, path in self.pathToWorld.items():
@@ -228,7 +255,7 @@ class Marionette:
 
     def setAngles(self, angles):
         """ Set the motor angles in the following order:
-            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
+            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL', 'EX', 'EY'
         """
         if len(angles) != len(self.motorList):
             # print "angles = ", angles
@@ -239,7 +266,7 @@ class Marionette:
 
     def getAngles(self):
         """ Get the current motor angles in the following order:
-            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
+            'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL', 'EX', 'EY'
         """
         angles = []
         for m in self.motorList:
