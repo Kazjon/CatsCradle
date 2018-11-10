@@ -442,7 +442,7 @@ class App(QWidget):
         if self.sequence_window is None:
             self.sequence_window = SequenceExeWindow()
             self.sequence_window.set_gesture_list(sorted(self.actionModule.positions.keys()))
-            self.sequence_window.gestureExecutionFunction = self.gotoTargetGesture
+            self.sequence_window.execution_signal.connect(self.gotoTargetGesture)
             self.sequence_window.show()
         else:
             self.sequence_window.show()
@@ -516,14 +516,15 @@ class App(QWidget):
 
         self.updateSliders()
 
+    @pyqtSlot(str)
     def gotoTargetGesture(self, gesture):
         # Go to selected gesture
+        print(str(datetime.datetime.now()), "gotoTargetGesture: started.")
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = gesture
         
-        print(str(datetime.datetime.now()), "sending", target)
+        print(str(datetime.datetime.now()), "gotoTargetGesture: sending", target)
         angles = self.actionModule.moveTo(target)
-        print(str(datetime.datetime.now()), "finished sending.")
         # in case action module fails
         if angles is None:
             return
@@ -535,7 +536,7 @@ class App(QWidget):
             self.visualWindow.updateGL()
         
         self.updateSliders()
-        print(str(datetime.datetime.now()), "done.")
+        print(str(datetime.datetime.now()), "gotoTargetGesture: done with", target)
 
     def updateSliders(self):
         # Update the sliders angle
@@ -551,6 +552,7 @@ class App(QWidget):
 
 class SequenceExeWindow(QWidget):
     
+    execution_signal = pyqtSignal(str)
     gestureExecutionFunction = None
     
     def __init__(self):
@@ -606,15 +608,10 @@ class SequenceExeWindow(QWidget):
                 try:
                     # if int -> sleep
                     delay = int(item)
-                    print(str(datetime.datetime.now()), "delaying for: " + str(delay) + " second(s).")
                     sleep(delay)
                 except:
                     # if str -> execute
-                    print("--------------")
-                    print(str(datetime.datetime.now()), "executing: " + item)
-                    if self.gestureExecutionFunction:
-                        self.gestureExecutionFunction(item)
-                    print("--------------")
+                    self.execution_signal.emit(item)
             self.execute_button.setEnabled(1)
         
         seq_thread = Thread(target=execute_sequence, args=[sequence_list])

@@ -250,7 +250,7 @@ class Marionette:
         self.trussShoulders = truss(12, shouldersEdges, shouldersAnchors)
 
         # Compute initial positions
-        self.computeNodesPosition()
+#        self.computeNodesPosition()
 
 
     def setAngles(self, angles):

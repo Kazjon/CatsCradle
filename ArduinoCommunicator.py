@@ -2,6 +2,7 @@ import serial
 import random
 import struct
 import time
+import datetime
 
 class ArduinoCommunicator(object):
     def __init__(self, port = ""):
@@ -34,7 +35,7 @@ class ArduinoCommunicator(object):
         time.sleep(2)
 
     def send(self, data):
-        print("Sending: ", data)
+        print(str(datetime.datetime.now()), "Sending:", data)
         if self.serial_port is not None:
             self.serial_port.write(data)
             self.serial_port.flush()
