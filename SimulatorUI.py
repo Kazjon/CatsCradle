@@ -1,6 +1,7 @@
-import sys
+import sys, os
 import functools
 import decimal
+import re
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -14,6 +15,10 @@ from ActionModule import ActionModule
 
 from UIUtils import MarionetteWidget
 from Marionette import *
+
+from threading import Thread
+from time import sleep
+import datetime
 
 class App(QWidget):
 
@@ -71,7 +76,7 @@ class App(QWidget):
 
         # commands widgets
         self.resetAnglesBtn = QPushButton('Reset angles')
-        self.playBtn = QPushButton('Play')
+        self.playBtn = QPushButton('Execute Sequences')
         self.recordBtn = QPushButton('Record')
         self.closeBtn = QPushButton('Close')
         self.printBtn = QPushButton('Save Position')
@@ -155,7 +160,7 @@ class App(QWidget):
             min = motor.minAngle
             max = motor.maxAngle
             defaultValue = motor.defaultAngle
-            print "motor ", motor.name, " default angle = ", motor.defaultAngle
+            print("motor ", motor.name, " default angle = ", motor.defaultAngle)
             if motor.isStatic:
                 min = motor.stringLengthFromAngle(motor.minAngle)
                 max = motor.stringLengthFromAngle(motor.maxAngle)
@@ -210,18 +215,15 @@ class App(QWidget):
         self.resetAnglesBtn.clicked.connect(functools.partial(self.resetMotorAngle, self.marionette.motorList))
         self.resetAnglesBtn.setEnabled(True)
 
-        # Record poses button
+        # Record poses button -- Record not working
         self.recordBtn.setToolTip('Start recording the motor angles')
         self.recordBtn.clicked.connect(self.record)
         self.recordBtn.setEnabled(self.simulate)
-        # Play motion button
-        self.playBtn.setToolTip('Play the motion stored in a file')
-        self.playBtn.clicked.connect(self.play)
-        self.playBtn.setEnabled(self.simulate)
-        # Record/Play not working
-        # Disabled until fixed
-        self.playBtn.setEnabled(0)
         self.recordBtn.setEnabled(0)
+        
+        # Open Gesture Execution Window
+        self.playBtn.setToolTip('Open gesture execution window')
+        self.playBtn.clicked.connect(self.openGestureWindow)
 
         # Close button
         self.closeBtn.setToolTip('Close the Simulator window')
@@ -238,6 +240,9 @@ class App(QWidget):
         self.gotoBtn.clicked.connect(self.gotoTarget)
         self.gotoBtn.setEnabled(True)
 
+        # Sequence Execution Window
+        self.sequence_window = None
+        
         self.show()
 
 
@@ -433,6 +438,15 @@ class App(QWidget):
             f.close()
             self.updateSliders()
 
+    def openGestureWindow(self):
+        if self.sequence_window is None:
+            self.sequence_window = SequenceExeWindow()
+            self.sequence_window.set_gesture_list(sorted(self.actionModule.positions.keys()))
+            self.sequence_window.gestureExecutionFunction = self.gotoTargetGesture
+            self.sequence_window.show()
+        else:
+            self.sequence_window.show()
+
     def savePosition(self):
         # Get current angles
         angles = []
@@ -490,6 +504,10 @@ class App(QWidget):
             angles = self.actionModule.moveToAngles(self.sliderAngles(), self.sliderSpeeds())
         else:
             angles = self.actionModule.moveTo(target)
+        # in case action module fails
+        if angles is None:
+            return
+        
         self.marionette.setAngles(angles)
 
         if self.simulate:
@@ -498,6 +516,26 @@ class App(QWidget):
 
         self.updateSliders()
 
+    def gotoTargetGesture(self, gesture):
+        # Go to selected gesture
+        self.actionModule.currentAngles = self.marionette.getAngles()
+        target = gesture
+        
+        print(str(datetime.datetime.now()), "sending", target)
+        angles = self.actionModule.moveTo(target)
+        print(str(datetime.datetime.now()), "finished sending.")
+        # in case action module fails
+        if angles is None:
+            return
+        
+        self.marionette.setAngles(angles)
+        
+        if self.simulate:
+            self.marionette.computeNodesPosition()
+            self.visualWindow.updateGL()
+        
+        self.updateSliders()
+        print(str(datetime.datetime.now()), "done.")
 
     def updateSliders(self):
         # Update the sliders angle
@@ -510,6 +548,85 @@ class App(QWidget):
             # value with precision 1
             value = decimal.Decimal(value).quantize(decimal.Decimal('1'))
             self.labelMotorAngle[motor].setText(str(value))
+
+class SequenceExeWindow(QWidget):
+    
+    gestureExecutionFunction = None
+    
+    def __init__(self):
+        super(SequenceExeWindow, self).__init__()
+        self.setWindowTitle('Sequences')
+        self.setGeometry(150, 150, 950, 660)
+        self.generate_ui()
+        
+        if os.path.exists('./sequences.csv'):
+            with open('./sequences.csv', 'rt') as f:
+                self.seq_editor.document().setPlainText(f.read())
+                print("loaded some sequences.")
+        
+        self.show()
+    
+    def generate_ui(self):
+        self.seq_editor = QPlainTextEdit(self)
+        self.seq_editor.move(20, 20)
+        self.seq_editor.resize(650, 600)
+        
+        self.gesture_list = QPlainTextEdit(self)
+        self.gesture_list.move(680, 20)
+        self.gesture_list.resize(250, 600)
+        
+        self.save_button = QPushButton('Save Sketch', self)
+        self.save_button.move(20, 625)
+        self.save_button.width = 200
+        self.save_button.clicked.connect(self.save_clicked)
+        
+        self.execute_button = QPushButton('Execute Sequence', self)
+        self.execute_button.move(150, 625)
+        self.execute_button.width = 200
+        self.execute_button.clicked.connect(self.execute_clicked)
+    
+    def save_clicked(self):
+        # save to file: 'sequences.csv'
+        with open('./sequences.csv', 'wt') as f:
+            f.write(self.seq_editor.toPlainText())
+            print("saved!")
+            QMessageBox.information(self, "Saved!", "Save succesful.")
+    
+    def execute_clicked(self):
+        # execute highlighted text
+        sequence_text = self.seq_editor.textCursor().selectedText()
+        sequence_list = re.split(' |,|\n|\r|\u2029', sequence_text)
+        sequence_list = list(filter(None, sequence_list))
+        
+        # This function will be executed by a thread to execute a sequence
+        def execute_sequence(seq_list):
+            print(seq_list)
+            self.execute_button.setEnabled(0)
+            for item in seq_list:
+                try:
+                    # if int -> sleep
+                    delay = int(item)
+                    print(str(datetime.datetime.now()), "delaying for: " + str(delay) + " second(s).")
+                    sleep(delay)
+                except:
+                    # if str -> execute
+                    print("--------------")
+                    print(str(datetime.datetime.now()), "executing: " + item)
+                    if self.gestureExecutionFunction:
+                        self.gestureExecutionFunction(item)
+                    print("--------------")
+            self.execute_button.setEnabled(1)
+        
+        seq_thread = Thread(target=execute_sequence, args=[sequence_list])
+        seq_thread.start()
+    
+    def set_gesture_list(self, items_list):
+        str = ''
+        for item in items_list:
+            str = str + item + '\n'
+        self.gesture_list.document().setPlainText(str)
+
+
 
 
 if __name__ == '__main__':

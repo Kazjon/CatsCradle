@@ -97,33 +97,33 @@ if __name__ == '__main__':
 
     angle = 90
     m1 = RotateX(m, angle)
-    print "90 RotateX"
-    print m1
+    print("90 RotateX")
+    print(m1)
     m1 = RotateY(m, angle)
-    print "90 RotateY"
-    print m1
+    print("90 RotateY")
+    print(m1)
     m1 = RotateZ(m, angle)
-    print "90 RotateZ"
-    print m1
+    print("90 RotateZ")
+    print(m1)
     m1 = Translate(m1, (2, 3, 4))
-    print "Translate 2 3 4"
-    print m1
+    print("Translate 2 3 4")
+    print(m1)
     p = GetMatrixOrigin(m1)
-    print "origin"
-    print p
-    print m1[:3,[3]]
-    print "TransformPoint (1, 1, 0) with m1="
-    print m1
+    print("origin")
+    print(p)
+    print(m1[:3,[3]])
+    print("TransformPoint (1, 1, 0) with m1=")
+    print(m1)
     p = TransformPoint((1, 1, 0), m1)
-    print p
-    print "TransformVector (1, 1, 0) with m1="
-    print m1
+    print(p)
+    print("TransformVector (1, 1, 0) with m1=")
+    print(m1)
     v = TransformVector((1, 1, 0), m1)
-    print v
+    print(v)
 
     o = [0, 0, 0]
     x = [0, 1, 0]
     y = [0, 0, 1]
     m = BuildTransformMatrix(o, x, y)
-    print "BuildTransformMatrix ", o, ", ", x, ", ", y
-    print m
+    print("BuildTransformMatrix ", o, ", ", x, ", ", y)
+    print(m)

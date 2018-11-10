@@ -191,7 +191,7 @@ class MarionetteOpenGL:
         glColor3f(1.0, 1.0, 1.0)
         lineWidth = 1
 
-        for (key, motor) in marionette.motor.items():
+        for (key, motor) in list(marionette.motor.items()):
             if motor.isStatic:
                 # Draw string
                 motorToWorld = ref.motorToWorld(motor)

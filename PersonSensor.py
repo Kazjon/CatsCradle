@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     while True:
         persons = sensor.getPersons(previousPersons)
-        print "Num persons =", len(persons)
+        print("Num persons =", len(persons))
         previousPersons = persons
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

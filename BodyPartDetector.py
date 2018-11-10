@@ -37,8 +37,9 @@ class BodyPartDetector:
         return newROIS
 
 
-    def detectFullBodies(self, image, (x, y, w, h) = (0, 0, -1, -1)):
+    def detectFullBodies(self, image, xxx_todo_changeme = (0, 0, -1, -1)):
         """Detect the bodies in image roi (x, y, w, h)"""
+        (x, y, w, h) = xxx_todo_changeme
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         bodies = self.fullBodyCascade.detectMultiScale(
@@ -52,8 +53,9 @@ class BodyPartDetector:
         return self.shiftROIs(bodies, x, y)
 
 
-    def detectFaces(self, image, (x, y, w, h) = (0, 0, -1, -1)):
+    def detectFaces(self, image, xxx_todo_changeme1 = (0, 0, -1, -1)):
         """Detect the faces in image roi (x, y, w, h)"""
+        (x, y, w, h) = xxx_todo_changeme1
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         roiGray = gray[y:y+h, x:x+w]
 
@@ -81,8 +83,9 @@ class BodyPartDetector:
         return self.shiftROIs(faces, x, y)
 
 
-    def detectEyes(self, image, (x, y, w, h) = (0, 0, -1, -1)):
+    def detectEyes(self, image, xxx_todo_changeme2 = (0, 0, -1, -1)):
         """Detect the eyes in image roi (x, y, w, h)"""
+        (x, y, w, h) = xxx_todo_changeme2
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         roiGray = gray[y:y+h, x:x+w]
 
@@ -97,8 +100,9 @@ class BodyPartDetector:
         return self.shiftROIs(eyes, x, y, 2)
 
 
-    def detectSmiles(self, image, (x, y, w, h) = (0, 0, -1, -1)):
+    def detectSmiles(self, image, xxx_todo_changeme3 = (0, 0, -1, -1)):
         """Detect the smile in image roi (x, y, w, h)"""
+        (x, y, w, h) = xxx_todo_changeme3
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         roiGray = gray[y:y+h, x:x+w]
 

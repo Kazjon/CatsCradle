@@ -46,12 +46,12 @@ class truss:
         # discrete gradient
         self.D = np.kron(dg(self.m, self.E), np.eye(3))
         # dofs
-        self.dofs = np.setdiff1d(np.array(range(0, self.m)), self.A)
+        self.dofs = np.setdiff1d(np.array(list(range(0, self.m))), self.A)
 
 
     # dofs to displacements
     def dof_to_displ(self, udof):
-        u = np.zeros((3 * self.m))
+        u = np.zeros(int(3 * self.m))
         for idof in range(0, np.size(self.dofs)):
             dof = self.dofs[idof]
             u[(dof * 3):((dof + 1) * 3)] = udof[3 * idof:3 * (idof + 1)]
@@ -61,8 +61,8 @@ class truss:
     def link_lengths(self, u):
         n = np.size(u)
         Du = np.matmul(self.D, u)
-        L = np.zeros(n / 3)
-        for i in range(0, n / 3):
+        L = np.zeros(int(n / 3))
+        for i in range(0, int(n / 3)):
             L[i] = np.dot(Du[(3 * i):(3 * (i + 1))], Du[(3 * i):(3 * (i + 1))])
         return L
 
@@ -93,7 +93,7 @@ class truss:
             L[(ia * 3):((ia + 1) * 3),(ia * 3):((ia + 1) * 3)] = np.eye(3)
 
         # same force (gravity) on all dofs
-        f = np.zeros((3 * m))
+        f = np.zeros(int(3 * m))
         for dof in self.dofs:
             f[(dof * 3):((dof + 1) * 3)] = self.g
 
@@ -115,15 +115,10 @@ class truss:
         # solve for displacements with SQP (only dofs)
         ndof = np.size(self.dofs)
 
-        # Temporarily redefine the standard output to avoid extra print done by fmin_slsqp
-        null = open(os.devnull,'wb')
-        sys.stdout = null
-        udof, _, _, imode, smode = fmin_slsqp(obj_dof, np.zeros(3 * ndof), f_eqcons=eqcons_dof, full_output=True)
-        # Restore standard output
-        sys.stdout = sys.__stdout__
+        udof, _, _, imode, smode = fmin_slsqp(obj_dof, np.zeros(3 * ndof), f_eqcons=eqcons_dof, full_output=True, iprint=-1)
         
         if imode != 0:
-            print "Optimisation failed: ", smode
+            #print("Optimisation failed: ", smode)
             raise OptimisationFailedError
 
         u = self.dof_to_displ(udof)
@@ -174,7 +169,7 @@ if __name__ == '__main__':
                   ])
 
     newx = t.computeNodesPositions(x)
-    print newx
+    print(newx)
 
     x = np.array([[0, 0, 0],
                   [a, 0, 0],
@@ -182,4 +177,4 @@ if __name__ == '__main__':
                   ])
 
     newx = t.computeNodesPositions(x)
-    print newx
+    print(newx)

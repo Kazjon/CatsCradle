@@ -1,6 +1,6 @@
 import cv2
 import threading
-import Queue
+import queue
 
 # TODO: Add video file input option
 
@@ -21,7 +21,7 @@ class Camera:
         self.offset = (0, 0, 100)
         self.scale = 100
         # Thread related variables
-        self.q = Queue.Queue()
+        self.q = queue.Queue()
         self.running = False
         self.capture_thread = None
         self.start()
@@ -68,9 +68,9 @@ class Camera:
         self.offset = offset
         self.scale = scale
 
-    def cameraToWorld(self, (x, y)):
+    def cameraToWorld(self, xxx_todo_changeme):
         """Returns world coordinates for the point in camera space"""
-        # TODO: Implementation needed???
+        (x, y) = xxx_todo_changeme
         return (x + self.offset[0], y + self.offset[1], self.offset[2])
 
     def estimateSize(self, size, standardSize):

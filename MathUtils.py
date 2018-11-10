@@ -26,12 +26,12 @@ def overlapROIs(roi1, roi2, ratio = 0.75):
 if __name__ == '__main__':
     # Tests
     roi = (5, 0, 4, 7)
-    print "Center of (", roi, ") = ", centerROI(roi)
+    print("Center of (", roi, ") = ", centerROI(roi))
 
     roi2 = (20, 20, 3, 3)
     roi3 = (4, 3, 10, 3)
-    print "(", roi, ") and (", roi, ") overlap at ", 100 * overlapRatioROIs(roi, roi), "% overlap result:", overlapROIs(roi, roi)
-    print "(", roi, ") and (", roi2, ") overlap at ", 100 * overlapRatioROIs(roi, roi2), "% overlap result:", overlapROIs(roi, roi2)
-    print "(", roi, ") and (", roi3, ") overlap at ", 100 * overlapRatioROIs(roi, roi3), "% overlap result:", overlapROIs(roi, roi3)
+    print("(", roi, ") and (", roi, ") overlap at ", 100 * overlapRatioROIs(roi, roi), "% overlap result:", overlapROIs(roi, roi))
+    print("(", roi, ") and (", roi2, ") overlap at ", 100 * overlapRatioROIs(roi, roi2), "% overlap result:", overlapROIs(roi, roi2))
+    print("(", roi, ") and (", roi3, ") overlap at ", 100 * overlapRatioROIs(roi, roi3), "% overlap result:", overlapROIs(roi, roi3))
 
     

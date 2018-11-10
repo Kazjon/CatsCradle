@@ -57,10 +57,10 @@ class Calibration:
             self.imgpoints.append(self.corners)
         else:
             if self.PRINT:
-                print "Grid not found"
+                print("Grid not found")
 
         if self.PRINT == True:
-            print "Num = ", len(self.objpoints)
+            print("Num = ", len(self.objpoints))
 
     def enoughSamples(self):
         """Returns 1 if enough frames have been collected to compute the calibration"""
@@ -74,10 +74,10 @@ class Calibration:
                                                                self.gray.shape[::-1],
                                                                None, None)
             if self.PRINT == True:
-                print "num =", len(self.objpoints)
-                print "rms =", self.rms
-                print "mtx =", self.mtx
-                print "dist =", self.dist
+                print("num =", len(self.objpoints))
+                print("rms =", self.rms)
+                print("mtx =", self.mtx)
+                print("dist =", self.dist)
 
     def saveCalibration(self, filename):
         """Save the calibration in filename"""
@@ -94,11 +94,11 @@ class Calibration:
             self.dist = npzfile['dist']
 
             if self.PRINT == True:
-                print "files = ", npzfile.files
-                print "num =", npzfile['num']
-                print "rms =", self.rms
-                print "mtx =", self.mtx
-                print "dist =", self.dist
+                print("files = ", npzfile.files)
+                print("num =", npzfile['num'])
+                print("rms =", self.rms)
+                print("mtx =", self.mtx)
+                print("dist =", self.dist)
             f.close()
 
     def analyzeImage(self, img):
@@ -157,7 +157,7 @@ class Calibration:
             elif (key == ord('p')):
                 # toggle print state
                 self.PRINT = not self.PRINT
-                print "Switching PRINT = ", self.PRINT
+                print("Switching PRINT = ", self.PRINT)
 
 
 if __name__ == '__main__':

@@ -36,7 +36,7 @@ class Action(object):
         # print "speeds = ", speeds
         # print "target = ", self.target
         if not len(self.target) == len(speeds):
-            print "Invalid speeds number ", len(speeds)
+            print("Invalid speeds number ", len(speeds))
             raise InvalidSpeedsNumber
 
         output = []
@@ -63,25 +63,25 @@ if __name__ == '__main__':
     marionette = Marionette()
 
     # Define motion with all motors
-    print "Full body motion"
+    print("Full body motion")
 
     target = [21, -980, 0, -2298, 0, 73, 355, 0, -1573, 0, -1919, 821]
     speeds = [ 5,   15, 0,     5, 5, 10,   5, 5,     5, 5,     5,   5]
     action = Action(target, 0.5)
 
-    print "Commands to target:"
+    print("Commands to target:")
     for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
-        print ' '.join(map(str, cmd))
+        print(' '.join(map(str, cmd)))
 
     # Define motion of only 4 motors (S, SR, AR, WR)
     # S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL
-    print " "
-    print "Right arm only"
+    print(" ")
+    print("Right arm only")
 
     target = [21, -980, None, -2298, None, None, None, None, None, None, -1919, None, 90, None]
 
     action = Action(target, 0.5)
 
-    print "Commands to target:"
+    print("Commands to target:")
     for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
-        print ' '.join(map(str, cmd))
+        print(' '.join(map(str, cmd)))

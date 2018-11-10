@@ -7,7 +7,7 @@
   - Handles zero-finding during startup (in case of unexpected shutdown)
 """
 
-import Queue
+import queue
 import threading
 import json
 import os
@@ -68,7 +68,7 @@ class ActionModule(object):
         self.arduinoID['motorEY'] = 'eyeY'    # "Eye vertical"
 
         # Thread related variables
-        self.qMotorCmds = Queue.Queue()
+        self.qMotorCmds = queue.Queue()
         self.running = False
         self.arduino_thread = None
         self.start()
@@ -135,7 +135,7 @@ class ActionModule(object):
                 if eyeMotion:
                     self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
 
-        print "Arduino thread stopped"
+        print("Arduino thread stopped")
 
     def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
@@ -154,8 +154,9 @@ class ActionModule(object):
         return self.currentAngles
 
     def moveTo(self, targetKey):
-        if targetKey not in self.positions.keys():
-            raise InvalidTargetKeyError
+        if targetKey not in list(self.positions.keys()):
+            return None
+            #raise InvalidTargetKeyError
 
         position = self.positions[targetKey]
         return self.moveToAngles(position['angles'], position['speeds'])
@@ -196,15 +197,15 @@ class ActionModule(object):
     def addPosition(self, name, angles, speeds):
         # Check angles length
         if not len(angles) == len(self.currentAngles):
-            print 'Invalid angles: ', angles
+            print('Invalid angles: ', angles)
             raise InvalidAnglesParameter
         if not len(speeds) == len(self.currentAngles):
-            print 'Invalid speeds: ', speeds
+            print('Invalid speeds: ', speeds)
             raise InvalidSpeedsParameter
 
         # Check for overwrite and print overwritten angles inc ase we want to recover
-        if name in self.positions.keys():
-            print 'WARNING: Overwrite "', name, '" position (old values: ', self.positions[name], ').'
+        if name in list(self.positions.keys()):
+            print('WARNING: Overwrite "', name, '" position (old values: ', self.positions[name], ').')
 
         # Add a position to the Position.json file
         position = {}
@@ -223,7 +224,7 @@ class ActionModule(object):
                 # print 'filePositions = ', filePositions.keys()
                 n = len(Marionette().motorList)
                 updatedPositions = {}
-                for name in filePositions.keys():
+                for name in list(filePositions.keys()):
                     # print "name = ", name
                     pos = filePositions[name]
                     while len(pos['angles']) < n:
@@ -257,14 +258,14 @@ if __name__ == '__main__':
             self.actionModule = ActionModule(None)
 
         def generateMotion(self):
-            print "started"
+            print("started")
             while self.run:
-                actionKey = random.choice(self.actionModule.positions.keys())
+                actionKey = random.choice(list(self.actionModule.positions.keys()))
                 speed = random.choice([10, 20, 50, 80])
                 speeds = []
                 for a in self.actionModule.currentAngles:
                     speeds.append(speed)
-                print "move to ", actionKey
+                print("move to ", actionKey)
                 seq = self.actionModule.moveTo(actionKey)
                 self.newPos.emit(len(seq))
                 QtCore.QThread.msleep(self.delay)

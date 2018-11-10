@@ -48,7 +48,7 @@ class Person:
             # elif trackerType == 'GOTURN':
             #     self.tracker = cv2.TrackerGOTURN_create()
             else:
-                print "Invalid tracker type", trackerType
+                print("Invalid tracker type", trackerType)
 
         ok = self.tracker.init(frame, self.roi)
 
@@ -66,7 +66,7 @@ class Person:
             else:
                 self.smile = False
         else:
-            print "Tracking error"
+            print("Tracking error")
 
 
     def draw(self, frame):

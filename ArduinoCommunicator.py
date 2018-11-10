@@ -10,9 +10,9 @@ class ArduinoCommunicator(object):
             try:
                 self.serial_port = serial.Serial(port, 115200, timeout = 1.0)
             except:
-                print "Invalid port :", port
+                print("Invalid port :", port)
 
-        print "Using port : ", self.serial_port
+        print("Using port : ", self.serial_port)
         
         self.servo_min = -50
         self.servo_max = 50
@@ -34,13 +34,13 @@ class ArduinoCommunicator(object):
         time.sleep(2)
 
     def send(self, data):
-        print "Sending: ", data
+        print("Sending: ", data)
         if self.serial_port is not None:
             self.serial_port.write(data)
             self.serial_port.flush()
 
     def receive(self):
-        print "Receiving " + self.serial_port.readline()
+        print("Receiving " + self.serial_port.readline())
 
     def _checkLookAtInput(self, angle):
         """
@@ -76,8 +76,8 @@ class ArduinoCommunicator(object):
 
         # Make sure all motors are given a command
         for name in self.motor_name_list:
-            if name not in cmd_dict.keys():
-                print "No command given for {!r}, default to 0".format(name)
+            if name not in list(cmd_dict.keys()):
+                print("No command given for {!r}, default to 0".format(name))
                 cmd_dict[name] = 0
 
         # First send the command character
@@ -107,16 +107,16 @@ class ArduinoCommunicator(object):
         offset = 90
 
         if not self._checkLookAtInput(left_pitch):
-            print "Error: Left eye pitch angle {} is out of allowed range.".format(left_pitch)
+            print("Error: Left eye pitch angle {} is out of allowed range.".format(left_pitch))
             return
         if not self._checkLookAtInput(left_yaw):
-            print "Error: Left eye yaw angle {} is out of allowed range.".format(left_yaw)
+            print("Error: Left eye yaw angle {} is out of allowed range.".format(left_yaw))
             return
         if not self._checkLookAtInput(right_pitch):
-            print "Error: right eye pitch angle {} is out of allowed range.".format(right_pitch)
+            print("Error: right eye pitch angle {} is out of allowed range.".format(right_pitch))
             return
         if not self._checkLookAtInput(right_yaw):
-            print "Error: right eye yaw angle {} is out of allowed range.".format(right_yaw)
+            print("Error: right eye yaw angle {} is out of allowed range.".format(right_yaw))
             return
         # Send four integers to control the eyes
         self.send(struct.pack('>cBBBB', 'e', -left_pitch + offset, left_yaw + offset, right_pitch + offset, right_yaw + offset))
@@ -125,11 +125,11 @@ class ArduinoCommunicator(object):
         # Send any single character to receive the roll pitch yaw reading.
         self.send(struct.pack('>c', 'a'))
         time.sleep(0.01)
-        print self.receive()
+        print(self.receive())
 
     def rotateHead(self, angle, speed = 4):
         if not self._checkHeadAngleInput(angle):
-            print "Error: Head angle {} is out of allowed range.".format(angle)
+            print("Error: Head angle {} is out of allowed range.".format(angle))
             return
         cmd = 'h,' + str(angle) + ',' + str(speed)
         self.send(cmd)
@@ -137,7 +137,7 @@ class ArduinoCommunicator(object):
 
     def rotateShoulder(self, angle, speed = 10):
         if not self._checkShoulderAngleInput(angle):
-            print "Error: Shoulder angle {} is out of allowed range.".format(angle)
+            print("Error: Shoulder angle {} is out of allowed range.".format(angle))
             return
         cmd = 's,' + str(angle) + ',' + str(speed)
         self.send(cmd)
@@ -154,7 +154,7 @@ class ArduinoCommunicator(object):
         # self.send(struct.pack('>cbb', 'e', angleX, angleY, speedX, speedY))
 
     def receiveLines(self, num_of_times):
-        for i in xrange(num_of_times):
+        for i in range(num_of_times):
             self.receive()
 
     def stopAllSteppers(self):

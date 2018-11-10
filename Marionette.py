@@ -220,15 +220,15 @@ class Marionette:
             self.initialAToB[self.motor[key]][self.motor['H']] = np.identity(4)
 
         # Sanity check: makes sure all path inital tranforms have been defined
-        for srcMotor, path in self.pathToWorld.items():
-            if srcMotor not in self.initialAToB.keys():
-                print "ERROR: Undefined initial transform from ", srcMotor.name, " To anything"
+        for srcMotor, path in list(self.pathToWorld.items()):
+            if srcMotor not in list(self.initialAToB.keys()):
+                print("ERROR: Undefined initial transform from ", srcMotor.name, " To anything")
             for destMotor in path:
-                if destMotor not in self.initialAToB[srcMotor].keys():
-                    print "ERROR: Undefined initial transform from ", srcMotor.name, " To ", destMotor.name
+                if destMotor not in list(self.initialAToB[srcMotor].keys()):
+                    print("ERROR: Undefined initial transform from ", srcMotor.name, " To ", destMotor.name)
                 srcMotor = destMotor
-            if 'World' not in self.initialAToB[srcMotor].keys():
-                print "ERROR: Undefined initial transform from ", srcMotor.name, " To World"
+            if 'World' not in list(self.initialAToB[srcMotor].keys()):
+                print("ERROR: Undefined initial transform from ", srcMotor.name, " To World")
 
         # Marionettes attachment points position
         self.nodes = {}
@@ -286,7 +286,7 @@ class Marionette:
         # In circle1 referenceSpace:
         d = np.linalg.norm(np.subtract(o1, o2))
         if d == 0 or d > r1 + r2 or (d < r1 and d < r2):
-            print "No intersection found: r1 = ", r1, " r2 = ", r2, " d = ", d
+            print("No intersection found: r1 = ", r1, " r2 = ", r2, " d = ", d)
             raise NoIntersectionError
 
         x = (d * d - r2 * r2 + r1 * r1) / (2 * d)
@@ -396,7 +396,7 @@ class Marionette:
         except:
             # The position was not valid
             # TODO: record invalid pos???
-            print "Invalid position"
+            print("Invalid position")
             return False
 
         # Everything went fine in the computation:
@@ -444,26 +444,26 @@ if __name__ == '__main__':
 
     m = Marionette()
 
-    print "InitialAToB"
-    for k1 in m.initialAToB.keys():
-        for k2 in m.initialAToB[k1].keys():
+    print("InitialAToB")
+    for k1 in list(m.initialAToB.keys()):
+        for k2 in list(m.initialAToB[k1].keys()):
             if k2 == 'World':
                 n = k2
             else:
                 n = k2.name
-            print k1.name, "To", n
-            print m.initialAToB[k1][k2]
+            print(k1.name, "To", n)
+            print(m.initialAToB[k1][k2])
 
     for motor in m.motorList:
         if motor.isStatic:
-            print motor.name
+            print(motor.name)
 
             minLength = motor.stringLengthFromAngle(motor.minAngle)
             # convert in inches:
             minLength = minLength * 0.039370079
-            print "MinAngle (", motor.minAngle, ") string length is ", minLength, " inches"
+            print("MinAngle (", motor.minAngle, ") string length is ", minLength, " inches")
 
             maxLength = motor.stringLengthFromAngle(motor.maxAngle)
             # convert in inches:
             maxLength = maxLength * 0.039370079
-            print "MaxAngle (", motor.maxAngle, ") string length is ", maxLength, " inches"
+            print("MaxAngle (", motor.maxAngle, ") string length is ", maxLength, " inches")

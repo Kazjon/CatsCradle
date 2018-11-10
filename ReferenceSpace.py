@@ -69,5 +69,5 @@ if __name__ == '__main__':
     ref = ReferenceSpace(marionette)
 
     motor = marionette.motorSL
-    print ref.motorToWorld(motor)
-    print motor.getStringPoint()
+    print(ref.motorToWorld(motor))
+    print(motor.getStringPoint())

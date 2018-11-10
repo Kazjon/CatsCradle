@@ -59,7 +59,7 @@ class Motor:
             l = self.signZ * theta * self.radius
             l = self.initialLength + l + n * self.circumference
             if l < 0 :
-                print "Motor::stringLengthFromAngle(", angle ,"): ", self.name, "error: invalid angle -> length ", l, " < 0"
+                print("Motor::stringLengthFromAngle(", angle ,"): ", self.name, "error: invalid angle -> length ", l, " < 0")
                 raise InvalidAngleError
             return l
         else:
@@ -88,27 +88,27 @@ if __name__ == '__main__':
     # Tests
     m = Motor("motor", 10, 8, 100)
 
-    print m.angle
-    print m.getRotationMatrix()
-    print m.getStringPoint()
+    print(m.angle)
+    print(m.getRotationMatrix())
+    print(m.getStringPoint())
     m.angle += 45
-    print m.angle
-    print m.getRotationMatrix()
-    print m.getStringPoint()
+    print(m.angle)
+    print(m.getRotationMatrix())
+    print(m.getStringPoint())
     m.angle += 45
-    print m.angle
-    print m.getRotationMatrix()
-    print m.getStringPoint()
+    print(m.angle)
+    print(m.getRotationMatrix())
+    print(m.getStringPoint())
     m.angle += 45
-    print m.angle
-    print m.getRotationMatrix()
-    print m.getStringPoint()
+    print(m.angle)
+    print(m.getRotationMatrix())
+    print(m.getStringPoint())
 
     angle = 50
     length = m.stringLengthFromAngle(angle)
     a = m.angleFromStringLength(length)
-    print "stringLengthFromAngle(", angle, ") = ", length
-    print "angleFromStringLength(", length, ") = ", a
+    print("stringLengthFromAngle(", angle, ") = ", length)
+    print("angleFromStringLength(", length, ") = ", a)
 
-    print "maxAngle = ", m.maxAngle
-    print "minAngle = ", m.minAngle
+    print("maxAngle = ", m.maxAngle)
+    print("minAngle = ", m.minAngle)

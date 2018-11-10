@@ -1,7 +1,7 @@
 import sys
 import threading
 import time
-import Queue
+import queue
 import cv2
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
