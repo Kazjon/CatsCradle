@@ -519,11 +519,11 @@ class App(QWidget):
     @pyqtSlot(str)
     def gotoTargetGesture(self, gesture):
         # Go to selected gesture
-        print(str(datetime.datetime.now()), "gotoTargetGesture: started.")
+#        print(str(datetime.datetime.now()), "gotoTargetGesture: started.")
         self.actionModule.currentAngles = self.marionette.getAngles()
         target = gesture
         
-        print(str(datetime.datetime.now()), "gotoTargetGesture: sending", target)
+#        print(str(datetime.datetime.now()), "gotoTargetGesture: sending", target)
         angles = self.actionModule.moveTo(target)
         # in case action module fails
         if angles is None:
@@ -536,7 +536,7 @@ class App(QWidget):
             self.visualWindow.updateGL()
         
         self.updateSliders()
-        print(str(datetime.datetime.now()), "gotoTargetGesture: done with", target)
+#        print(str(datetime.datetime.now()), "gotoTargetGesture: done with", target)
 
     def updateSliders(self):
         # Update the sliders angle
@@ -607,7 +607,7 @@ class SequenceExeWindow(QWidget):
             for item in seq_list:
                 try:
                     # if int -> sleep
-                    delay = int(item)
+                    delay = float(item)
                     sleep(delay)
                 except:
                     # if str -> execute

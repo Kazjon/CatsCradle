@@ -37,7 +37,7 @@ class ArduinoCommunicator(object):
     def send(self, data):
         print(str(datetime.datetime.now()), "Sending:", data)
         if self.serial_port is not None:
-            self.serial_port.write(data)
+            self.serial_port.write(data.encode())
             self.serial_port.flush()
 
     def receive(self):
