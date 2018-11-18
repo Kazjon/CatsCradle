@@ -18,7 +18,6 @@ import time
 
 from Action import *
 from Marionette import *
-from UIUtils import MarionetteWidget
 
 class ActionModule(object):
 
@@ -47,9 +46,6 @@ class ActionModule(object):
         # Initialize the angles to the marionette's default (0 everywhere)
         self.currentAngles = Marionette().getAngles()
 
-        # Flag True if successfully connected to the arduino
-        self.connectedToArduino = False
-
         # Arduino motor id
         self.arduinoID = {}
         self.arduinoID['motorH'] = 'head'
@@ -73,13 +69,16 @@ class ActionModule(object):
         self.arduino_thread = None
         self.start()
 
+
     def __del__(self):
         self.stop()
+
 
     def stop(self):
         if self.running:
             self.running = False
             self.arduino_thread.join()
+
 
     def start(self):
         if not self.running:
@@ -89,13 +88,10 @@ class ActionModule(object):
             self.arduino_thread.setDaemon(True)
             self.arduino_thread.start()
 
+
     def threadFunc(self):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
-        if self.ac.serial_port is not None:
-            # Watch out:
-            # Not really thread safe but only written here and read later in Simulator
-            self.connectedToArduino = True
 
         while(self.running):
             if not self.qMotorCmds.empty():
@@ -137,6 +133,7 @@ class ActionModule(object):
 
         print "Arduino thread stopped"
 
+
     def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
         output = action.getCmdsToTarget(self.currentAngles, speeds)
@@ -153,12 +150,14 @@ class ActionModule(object):
         self.qMotorCmds.put(output)
         return self.currentAngles
 
+
     def moveTo(self, targetKey):
         if targetKey not in self.positions.keys():
             raise InvalidTargetKeyError
 
         position = self.positions[targetKey]
         return self.moveToAngles(position['angles'], position['speeds'])
+
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -273,8 +272,7 @@ if __name__ == '__main__':
 
         def __init__(self):
             QtWidgets.QMainWindow.__init__(self)
-            self.win2 = MarionetteWidget(Marionette())
-            self.setCentralWidget(self.win2)
+            self.marionette = Marionette()
 
             self.thread1 = QtCore.QThread()
             self.motionGen = MotionGenerator(self, 1000)
@@ -287,19 +285,17 @@ if __name__ == '__main__':
             for i in range(n):
                 if not self.motionGen.actionModule.qMotorCmds.empty():
                     cmds = self.motionGen.actionModule.qMotorCmds.get()
-                    previousAngles = self.win2.marionette.getAngles()
+                    previousAngles = self.marionette.getAngles()
                     angles = []
 
-                    for previousAngle, motor in zip(previousAngles, self.win2.marionette.motorList):
+                    for previousAngle, motor in zip(previousAngles, self.marionette.motorList):
                         angle = previousAngle
                         for cmd in cmds:
                             if cmd[0] == motor.name:
                                 angle = int(cmd[1])
                         angles.append(angle)
 
-                    self.win2.marionette.setAngles(angles)
-                    self.win2.marionette.computeNodesPosition()
-                    self.win2.updateGL()
+                    self.marionette.setAngles(angles)
 
 
     app = QtWidgets.QApplication(sys.argv)

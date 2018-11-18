@@ -12,7 +12,6 @@ from OpenGL.GLU import *
 
 from ActionModule import ActionModule
 
-from UIUtils import MarionetteWidget
 from Marionette import *
 
 class App(QWidget):
@@ -32,17 +31,6 @@ class App(QWidget):
 
         # ActionModule
         self.actionModule = ActionModule(None)
-        # Flag defining how the simulator is used:
-        # If True, use the controls to update the virtual visualization
-        # If False, use the controls to move the real marionette
-        self.simulate = not self.actionModule.connectedToArduino
-        #### To test arduino command without the connection uncomment:
-        self.simulate = False
-
-        # GL window
-        self.visualWindow = None
-        if self.simulate:
-            self.visualWindow = MarionetteWidget(self.marionette, self)
 
         # View control widgets
         self.zoomLabel = QLabel('Zoom')
@@ -71,8 +59,6 @@ class App(QWidget):
 
         # commands widgets
         self.resetAnglesBtn = QPushButton('Reset angles')
-        self.playBtn = QPushButton('Play')
-        self.recordBtn = QPushButton('Record')
         self.closeBtn = QPushButton('Close')
         self.printBtn = QPushButton('Save Position')
 
@@ -86,7 +72,6 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.createViewCmdLayout()
         self.createSpeedCmdLayout()
         self.createCheckSaveCmdLayout()
         self.createMotorCmdLayout()
@@ -107,38 +92,7 @@ class App(QWidget):
         windowLayout.addWidget(self.commandsGroupBox, 3, 1, 1, 2)
         windowLayout.addWidget(self.gotoGroupBox, 3, 3, 1, 1)
 
-        if self.simulate:
-            windowLayout.addWidget(self.visualWindow, 1, 5, 2, 1)
-            windowLayout.addWidget(self.viewGroupBox, 3, 5)
-
         self.setLayout(windowLayout)
-
-        # View rotation slider around Z axis
-        self.rotationSlider.setToolTip('Rotate the view around the vertical axis')
-        self.rotationSlider.valueChanged.connect(self.rotateView)
-        self.rotationSlider.setMinimum(-180)
-        self.rotationSlider.setMaximum(180)
-        self.rotationSlider.setValue(0)
-        self.rotationSlider.setTickInterval(10)
-        self.rotationSlider.setEnabled(True)
-
-        # View translation slider along Z axis
-        self.translationSlider.setToolTip('Rotate the view around the vertical axis')
-        self.translationSlider.valueChanged.connect(self.translateView)
-        self.translationSlider.setMinimum(-2000)
-        self.translationSlider.setMaximum(2000)
-        self.translationSlider.setValue(0)
-        self.translationSlider.setTickInterval(1)
-        self.translationSlider.setEnabled(True)
-
-        # Zoom slider
-        self.zoomSlider.setToolTip('Zoom the view')
-        self.zoomSlider.valueChanged.connect(self.zoomView)
-        self.zoomSlider.setMinimum(50)
-        self.zoomSlider.setMaximum(300)
-        self.zoomSlider.setValue(100)
-        self.zoomSlider.setTickInterval(1)
-        self.zoomSlider.setEnabled(True)
 
         # Marionette settings (string length and motor rotation sliders)
         for motor in self.marionette.motorList:
@@ -210,19 +164,6 @@ class App(QWidget):
         self.resetAnglesBtn.clicked.connect(functools.partial(self.resetMotorAngle, self.marionette.motorList))
         self.resetAnglesBtn.setEnabled(True)
 
-        # Record poses button
-        self.recordBtn.setToolTip('Start recording the motor angles')
-        self.recordBtn.clicked.connect(self.record)
-        self.recordBtn.setEnabled(self.simulate)
-        # Play motion button
-        self.playBtn.setToolTip('Play the motion stored in a file')
-        self.playBtn.clicked.connect(self.play)
-        self.playBtn.setEnabled(self.simulate)
-        # Record/Play not working
-        # Disabled until fixed
-        self.playBtn.setEnabled(0)
-        self.recordBtn.setEnabled(0)
-
         # Close button
         self.closeBtn.setToolTip('Close the Simulator window')
         self.closeBtn.clicked.connect(self.close)
@@ -241,27 +182,11 @@ class App(QWidget):
         self.show()
 
 
-    def createViewCmdLayout(self):
-        self.viewGroupBox = QGroupBox("View commands")
-        layout = QGridLayout()
-        i = 1
-        for btnList in [[self.zoomLabel, self.zoomSlider],
-                        [self.rotationLabel, self.rotationSlider],
-                        [self.translationLabel, self.translationSlider]]:
-            j = 1
-            for btn in btnList:
-                layout.addWidget(btn, i, j)
-                j += 1
-            i += 1
-        self.viewGroupBox.setLayout(layout)
-
-
     def createCommandsLayout(self):
         self.commandsGroupBox = QGroupBox("Commands")
         layout = QGridLayout()
         i = 1
         for btnList in [[self.resetAnglesBtn],
-                        [self.playBtn, self.recordBtn],
                         [self.closeBtn, self.printBtn]]:
             j = 1
             for btn in btnList:
@@ -344,43 +269,8 @@ class App(QWidget):
         event.accept() # let the window close
 
 
-    def rotateView(self):
-        if self.visualWindow is not None:
-            self.visualWindow.angleZ = self.rotationSlider.value()
-            self.visualWindow.updateGL()
-
-
-    def translateView(self):
-        if self.visualWindow is not None:
-            self.visualWindow.offsetZ = self.translationSlider.value()
-            self.visualWindow.updateGL()
-
-
-    def zoomView(self):
-        if self.visualWindow is not None:
-            self.visualWindow.zoom = self.zoomSlider.value() / 100.0
-            self.visualWindow.updateGL()
-
-
     def updateMotorPos(self, motor):
-        # Update motor angle
-        if self.simulate:
-            value = self.sliderMotor[motor].value()
-            if motor.isStatic:
-                value = motor.angleFromStringLength(value)
-            motor.angle = value
-            if self.marionette.computeNodesPosition():
-                self.visualWindow.updateGL()
-
-            if self.recordFile:
-                angles = ''
-                for motor in self.marionette.motorList:
-                    angles += ' ' + str(motor.angle)
-                self.recordFile.write(angles + '\n')
-        else:
-            # Wait until GoToTarget button is pressed to send angles to marionette
-            pass
-
+        # Update motor label
         self.labelMotorAngle[motor].setText(str(self.sliderMotor[motor].value()))
 
 
@@ -398,40 +288,6 @@ class App(QWidget):
             self.sliderMotor[motor].setValue(value)
             self.sliderMotor[motor].repaint()
 
-
-    def record(self):
-        if self.recordFile == None:
-            # Open the file
-            filename, _ = QFileDialog.getOpenFileName(self,'QFileDialog.getOpenFileName()', '','Text Files (*.txt)')
-            if filename:
-                self.recordFile = open(filename, 'w')
-                self.recordBtn.setToolTip('Stop recording the motor angles')
-                self.recordBtn.setText('Stop Recording')
-        else:
-            self.recordBtn.setToolTip('Start recording the motor angles')
-            self.recordBtn.setText('Record')
-            # Stop recording
-            self.recordFile.close()
-            self.recordFile = None
-
-        self.recordBtn.repaint()
-
-    def play(self):
-        # Open and replay the file
-        filename, _ = QFileDialog.getOpenFileName(self,'QFileDialog.getOpenFileName()', '','Text Files (*.txt)')
-        if filename:
-            f = open(filename, 'r')
-            ###### TODO: add check on the file's content (it might not be a recorded file)
-            for line in f:
-                angles = line.split()
-                self.marionette.setAngles(angles)
-                if self.simulate:
-                    self.marionette.computeNodesPosition()
-                    self.visualWindow.updateGL()
-                else:
-                    self.actionModule.moveToAngles(angles, 15)
-            f.close()
-            self.updateSliders()
 
     def savePosition(self):
         # Get current angles
@@ -491,10 +347,6 @@ class App(QWidget):
         else:
             angles = self.actionModule.moveTo(target)
         self.marionette.setAngles(angles)
-
-        if self.simulate:
-            self.marionette.computeNodesPosition()
-            self.visualWindow.updateGL()
 
         self.updateSliders()
 
