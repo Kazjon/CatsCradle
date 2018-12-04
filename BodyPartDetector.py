@@ -10,8 +10,8 @@ class BodyPartDetector:
     """
     def __init__(self):
         # TODO: Make sure the path is the same on all machines
-        openCVPath = '/usr/local/Cellar/opencv/3.3.1_1/share/OpenCV/'
-        haarcascadesPath = openCVPath + 'haarcascades/'
+        openCVPath = '/anaconda2/lib/python2.7/site-packages/cv2/'
+        haarcascadesPath = openCVPath + 'data/'
 
         self.frontalFaceCascade = cv2.CascadeClassifier(haarcascadesPath + 'haarcascade_frontalface_default.xml')
         self.profileFaceCascade = cv2.CascadeClassifier(haarcascadesPath + 'haarcascade_profileface.xml')
