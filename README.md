@@ -1,4 +1,3 @@
-
 # CatsCradle
 Codebase for the "Cat's Cradle" art project.
 
@@ -10,10 +9,12 @@ To use face and gender detection:
 4. Unzip it and place the resulting folder, `face_detection/` within the parent folder of the repository.
 5. The final folder structure should look like:
 
-`parent_dir`
-├── files...
-├── `age_and_gender_detection`
-    ├── `pretrained_checkpoints`
-      └── ...
-├── `face_detection`
-      └── ...
+```
+. (parent_dir)
+├── age_and_gender_detection/
+    ├── pretrained_checkpoints/
+	    ├── ...
+├── face_detection/
+	├── ...
+├── ...
+```
