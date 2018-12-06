@@ -10,7 +10,7 @@ import cv2
 import face_recognition
 
 #RUDE CARNIE IMPORTS
-sys.path.append("/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection")
+sys.path.append("age_and_gender_detection")
 import tensorflow as tf
 from model import select_model, get_checkpoint
 from utils import *
@@ -167,10 +167,8 @@ if __name__ == '__main__':
     previousPersons = []
 
     #RUDE CARNIE DEFAULTS
-    gender_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
-        "pretrained_checkpoints/gender/"
-    age_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
-        "pretrained_checkpoints/age/"
+    gender_model_dir = "age_and_gender_detection/pretrained_checkpoints/gender/"
+    age_model_dir = "age_and_gender_detection/pretrained_checkpoints/age/"
     # What processing unit to execute inference on
     device_id = '/cpu:0'
     # Checkpoint basename
