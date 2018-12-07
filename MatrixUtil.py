@@ -58,7 +58,7 @@ def BuildTransformMatrix(O, X, Y):
         by 3 points.
         O : origin
         X : point in X dir
-        Y : point in Y dir
+        Y : point around Y dir (will be orthogonalized to X, using Z)
     """
     # x = normalized(OX)
     # z = normal to plane (cross(x, OY))

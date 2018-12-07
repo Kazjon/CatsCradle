@@ -103,3 +103,17 @@ ENV/
 
 *.xml
 .idea/
+*.DS_Store
+
+Positions.json
+Positions/
+
+age_and_gender_detection/pretrained_checkpoints/*
+age_and_gender_detection/pretrained_checkpoints.zip
+
+face_detection/face_detector.py
+face_detection/face_detector.ipynb
+face_detection/model_checkpoints.zip
+face_detection/model_checkpoints/*
+
+face_detection.zip

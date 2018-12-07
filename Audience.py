@@ -25,7 +25,8 @@ if __name__ == '__main__':
 
     while True:
         audience.update()
-        
+        for person in audience.persons:
+            print(person)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

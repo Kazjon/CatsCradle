@@ -4,7 +4,7 @@ from math import pi
 class Motor:
     """Class to handle the rotation motor
     Motor reference space:
-    Static motor (with string, do not rotate with motor)
+    Static motor (stepper with string, do not rotate with motor)
         origin = string fixed point (hole in rod (HR, HL, SR, SL), or contact with motor(AL, HD, FR, FL))
         x axis = axis perpendicular to the string pointing toward the string
         y axis = down
@@ -15,22 +15,23 @@ class Motor:
         y axis = rod axis, pointing left
         z axis = axis of positive rotation"""
 
-    def __init__(self, name, radius, stringLength = 0):
+    def __init__(self, name, radius, microSteps, stringLength = 0):
         self.name = name
+        self.microSteps = microSteps # Only for stepper motor (static)
         self.radius = radius
         self.initialLength = stringLength # String length when angle = 0
         self.isStatic = (self.initialLength > 0)
         self.signZ = 1 # positive (allow flexibility if z axis is reverse rotation axis)
         self.angle = 0 # current angle (degrees)
         self.circumference = 2 * pi * self.radius
+        self.maxSpeed = 0 # degrees per second
         if self.isStatic:
             # min angle possible (l >= 0)
             self.minAngle = self.angleFromStringLength(0)
-            self.maxAngle = 3000 # TODO: Limit = max length of string
+            self.maxAngle = self.angleFromStringLength(self.initialLength)
         else:
-            self.minAngle = -180
-            self.maxAngle = 180
-
+            self.minAngle = -90
+            self.maxAngle = 90
 
     def angleFromStringLength(self, length):
         """Returns the rotation angle in degrees needed to get a string of 'length' length"""
@@ -84,7 +85,7 @@ class Motor:
 
 if __name__ == '__main__':
     # Tests
-    m = Motor("motor", 10, 100)
+    m = Motor("motor", 10, 8, 100)
 
     print m.angle
     print m.getRotationMatrix()
@@ -107,3 +108,6 @@ if __name__ == '__main__':
     a = m.angleFromStringLength(length)
     print "stringLengthFromAngle(", angle, ") = ", length
     print "angleFromStringLength(", length, ") = ", a
+
+    print "maxAngle = ", m.maxAngle
+    print "minAngle = ", m.minAngle

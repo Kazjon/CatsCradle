@@ -5,21 +5,23 @@ from MathUtils import *
 from Camera import *
 from BodyPartDetector import *
 
-personCount_ = 0
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
 class Person:
     """Class to handle a person parameters"""
-    def __init__(self, frame, roi, cv_path):
-        global personCount_
-        personCount_ += 1
-        self.id = personCount_
+
+    def __str__(self):
+        return "Id: %s, Gender: %s, Age: %s"%(self.id,\
+            self.gender, self.ageRange)
+
+    def __init__(self, frame, faceEncoding, gender, ageRange, personCount, roi):
+        self.id = personCount
         # detector
-        self.bodyDetector = BodyPartDetector(cv_path)
+        self.bodyDetector = BodyPartDetector()
         # Person's properties
-        self.gender = ""
+        self.gender = gender
         self.smile = False
-        self.age = -1
+        self.ageRange = ageRange
         self.speed = 0
         # Height is a value proportional to the person's size on screen
         # could be a smaller person close to the camera, or a taller person
@@ -28,7 +30,7 @@ class Person:
         # Person's position in Camera and World space
         self.posCamera = (0, 0)
         self.posWorld = (0, 0, 0)
-
+        self.faceEncoding = faceEncoding
         self.roi = roi
         # TODO: Find the best tracker type
         trackerType = 'KCF'

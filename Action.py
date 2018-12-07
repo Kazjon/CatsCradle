@@ -6,52 +6,55 @@ Action (does a specific thing)
 """
 
 import numpy as np
+from Marionette import *
 
 class Action(object):
     """"""
-    def __init__(self, target):
+    def __init__(self, target, timeInterval):
         self.target = target
+        self.timeInterval = timeInterval # seconds
         # TODO: check target angles are valid (assumed for now)
 
+        # Marionette: Used for conversion
+        self.marionette = Marionette()
 
-    def getAngleSequenceToTarget(self, origin, numSteps):
-        """Get the angles for the motors from the origin to target in
-            numSteps regular steps
-            origin: list of motor angles in the same order as motorList
+
+    def getCmdsToTarget(self, origin, speeds):
+        """ Return the commands (angle/speed) to be sent to each motor that needs to move
+            motorName: motor name
+            angleValue: target angle of the motor
+            speeds: motor rotation speeds
+
+            Format of return value:
+            [[motorName angleValue rotationSpeed] (optional)
+             [motorName angleValue rotationSpeed] (optional)
+             :
+             :
+             ]
         """
-        if numSteps < 1:
-            raise InvalidNumStepsError
+        # print "origin = ", origin
+        # print "speeds = ", speeds
+        # print "target = ", self.target
+        if not len(self.target) == len(speeds):
+            print "Invalid speeds number ", len(speeds)
+            raise InvalidSpeedsNumber
 
-        if len(self.target) != len(origin):
-            raise InvalidSizeError
-
-        # Get the currentAngles and motion increment for each motor for one cycle
-        increment = []
-        currentAngles = []
-        for originAngle, targetAngle in zip(origin, self.target):
-            currentAngles.append(originAngle)
-            if targetAngle == None:
-                incr = 0
+        output = []
+        for originAngle, targetAngle, speed, motor in zip(origin, self.target, speeds, self.marionette.motorList):
+            if targetAngle is None or targetAngle == originAngle or speed == 0:
+                # No motion requested: pass
+                pass
             else:
-                incr = (targetAngle - originAngle) / numSteps
-            increment.append(incr)
+                info = []
+                info.append(motor.name)
+                info.append(targetAngle)
+                info.append(speed)
+                output.append(info)
 
-        # Play the motion
-        angleList = []
-        n = 0
-        while n < numSteps:
-            currentAngles = np.add(currentAngles, increment)
-            angleList.append(currentAngles)
-            n = n + 1
+        return output
 
-        # The last position should match the target pos
-        i = 0
-        for targetAngle in self.target:
-            if targetAngle != None:
-                currentAngles[i] = targetAngle
-            i = i + 1
-
-        return angleList
+    def getLastTargetAngles(self):
+        return self.lastTargetAngles
 
 
 if __name__ == '__main__':
@@ -63,10 +66,12 @@ if __name__ == '__main__':
     print "Full body motion"
 
     target = [21, -980, 0, -2298, 0, 73, 355, 0, -1573, 0, -1919, 821]
-    action = Action(target)
+    speeds = [ 5,   15, 0,     5, 5, 10,   5, 5,     5, 5,     5,   5]
+    action = Action(target, 0.5)
 
-    for angles in action.getAngleSequenceToTarget(marionette.getAngles(), 20):
-        print ' '.join(map(str, angles))
+    print "Commands to target:"
+    for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
+        print ' '.join(map(str, cmd))
 
     # Define motion of only 4 motors (S, SR, AR, WR)
     # S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL
@@ -75,6 +80,8 @@ if __name__ == '__main__':
 
     target = [21, -980, None, -2298, None, None, None, None, None, None, -1919, None]
 
-    action = Action(target)
-    for angles in action.getAngleSequenceToTarget(marionette.getAngles(), 20):
-        print ' '.join(map(str, angles))
+    action = Action(target, 0.5)
+
+    print "Commands to target:"
+    for cmd in action.getCmdsToTarget(marionette.getAngles(), speeds):
+        print ' '.join(map(str, cmd))

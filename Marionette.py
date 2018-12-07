@@ -1,3 +1,4 @@
+from Eye import *
 from MatrixUtil import *
 from Motor import *
 from ReferenceSpace import *
@@ -13,14 +14,15 @@ from truss import truss
 #      FR/FL = Foot Right and Left
 #      AR/AL = Arm Right and Left
 #      WR/WL = Wrist Right and Left
+#      ER/EL = Eye Right and Left
 #
 #        WR  FR     W     FL   WL    -> Fixed on ceiling
 #                   |
 #                   |
 #        SR_________S__________SL    -> Horizontal rotation (Shoulders)
-#          AR__|    |      |__AL
+#          AR__|    |      |__AL        (no AR motor but needed for simulator)
 #                   |
-#             HR____H____HL          -> Horizontal rotation (Head)
+#            HR_ER__H__EL_HL          -> Horizontal rotation (Head)
 #
 #
 
@@ -32,55 +34,123 @@ class Marionette:
         S, SR, SL, AR, AL, H, HR, HL, FR, FL, WR, WL"""
 
         # Marionette's dimensions in mm (to be updated)
-        rod_O_S = 300 # length of upper vertical rod (shoulders)
-        rod_S_H = 200 # length of lower vertical rod (head)
+        rod_O_S = 50 # length of upper vertical rod (shoulders)
+        rod_S_H = 100 # length of lower vertical rod (head)
         # Offset definition: Fixed point of the string.
         # Could be a hole in the horizontal rods (for Head and Shoulders)
         # or the last contact point of the string on the motor circonference
         offset = {}
-        offset['SR'] = (0, -150, 0) # offset of the motor SR string hole on the right end of shoulders rod
-        offset['SL'] = (0,  150, 0) # offset of the motor SL string hole on the left end of shoulders rod
-        offset['AR'] = (20, -150, 0) # offset of the motor AR string hole on the right end of shoulders rod
-        offset['AL'] = (20,  150, 0) # offset of the motor AL string hole on the left end of shoulders rod
-        offset['HR'] = (0, -100, 0) # offset of the motor HR string hole on the right end of the head rod
-        offset['HL'] = (0,  100, 0) # offset of the motor HL string hole on the left end of the head rod
-        offset['FL'] = (-120,  100, -10) # offset of the motor FL on the ceiling (marionette's top attachment)
-        offset['FR'] = (-120, -100, -10) # offset of the motor FR on the ceiling (marionette's top attachment)
-        offset['WL'] = ( 150,  150, -10) # offset of the motor WL on the ceiling (marionette's top attachment)
-        offset['WR'] = ( 150, -150, -10) # offset of the motor WR on the ceiling (marionette's top attachment)
+        offset['SR'] = (0, -405, 0) # offset of the motor SR string hole on the right end of shoulders rod
+        offset['SL'] = (0,  405, 0) # offset of the motor SL string hole on the left end of shoulders rod
+        offset['AR'] = (65, -405, 0) # offset of the motor AR string hole on the right end of shoulders rod
+        offset['AL'] = (65,  405, 0) # offset of the motor AL string hole on the left end of shoulders rod
+        offset['HR'] = (0, -150, 0) # offset of the motor HR string hole on the right end of the head rod
+        offset['HL'] = (0,  150, 0) # offset of the motor HL string hole on the left end of the head rod
+        offset['FL'] = (-255,  255, -25) # offset of the motor FL on the ceiling (marionette's top attachment)
+        offset['FR'] = (-255, -255, -25) # offset of the motor FR on the ceiling (marionette's top attachment)
+        offset['WL'] = ( 255,  255, -25) # offset of the motor WL on the ceiling (marionette's top attachment)
+        offset['WR'] = ( 255, -255, -25) # offset of the motor WR on the ceiling (marionette's top attachment)
         self.length = {}
-        self.length['SR'] = 600  # Initial length of string on SR (at 0 degrees rotation)
-        self.length['SL'] = 600  # Initial length of string on SL (at 0 degrees rotation)
-        self.length['AR'] = 700  # Initial length of string on AR (at 0 degrees rotation)
-        self.length['AL'] = 700  # Initial length of string on AL (at 0 degrees rotation)
-        self.length['HR'] = 100  # Initial length of string on HR (at 0 degrees rotation)
-        self.length['HL'] = 100  # Initial length of string on HL (at 0 degrees rotation)
-        self.length['FR'] = 1800 # Initial length of string on FR (at 0 degrees rotation)
-        self.length['FL'] = 1800 # Initial length of string on FL (at 0 degrees rotation)
-        self.length['WL'] = 900  # Initial length of string on WL (at 0 degrees rotation)
-        self.length['WR'] = 900  # Initial length of string on WR (at 0 degrees rotation)
+        self.length['SR'] = 1314.45 # 51.75 inches  # Initial length of string on SR (at 0 degrees rotation)
+        self.length['SL'] = 1314.45 # 51.75 inches  # Initial length of string on SL (at 0 degrees rotation)
+        self.length['AR'] = 1066.8  # UNUSED        # Initial length of string on AR (at 0 degrees rotation)
+        self.length['AL'] = 1066.8  # 42 inches     # Initial length of string on AL (at 0 degrees rotation)
+        self.length['HR'] = 590.55  # 23.25 inches  # Initial length of string on HR (at 0 degrees rotation)
+        self.length['HL'] = 584.2   # 23 inches     # Initial length of string on HL (at 0 degrees rotation)
+        self.length['FR'] = 2114.55 # 83.25 inches  # Initial length of string on FR (at 0 degrees rotation)
+        self.length['FL'] = 2108.2  # 83 inches     # Initial length of string on FL (at 0 degrees rotation)
+        self.length['WR'] = 1485.9  # 58.5 inches   # Initial length of string on WR (at 0 degrees rotation)
+        self.length['WL'] = 1479.55 # 58.25 inches  # Initial length of string on WL (at 0 degrees rotation)
         # Non static motors (no string -> length = 0)
         self.length['S'] = 0
         self.length['H'] = 0
-        radius = 10 # All motors have the same radius????
+        # Motors settings
+        radius = 25.5 / 2 # All motors have the same diameter (1 inch)
+        # Number of microsteps of the stepper motors (2 for Arms and Wrists, 8 otherwise)
+        self.motorMicrosteps = {}
+        self.motorMicrosteps['S'] = 0
+        self.motorMicrosteps['SR'] = 8
+        self.motorMicrosteps['SL'] = 8
+        self.motorMicrosteps['AR'] = 2
+        self.motorMicrosteps['AL'] = 2
+        self.motorMicrosteps['H'] = 0
+        self.motorMicrosteps['HR'] = 8
+        self.motorMicrosteps['HL'] = 8
+        self.motorMicrosteps['FR'] = 8
+        self.motorMicrosteps['FL'] = 8
+        self.motorMicrosteps['WL'] = 2
+        self.motorMicrosteps['WR'] = 2
 
         # Marionette's measurements (mm):
-        self.headWidth = 160
-        self.shoulderWidth = 400
-        self.armLengthR = 150
-        self.armLengthL = 150
-        self.forearmLengthR = 130
-        self.forearmLengthL = 130
+        self.headWidth = 176
+        self.shoulderWidth = 280
+        self.armLengthR = 250
+        self.armLengthL = 250
+        self.forearmLengthR = 260
+        self.forearmLengthL = 260
+        # eyes offset from the head RIGHT attachment point, along the HR/HL line
+        self.eyeOffset = {}
+        self.eyeOffset['ER'] = ( 15, 25, 40)
+        self.eyeOffset['EL'] = ( 15, self.headWidth - 25, 40)
 
         # Motors
         self.motor = {}
         self.motorList = []
+        self.stepperMotorList = []
         for key in ['S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
-            self.motor[key] = Motor('motor' + key, radius, self.length[key])
+            self.motor[key] = Motor('motor' + key, radius, self.motorMicrosteps[key], self.length[key])
             self.motorList.append(self.motor[key])
-        # TODO: define realistic min and max angle for each motor
-        # The current min for motor driving strings is the angle at which the string length is 0
-        # But this is can be improved with ranges describing the real marionette motion
+            if self.motor[key].isStatic:
+                self.stepperMotorList.append(self.motor[key])
+        # The max for motor driving strings is the angle at which the string length is at its inital length (0 degrees)
+        # Stepper (from Lilla's tests)
+        self.motor['SR'].minAngle = -70
+        self.motor['SL'].minAngle = -70
+        self.motor['AR'].minAngle = 0
+        self.motor['AL'].minAngle = -673
+        self.motor['HR'].minAngle = -200
+        self.motor['HL'].minAngle = -270
+        self.motor['FR'].minAngle = -105
+        self.motor['FL'].minAngle = -150
+        self.motor['WR'].minAngle = -2300
+        self.motor['WL'].minAngle = -2780
+        # Head and Shoulder
+        self.motor['S'].minAngle = -45
+        self.motor['S'].maxAngle =  45
+        self.motor['H'].minAngle = -60
+        self.motor['H'].maxAngle =  60
+        # max speeds from Lilla's email:            -> motor.angleFromStringLength(motor.initialLength + lengthPerSecondInMM)
+        # Head -        2 inches in .5 seconds      -> 456 degrees /sec (1.25 revolutions /sec)
+        # Shoulder - 	.5 inch in .25 seconds      -> 228 degrees /sec (0.75 revolution / sec)
+        # Rt Arm - 		12 inches in 1 second       -> 1369 degrees / sec (3.8 revolutions / sec)
+        # Rt Hand - 	12 inches in 1 second       -> 1369 degrees / sec
+        # Left Arm - 	25 inches in 1 second       -> 2853 degrees / sec (8 revolutions / sec)
+        # Left Hand -	25 inches in 1 second       -> 2853 degrees / sec
+        # Rt. Foot -	2 inches in .5 seconds      -> 456 degrees /sec
+        # Left Foot - 	2 inches in .5 seconds      -> 456 degrees /sec
+        self.motor['HR'].maxSpeed = 456
+        self.motor['HL'].maxSpeed = 456
+        self.motor['SR'].maxSpeed = 228
+        self.motor['SL'].maxSpeed = 228
+        self.motor['AR'].maxSpeed = 1369
+        self.motor['WR'].maxSpeed = 1369
+        self.motor['AL'].maxSpeed = 2853
+        self.motor['WL'].maxSpeed = 2853
+        self.motor['FR'].maxSpeed = 456
+        self.motor['FL'].maxSpeed = 456
+        # Rotation motors
+        self.motor['H'].maxSpeed = 10
+        # BUG: Shoulders can go up to 32, but then:
+        # After the first command asking for a speed higher than 32, the
+        # shoulders motor can't rotate anymore and Arduino needs to be restarted
+        self.motor['S'].maxSpeed = 32
+
+        # Eyes
+        self.eye = {}
+        self.eyeList = []
+        for key in ['ER', 'EL']:
+            self.eye[key] = Eye('eye' + key)
+            self.eyeList.append(self.eye[key])
 
         # Define the path from one reference space to world
         self.pathToWorld = {}
@@ -135,7 +205,7 @@ class Marionette:
 
         # Marionettes attachment points position
         self.nodes = {}
-        for key in ['SR', 'SL', 'AR', 'AL', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL']:
+        for key in ['SR', 'SL', 'AR', 'AL', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL', 'ER', 'EL']:
             self.nodes[key] = [0, 0, 0]
 
         # Truss for the Head position (0: motorHR, 1: motorHL, 2: headR, 3: headL)
@@ -161,6 +231,7 @@ class Marionette:
             'S', 'SR', 'SL', 'AR', 'AL', 'H', 'HR', 'HL', 'FR', 'FL', 'WR', 'WL'
         """
         if len(angles) != len(self.motorList):
+            # print "angles = ", angles
             raise InvalidAnglesNumberError
         for m, a in zip(self.motorList, angles):
             m.angle = a
@@ -321,6 +392,12 @@ class Marionette:
             pointInMotor = motor.getStringPoint()
             self.nodes[key] = TransformPoint(pointInMotor, motorToWorld)
 
+        # Eyes position
+        for key in ['ER', 'EL']:
+            eye = self.eye[key]
+            eyeToWorld = ref.eyeToWorld(eye)
+            self.nodes[key] = GetMatrixOrigin(eyeToWorld)
+
         return True
 
 
@@ -349,3 +426,17 @@ if __name__ == '__main__':
                 n = k2.name
             print k1.name, "To", n
             print m.initialAToB[k1][k2]
+
+    for motor in m.motorList:
+        if motor.isStatic:
+            print motor.name
+
+            minLength = motor.stringLengthFromAngle(motor.minAngle)
+            # convert in inches:
+            minLength = minLength * 0.039370079
+            print "MinAngle (", motor.minAngle, ") string length is ", minLength, " inches"
+
+            maxLength = motor.stringLengthFromAngle(motor.maxAngle)
+            # convert in inches:
+            maxLength = maxLength * 0.039370079
+            print "MaxAngle (", motor.maxAngle, ") string length is ", maxLength, " inches"

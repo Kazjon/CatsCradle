@@ -14,22 +14,22 @@ class DummyResponseModule(object):
         # Temporary implementation to get some response based on person detection
         # TODO: Implement response from marionette's emotion (Kaz + Steph)
         if emotion == 'emotion0':
-            # Lower arms
-            self.action_module.moveTo('rest', 'slow')
+            # Lower arms slowly: 5 sec
+            self.action_module.moveTo('rest', 5, 1, 20)
 
         if emotion == 'emotion1':
-            # Raise the arm on the side of the detected person
+            # Raise the arm on the side of the detected person slowly : 5 sec
             if not arg == None:
                 person = arg
                 screenWidth = 1280
                 if person.posCamera[0] < screenWidth/2:
-                    self.action_module.moveTo('leftHandFullRaise', 'slow')
+                    self.action_module.moveTo('leftHandFullRaise', 5, 1, 20)
                 else:
-                    self.action_module.moveTo('rightHandFullRaise', 'slow')
+                    self.action_module.moveTo('rightHandFullRaise', 5, 1, 20)
 
         if emotion == 'emotion2':
-            # Raise both arms
-            self.action_module.moveTo('bothHandFullRaise', 'fast')
+            # Raise both arms, fast: 2 sec
+            self.action_module.moveTo('bothHandFullRaise', 2, 10, 30)
 
 class ResponseModule(object):
 
