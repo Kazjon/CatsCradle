@@ -38,11 +38,11 @@ class PersonSensor(Sensor):
     """
     Use the BodyPartDetector to sense a person
     """
-    def __init__(self, cameras, cv_path):
+    def __init__(self, cameras):
         Sensor.__init__(self, cameras)
 
-        self.cv_path = cv_path
-        self.bodyDetector = BodyPartDetector(cv_path)
+        #self.cv_path = cv_path
+        self.bodyDetector = BodyPartDetector()
         self.show = False
 
         # TODO: Get proper standard values (mm)
