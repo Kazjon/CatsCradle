@@ -56,7 +56,11 @@ class PersonSensor(Sensor):
         self.known_face_numbers = deque(maxlen=50)
         self.scaling_factor = 1.5
         self.process_this_frame = True
-        self.video_capture = cv2.VideoCapture(0)
+        self.video_capture = cv2.VideoCapture(1)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 680)
         self.face_names = []
         self.face_locations = []
         self.face_encodings = []
@@ -115,9 +119,10 @@ class PersonSensor(Sensor):
                         [person_number])
                 else:
                     global personCount_
-                    age, gender = self.getAgeAndGender(sess, gender_list,\
-                        age_list, gender_softmax_output, age_softmax_output,\
-                        coder, images, small_frame, writer)
+                    # age, gender = self.getAgeAndGender(sess, gender_list,\
+                    #     age_list, gender_softmax_output, age_softmax_output,\
+                    #     coder, images, small_frame, writer)
+                    age, gender = 'M', 24
                     person = Person(frame, face_encoding, gender, age,\
                         personCount_, None)
                     print(person)
@@ -166,66 +171,79 @@ if __name__ == '__main__':
 
     previousPersons = []
 
-    #RUDE CARNIE DEFAULTS
-    gender_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
-        "pretrained_checkpoints/gender/"
-    age_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
-        "pretrained_checkpoints/age/"
-    # What processing unit to execute inference on
-    device_id = '/cpu:0'
-    # Checkpoint basename
-    checkpoint = 'checkpoint'
-    model_type = 'inception'
+    while True:
+        persons = sensor.getPersons(previousPersons, None, \
+            None, None, None,\
+            None, None, None, None)
+        print "Num persons =", len(persons)
+        previousPersons = persons
 
-    config = tf.ConfigProto(allow_soft_placement=True)
+        # Hit 'q' on the keyboard to quit
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            sensor.video_capture.release()
+            cv2.destroyAllWindows()
+            break
 
-    with tf.Session(config=config) as sess:
-        #Age detection model
-        n_ages = len(AGE_LIST)
-        age_model_fn = select_model(model_type)
+    # #RUDE CARNIE DEFAULTS
+    # gender_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+    #     "pretrained_checkpoints/gender/"
+    # age_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+    #     "pretrained_checkpoints/age/"
+    # # What processing unit to execute inference on
+    # device_id = '/cpu:0'
+    # # Checkpoint basename
+    # checkpoint = 'checkpoint'
+    # model_type = 'inception'
+    #
+    # config = tf.ConfigProto(allow_soft_placement=True)
+    #
+    # with tf.Session(config=config) as sess:
+    #     #Age detection model
+    #     n_ages = len(AGE_LIST)
+    #     age_model_fn = select_model(model_type)
+    #
+    #     #Gender detection model
+    #     n_genders = len(GENDER_LIST)
+    #     gender_model_fn = select_model(model_type)
+    #
+    #     with tf.device(device_id):
+    #         images = tf.placeholder(tf.float32, [None, RESIZE_FINAL,\
+    #             RESIZE_FINAL, 3])
+    #         requested_step = None
+    #         init = tf.global_variables_initializer()
+    #
+    #         #age model
+    #         age_logits = age_model_fn("age", n_ages, images, 1, False)
+    #         age_checkpoint_path, global_step = get_checkpoint(age_model_dir,\
+    #                 requested_step, checkpoint)
+    #         age_vars = set(tf.global_variables())
+    #         saver_age = tf.train.Saver(list(age_vars))
+    #         saver_age.restore(sess, age_checkpoint_path)
+    #         age_softmax_output = tf.nn.softmax(age_logits)
+    #
+    #         #gender_model
+    #         gender_logits = gender_model_fn("gender", n_genders, images, 1,\
+    #             False)
+    #         gender_checkpoint_path, global_step = get_checkpoint\
+    #             (gender_model_dir, requested_step, checkpoint)
+    #         gender_vars = set(tf.global_variables()) - age_vars
+    #         saver_gender = tf.train.Saver(list(gender_vars))
+    #         saver_gender.restore(sess, gender_checkpoint_path)
+    #         gender_softmax_output = tf.nn.softmax(gender_logits)
+    #
+    #         coder = ImageCoder()
+    #
+    #         writer = None
 
-        #Gender detection model
-        n_genders = len(GENDER_LIST)
-        gender_model_fn = select_model(model_type)
-
-        with tf.device(device_id):
-            images = tf.placeholder(tf.float32, [None, RESIZE_FINAL,\
-                RESIZE_FINAL, 3])
-            requested_step = None
-            init = tf.global_variables_initializer()
-
-            #age model
-            age_logits = age_model_fn("age", n_ages, images, 1, False)
-            age_checkpoint_path, global_step = get_checkpoint(age_model_dir,\
-                    requested_step, checkpoint)
-            age_vars = set(tf.global_variables())
-            saver_age = tf.train.Saver(list(age_vars))
-            saver_age.restore(sess, age_checkpoint_path)
-            age_softmax_output = tf.nn.softmax(age_logits)
-
-            #gender_model
-            gender_logits = gender_model_fn("gender", n_genders, images, 1,\
-                False)
-            gender_checkpoint_path, global_step = get_checkpoint\
-                (gender_model_dir, requested_step, checkpoint)
-            gender_vars = set(tf.global_variables()) - age_vars
-            saver_gender = tf.train.Saver(list(gender_vars))
-            saver_gender.restore(sess, gender_checkpoint_path)
-            gender_softmax_output = tf.nn.softmax(gender_logits)
-
-            coder = ImageCoder()
-
-            writer = None
-
-            while True:
-                persons = sensor.getPersons(previousPersons, sess, \
-                    GENDER_LIST, AGE_LIST, gender_softmax_output,\
-                    age_softmax_output, coder, images, writer)
-                print "Num persons =", len(persons)
-                previousPersons = persons
-
-                # Hit 'q' on the keyboard to quit
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    sensor.video_capture.release()
-                    cv2.destroyAllWindows()
-                    break
+            # while True:
+            #     persons = sensor.getPersons(previousPersons, sess, \
+            #         GENDER_LIST, AGE_LIST, gender_softmax_output,\
+            #         age_softmax_output, coder, images, writer)
+            #     print "Num persons =", len(persons)
+            #     previousPersons = persons
+            #
+            #     # Hit 'q' on the keyboard to quit
+            #     if cv2.waitKey(1) & 0xFF == ord('q'):
+            #         sensor.video_capture.release()
+            #         cv2.destroyAllWindows()
+            #         break
