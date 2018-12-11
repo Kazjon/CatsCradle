@@ -6,34 +6,51 @@ Reactor (Checks for a combination of conditions across sensors and triggers a re
   - e.g. LonelinessReactor, CrowdReactor, StaringReactor, ChildReactor
 """
 
-class Reactor(object):
-    def __init__(self,em):
-        self.audience = None
-        self.emotionModule = em
+##TODO: Need to refactor these in order to affect the Audience object directly. Refer to the new 5pt system and redesign.
 
-    def update(self,audience):
-        self.audience = audience
+# Base class for all Reactor objects
+class Reactor(object):
+    def __init__(self,em, aud):
+        self.emotionModule = em
+        self.audience = aud
+        self.responseModule = self.emotionModule.response_module
+
+    def update(self):
+        raise NotImplementedError
+
+    def detect(self):
+        raise NotImplementedError
+
+    def effect(self):
+        raise NotImplementedError
+
+class AudienceReactor(Reactor):
+    def __init__(self, em, aud):
+        Reactor.__init__(self,em, aud)
+
+    def update(self):
+        if self.detect():
+            self.effect()
+
+class EmotionalReactor(Reactor):
+    def __init__(self, em, aud):
+        Reactor.__init__(self, em, aud)
+
+    def update(self):
         if self.detect():
             self.emotionModule.affectEmotions(self.effect())
 
-    def detect(self):
-        raise NotImplementedError
+class ReflexReactor(Reactor):
+    def __init__(self, em, aud):
+        Reactor.__init__(self, em, aud)
 
-    def effect(self):
-        raise NotImplementedError
+    def update(self):
+        if self.detect():
+            self.emotionModule.affectEmotions(self.effect())
 
-class LonelinessReactor(Reactor):
-    def __init__(self,em):
-        Reactor.__init__(self,em)
 
-    def detect(self):
-        if len(self.audience.persons):
-            return False
-        return True
-
-    def effect(self):
-        return [0.05,0,0,0]
-
+#-----------
+'''
 class NewPersonReactor(Reactor):
     def __init__(self,em):
         Reactor.__init__(self,em)
@@ -84,3 +101,4 @@ class RightReactor(Reactor):
 
     def effect(self):
         return [0, 0.05, 0, 0]
+'''

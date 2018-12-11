@@ -27,12 +27,9 @@ RESIZE_FINAL = 227
 GENDER_LIST =['M','F']
 AGE_LIST = ['(0, 2)','(4, 6)','(8, 12)','(15, 20)','(25, 32)','(38, 43)',\
     '(48, 53)','(60, 100)']
-MAX_BATCH_SZ = 128
 
-#TODO: 1 figure out how to call rude carnie
-# 2 - figure out relationship with previousPersons
-# 3 - document
-# 4 - push and write email to Kaz/Alex
+AGE_MAP = {'(0, 2)':"child",'(4, 6)':"child",'(8, 12)':"child",'(15, 20)':"teen",'(25, 32)':"adult",'(38, 43)':"adult",'(48, 53)':"adult",'(60, 100)':"senior"}
+MAX_BATCH_SZ = 128
 
 class PersonSensor(Sensor):
     """
@@ -71,7 +68,8 @@ class PersonSensor(Sensor):
             coder, images, image_file, writer)
         (gender, gender_prob) = classify_one_multi_crop(sess, gender_list, gender_softmax_output,\
             coder, images, image_file, writer)
-        return age, gender
+        print gender,gender_prob
+        return AGE_MAP[age], gender
 
     def getPersons(self, previousPersons, sess, \
         gender_list, age_list, gender_softmax_output, age_softmax_output,\
@@ -133,7 +131,7 @@ class PersonSensor(Sensor):
                 (rgb_small_frame, self.face_locations)
 
             self.face_names = []
-            for face_encoding in self.face_encodings:
+            for face_location,face_encoding in zip(self.face_locations,self.face_encodings):
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces\
                     (self.known_face_encodings, face_encoding)
@@ -145,14 +143,16 @@ class PersonSensor(Sensor):
                     first_match_index = matches.index(True)
                     person_number = self.known_face_numbers[first_match_index]
                     name = "Person %d"%person_number
-                    persons.append(self.known_face_numbers_to_person_objects\
-                        [person_number])
+                    person = self.known_face_numbers_to_person_objects[person_number]
+                    person.updateFace(face_location)
+                    print person.faceSizeHistory[0] / min(person.faceSizeHistory) > 2
+                    persons.append(person)
                 else:
                     global personCount_
                     age, gender = self.getAgeAndGender(sess, gender_list,\
                         age_list, gender_softmax_output, age_softmax_output,\
                         coder, images, small_frame, writer)
-                    person = Person(frame, face_encoding, gender, age,\
+                    person = Person(frame, face_encoding, face_location, gender, age,\
                         personCount_, None)
                     print(person)
                     self.known_face_encodings.append(face_encoding)

@@ -4,8 +4,17 @@ import numpy
 from MathUtils import *
 from Camera import *
 from BodyPartDetector import *
+from sets import Set
+from collections import deque
+from scipy.spatial import distance
 
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+
+INTEREST_DECAY = 0.99
+FACE_HISTORY_LENGTH = 10
+
+def face_size(face_loc):
+    return distance.euclidean([face_loc[0],face_loc[1]],[face_loc[2],face_loc[3]])
 
 class Person:
     """Class to handle a person parameters"""
@@ -14,8 +23,10 @@ class Person:
         return "Id: %s, Gender: %s, Age: %s"%(self.id,\
             self.gender, self.ageRange)
 
-    def __init__(self, frame, faceEncoding, gender, ageRange, personCount, roi):
+    def __init__(self, frame, faceLocation, faceEncoding, gender, ageRange, personCount, roi):
         self.id = personCount
+        self.labels = Set()
+        self.interestingness = 0
         # detector
         self.bodyDetector = BodyPartDetector()
         # Person's properties
@@ -30,7 +41,10 @@ class Person:
         # Person's position in Camera and World space
         self.posCamera = (0, 0)
         self.posWorld = (0, 0, 0)
-        self.faceEncoding = faceEncoding
+        self.faceLocation = faceLocation # Tuple of bounding box: (top,right,bottom,left)
+        self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+        self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+        self.faceEncoding = faceEncoding # 128-length vector encoding differences from average face for easy cosine comparisons
         self.roi = roi
         # TODO: Find the best tracker type
         trackerType = 'KCF'
@@ -53,6 +67,15 @@ class Person:
                 print "Invalid tracker type", trackerType
 
         ok = self.tracker.init(frame, self.roi)
+
+    def updateFace(self,new_face_loc):
+        self.faceLocation = new_face_loc
+        self.faceLocHistory.appendleft(new_face_loc)
+        self.faceSizeHistory.appendleft(face_size(new_face_loc))
+
+    def updateInterest(self):
+        self.interestingness *= INTEREST_DECAY
+        self.interestingness = max(0,self.interestingness)
 
     def update(self, frame):
         """Track the person in the frame"""
@@ -86,6 +109,10 @@ class Person:
                     2, cv2.LINE_AA)
 
         return frame
+
+    #TODO: Replace this when the age-and-gender stuff is in properly.
+    def isAdult(self):
+        return True
 
 
 if __name__ == '__main__':

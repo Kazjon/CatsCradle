@@ -39,7 +39,7 @@ simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., math.sqrt(8) / 3., 0],
                              [-1. / 3., -math.sqrt(2) / 3., math.sqrt(2. / 3.)],
                              [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
-simplex_labels = ["Fear", "Anger", "Happiness", "Shame"]
+simplex_labels = ["fear", "anger", "happiness", "shame"]
 
 def softmax(x):
     '''Compute softmax values for each sets of scores in x.  Used to normalise emotion vectors.'''
@@ -98,8 +98,9 @@ class EmotionModule(object):
 
 
     #This is triggered by Reactor objects, part of the SensorModule that trigger in response to particular sensed states.
-    def affectEmotions(self,emotional_delta):
-        self.acceleration += emotional_delta
+    def affectEmotions(self,emotional_delta_dict):
+        emotional_delta = [emotional_delta_dict[label] for label in simplex_labels]
+        self.acceleration += np.asarray(emotional_delta)
         self.response_module.update(normalise_emotion_vector(self.position))
 
 
