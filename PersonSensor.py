@@ -145,7 +145,6 @@ class PersonSensor(Sensor):
                     name = "Person %d"%person_number
                     person = self.known_face_numbers_to_person_objects[person_number]
                     person.updateFace(face_location)
-                    print person.faceSizeHistory[0] / min(person.faceSizeHistory) > 2
                     persons.append(person)
                 else:
                     global personCount_
@@ -163,6 +162,8 @@ class PersonSensor(Sensor):
                     personCount_ += 1
 
                 self.face_names.append(name)
+                print "Num persons =", len(persons)
+
         else:
             persons = previousPersons
 

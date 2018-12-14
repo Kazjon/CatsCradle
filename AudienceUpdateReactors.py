@@ -11,7 +11,7 @@ class ThreateningPersonDetector(AudienceReactor):
     def detect(self):
         found = False
         for person in self.audience.persons:
-            if person.isAdult():
+            if person.isAdult() and len(person.faceSizeHistory):
                 if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.size_ratio_threshold:
                     self.targets.append(person)
                     found = True
@@ -32,8 +32,8 @@ class DefaultInterestReactor(AudienceReactor):
 
     def detect(self):
         if len(self.audience.persons):
-            faceSizes = [p.faceSizeHistory[0] for p in self.audience.persons]
-            self.closest = self.audience[np.argmax(faceSizes)]
+            faceSizes = [p.faceSizeHistory[0] if len(p.faceSizeHistory) else 0 for p in self.audience.persons]
+            self.closest = self.audience.persons[np.argmax(faceSizes)]
             return True
         return False
 
