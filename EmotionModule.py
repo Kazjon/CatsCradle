@@ -66,6 +66,7 @@ class EmotionModule(object):
         self.decay[2] = happiness_decay
         self.max_position_value = 10.
         self.visualise = visualise
+        self.frameskip_count = 0
         if visualise:
             self.fig = plt.figure()
             self.ax = self.fig.add_subplot(111, projection='3d')
@@ -82,19 +83,20 @@ class EmotionModule(object):
 
             plt.show()
 
-    #TODO: framerate (of emotional updates) isn't implemented , just using matplotlib's pause function.
-    def update(self,audience, framerate = 5):
+    def update(self,audience, plot_frameskip = 3):
         self.velocity += self.acceleration
         self.position += self.velocity
         self.position = np.minimum([self.max_position_value]*4,self.position)
         self.velocity *= self.drag
         self.position *= self.decay
         self.acceleration = np.zeros(4)
-        print "Raw: ",np.round(self.position,2), "  Mapped: ",np.round(map_to_euclidean(self.position),2)
-        if self.visualise:
+        #print "Raw: ",np.round(self.position,2), "  Mapped: ",np.round(map_to_euclidean(self.position),2)
+        self.frameskip_count += 1
+        if self.visualise and self.frameskip_count == plot_frameskip:
             self.pos_plot._offsets3d = map_to_euclidean(self.position).T
             self.fig.canvas.draw()
-            plt.pause(0.01)
+            self.frameskip_count = 0
+            #plt.pause(0.01)
         self.response_module.update(self.emotion_as_dict(), audience)
 
 

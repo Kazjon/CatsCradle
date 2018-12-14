@@ -20,7 +20,7 @@ class MaleFearReactor(EmotionalReactor):
         EmotionalReactor.__init__(self,em, aud)
 
     def detect(self):
-        if not len(self.audience.persons):
+        if not len(self.audience.persons) > 2:
             return False
         males = 0.0
         for person in self.audience.persons:
