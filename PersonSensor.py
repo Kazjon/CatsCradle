@@ -35,7 +35,7 @@ class PersonSensor(Sensor):
     """
     Use the BodyPartDetector to sense a person
     """
-    def __init__(self, cameras):
+    def __init__(self, cameras, tf_sess):
         Sensor.__init__(self, cameras)
 
         #self.cv_path = cv_path
@@ -60,6 +60,8 @@ class PersonSensor(Sensor):
         self.face_encodings = []
         self.known_face_numbers_to_person_objects = {}
 
+        self.initAgeAndGender(tf_sess)
+
 
     def getAgeAndGender(self, sess, gender_list, age_list,\
             gender_softmax_output, age_softmax_output, coder, images,\
@@ -71,9 +73,7 @@ class PersonSensor(Sensor):
         print gender,gender_prob
         return AGE_MAP[age], gender
 
-    def getPersons(self, previousPersons, sess, \
-        gender_list, age_list, gender_softmax_output, age_softmax_output,\
-        coder, images, writer):
+    def getPersons(self, previousPersons, sess):
         self.process_this_frame = not self.process_this_frame
         persons = []
 
@@ -149,9 +149,9 @@ class PersonSensor(Sensor):
                     persons.append(person)
                 else:
                     global personCount_
-                    age, gender = self.getAgeAndGender(sess, gender_list,\
-                        age_list, gender_softmax_output, age_softmax_output,\
-                        coder, images, small_frame, writer)
+                    age, gender = self.getAgeAndGender(sess, GENDER_LIST,\
+                        AGE_LIST, self.gender_softmax_output_tfvar, self.age_softmax_output_tfvar,\
+                        self.coder, self.images_tfvar, small_frame, self.writer)
                     person = Person(frame, face_encoding, face_location, gender, age,\
                         personCount_, None)
                     print(person)
@@ -191,6 +191,46 @@ class PersonSensor(Sensor):
 
         return persons
 
+    def initAgeAndGender(self, tf_sess):
+        # RUDE CARNIE DEFAULTS
+        gender_model_dir = "age_and_gender_detection/pretrained_checkpoints/gender/"
+        age_model_dir = "age_and_gender_detection/pretrained_checkpoints/age/"
+
+        # Checkpoint basename
+        checkpoint = 'checkpoint'
+        model_type = 'inception'
+
+        # Age detection model
+        n_ages = len(AGE_LIST)
+        age_model_fn = select_model(model_type)
+
+        # Gender detection model
+        n_genders = len(GENDER_LIST)
+        gender_model_fn = select_model(model_type)
+
+        self.images_tfvar = tf.placeholder(tf.float32, [None, RESIZE_FINAL,RESIZE_FINAL, 3])
+        requested_step = None
+        init = tf.global_variables_initializer()
+
+        # age model
+        age_logits = age_model_fn("age", n_ages, self.images_tfvar, 1, False)
+        age_checkpoint_path, global_step = get_checkpoint(age_model_dir,requested_step, checkpoint)
+        age_vars = set(tf.global_variables())
+        saver_age = tf.train.Saver(list(age_vars))
+        saver_age.restore(tf_sess, age_checkpoint_path)
+        self.age_softmax_output_tfvar = tf.nn.softmax(age_logits)
+
+        # gender_model
+        gender_logits = gender_model_fn("gender", n_genders, self.images_tfvar, 1,False)
+        gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir, requested_step, checkpoint)
+        gender_vars = set(tf.global_variables()) - age_vars
+        saver_gender = tf.train.Saver(list(gender_vars))
+        saver_gender.restore(tf_sess, gender_checkpoint_path)
+        self.gender_softmax_output_tfvar = tf.nn.softmax(gender_logits)
+
+        self.coder = ImageCoder()
+
+        self.writer = None
 
 
 if __name__ == '__main__':

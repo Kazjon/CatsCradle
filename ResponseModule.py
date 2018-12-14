@@ -4,10 +4,15 @@
 """
 import csv
 import numpy as np
+from collections import deque
+import inspect
+
+from Responder import Responder
+import EmotionalResponders
 
 class DummyResponseModule(object):
 
-    def __init__(self,config,action_module):
+    def __init__(self,action_module):
         self.action_module = action_module
 
     def setEmotion(self, emotion, arg=None):
@@ -33,9 +38,12 @@ class DummyResponseModule(object):
 
 class ResponseModule(object):
 
-    def __init__(self,config,action_module,gesture_list="responses.csv"):
+    def __init__(self,action_module,gesture_queue_length=5,gesture_list="responses.csv"):
         self.action_module = action_module
-        gestures = []
+        self.gesture_queue = deque()
+        self.responders = []
+
+        '''Disabled gesture list stuff -- may or may not end up using this
         with open(gesture_list) as f:
             reader = csv.reader(f)
             for row in reader:
@@ -47,6 +55,19 @@ class ResponseModule(object):
                 if not sum(g_pos) == 1.:
                     raise ValueError("Found a response definition with an emotional component that didn't sum to 1.")
                 gestures.append((g_pos,row[4:]))
+        '''
 
-    def update(self,emotional_state):
-        pass
+    def loadResponders(self):
+        baseResponders = ["Responder"]
+        # Load Emotional Responders (respodners that trigger based on the state of the audience and  for other reactors to work with)
+        for r in dir(EmotionalResponders):
+            if r not in baseResponders and inspect.isclass(getattr(EmotionalResponders,r)):
+                self.responders.append(getattr(EmotionalResponders, r)())
+
+    def update(self,emotional_state, audience):
+        #Determine whether anything needs to be added to the queue
+        for responder in self.responders:
+            responder.respond(emotional_state, audience, self.gesture_queue, self.action_module)
+
+        if self.action_module.is_idle() and len(self.gesture_queue):
+            self.action_module.execute(self.gesture_queue.pop())

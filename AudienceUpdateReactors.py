@@ -31,9 +31,11 @@ class DefaultInterestReactor(AudienceReactor):
         self.default_interest = default_interest
 
     def detect(self):
-        faceSizes = [p.faceSizeHistory[0] for p in self.audience.persons]
-        self.closest = self.audience[np.argmax(faceSizes)]
-        return True
+        if len(self.audience.persons):
+            faceSizes = [p.faceSizeHistory[0] for p in self.audience.persons]
+            self.closest = self.audience[np.argmax(faceSizes)]
+            return True
+        return False
 
     def effect(self):
         # Append the default level of interest to the closest person

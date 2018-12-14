@@ -12,10 +12,10 @@ if show:
 def runCatsCradle(config):
     """Main entry point for Cat's Cradle."""
     global show
-    action_module = ActionModule(config)
-    response_module = ResponseModule(config,action_module)
-    emotion_module = EmotionModule(config,response_module, visualise=True)
-    sensor_module = SensorModule(config,emotion_module)
+    action_module = ActionModule()
+    response_module = ResponseModule(action_module)
+    emotion_module = EmotionModule(response_module, visualise=True)
+    sensor_module = SensorModule(config, emotion_module)
 
     sensor_module.personSensor.show = show
 

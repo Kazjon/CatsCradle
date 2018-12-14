@@ -10,9 +10,12 @@ class Audience:
     def __init__(self, personSensor):
         self.persons = []
         self.personSensor = personSensor
+        self.previousPersons = []
 
-    def update(self):
-        self.persons = self.personSensor.getPersons(self.persons)
+    def update(self, tf_sess):
+        persons = self.personSensor.getPersons(self.previousPersons, tf_sess)
+        print "Num persons =", len(persons)
+        self.previousPersons = persons
 
 
 

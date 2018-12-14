@@ -56,7 +56,7 @@ def map_to_euclidean(raw_points):
     return np.asarray([np.sum([simplex_points[i] * p[i] for i in range(4)], axis=0) for p in normalise_emotion_vector(raw_points)])
 
 class EmotionModule(object):
-    def __init__(self,config,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, happiness_decay = 0.95, visualise=False):
+    def __init__(self,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, happiness_decay = 0.95, visualise=False):
         self.response_module = response_module
         self.acceleration = np.zeros(4)
         self.velocity = np.zeros(4)
@@ -95,12 +95,14 @@ class EmotionModule(object):
             self.pos_plot._offsets3d = map_to_euclidean(self.position).T
             self.fig.canvas.draw()
             plt.pause(0.01)
+        self.response_module.update(self.emotion_as_dict(), audience)
 
 
     #This is triggered by Reactor objects, part of the SensorModule that trigger in response to particular sensed states.
     def affectEmotions(self,emotional_delta_dict):
-        emotional_delta = [emotional_delta_dict[label] for label in simplex_labels]
+        emotional_delta = [emotional_delta_dict[label] if label in emotional_delta_dict.keys() else 0.0 for label in simplex_labels]
         self.acceleration += np.asarray(emotional_delta)
-        self.response_module.update(normalise_emotion_vector(self.position))
 
 
+    def emotion_as_dict(self):
+        return {label:emotion for label,emotion in zip(simplex_labels,normalise_emotion_vector(self.position))}

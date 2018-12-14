@@ -22,7 +22,7 @@ from UIUtils import MarionetteWidget
 
 class ActionModule(object):
 
-    def __init__(self, config):
+    def __init__(self):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """
@@ -71,6 +71,8 @@ class ActionModule(object):
         self.arduino_thread = None
         self.start()
 
+        self.idle = False
+
     def __del__(self):
         self.stop()
 
@@ -86,6 +88,171 @@ class ActionModule(object):
             self.arduino_thread = threading.Thread(name='Arduino', target=self.threadFunc)
             self.arduino_thread.setDaemon(True)
             self.arduino_thread.start()
+
+    def threadFunc(self):
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
+        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
+        if self.ac.serial_port is not None:
+            # Watch out:
+            # Not really thread safe but only written here and read later in Simulator
+            self.connectedToArduino = True
+
+        while(self.running):
+            if not self.qMotorCmds.empty():
+                cmds = self.qMotorCmds.get()
+                for cmd in cmds:
+                    # print "step = ", step
+                    id = self.arduinoID[cmd[0]]
+                    angle = int(cmd[1])
+                    speed = int(cmd[2])
+                    if angle is None or speed == 0:
+                        # No motion
+                        continue
+                    if id == -1:
+                        # Obsolete motor AR
+                        continue
+                    if id == 'head':
+                        self.ac.rotateHead(angle, speed)
+                    elif id == 'shoulder':
+                        self.ac.rotateShoulder(angle, speed)
+                    else:
+                        # Other motors
+                        self.ac.rotateStringMotor(id, angle, speed)
+        print "Arduino thread stopped"
+
+    def moveToAngles(self, target, speeds):
+        action = Action(target, self.timeInterval)
+        output = action.getCmdsToTarget(self.currentAngles, speeds)
+        newAngles = []
+        for oldAngle, newAngle in zip(self.currentAngles, target):
+            if newAngle is None:
+                newAngles.append(oldAngle)
+            else:
+                newAngles.append(newAngle)
+        # print "self.currentAngles = ", self.currentAngles
+        # print "target = ", target
+        # print "newAngles = ", newAngles
+        self.currentAngles = newAngles
+        self.qMotorCmds.put(output)
+        return self.currentAngles
+
+    def moveTo(self, targetKey):
+        if targetKey not in self.positions.keys():
+            raise InvalidTargetKeyError
+
+        position = self.positions[targetKey]
+        return self.moveToAngles(position['angles'], position['speeds'])
+
+    def eyeTargetToAngles(self, eyeToWorld, target):
+        """Compute the eye angles (pitch and yaw) using the eye transform matrix
+            in world space to have the marionette look at target
+            Should be computed for each position sent to the marionette
+        """
+        # Get the target coordinates in Eye space
+        worldToEye = np.linalg.inv(eyeToWorld)
+        targetEye = TransformPoint(target, worldToEye)
+
+        ### Compute the eye rotation around Y axis (pitch)
+        # Project target vector on plane orthogonal to Y:
+        targetEyeY[0] = targetEye[0]
+        targetEyeY[1] = 0
+        targetEyeY[2] = targetEye[2]
+        norm = np.linalg.norm(targetEyeY);
+        targetEyeY[0] = targetEyeY[0] / norm
+        targetEyeY[2] = targetEyeY[2] / norm
+        # Get the angle between the X axis and that vector
+        angleY = arccos(np.dot((1, 0, 0), targetEyeY))
+
+        # Compute the eye rotation around Z axis (yaw)
+        # Project target vector on plane orthogonal to Z:
+        targetEyeZ[0] = targetEye[0]
+        targetEyeZ[1] = targetEye[1]
+        targetEyeZ[2] = 0
+        norm = np.linalg.norm(targetEyeZ);
+        targetEyeZ[0] = targetEyeZ[0] / norm
+        targetEyeZ[2] = targetEyeZ[2] / norm
+        # Get the angle between the X axis and that vector
+        angleZ = arccos(np.dot((1, 0, 0), targetEyeZ))
+
+        return (angleY, angleZ)
+
+    def addPosition(self, name, angles, speeds):
+        # Check angles length
+        if not len(angles) == len(self.currentAngles):
+            print 'Invalid angles: ', angles
+            raise InvalidAnglesParameter
+        if not len(speeds) == len(self.currentAngles):
+            print 'Invalid speeds: ', speeds
+            raise InvalidSpeedsParameter
+
+        # Check for overwrite and print overwritten angles inc ase we want to recover
+        if name in self.positions.keys():
+            print 'WARNING: Overwrite "', name, '" position (old values: ', self.positions[name], ').'
+
+        # Add a position to the Position.json file
+        position = {}
+        position['angles'] = angles
+        position['speeds'] = speeds
+        # print "position = ", position
+        self.positions[name] = position
+        with open("Positions.json", "w") as write_file:
+            json.dump(self.positions, write_file, indent=4, sort_keys=True)
+
+    def loadPositionsFromFile(self, filename):
+        try:
+            with open(filename, "r") as read_file:
+                print "Loading positions from ", filename, "..."
+                self.positions.update(json.load(read_file))
+        except:
+            pass
+
+    def execute(self,gesture):
+        pass
+
+from threading import Thread
+
+def execute_dummy_movement(movement_name, movement_length):
+    print "Executing movement", movement_name
+    time.sleep(movement_length)
+    print "Finished movement", movement_name
+
+def execute_dummy_gesture(gesture_name,movement_names, movement_lengths):
+    print "Executing gesture", gesture_name
+    for movement_name, movement_length in zip(movement_names, movement_lengths):
+        if type(movement_name) is str:
+            t = Thread(target=execute_dummy_movement, args=(movement_name, movement_length))
+            t.start()
+        elif type(movement_name) is int:
+            time.sleep(movement_name)
+    print "Finished gesture", gesture_name
+
+class DummyActionModule(object):
+
+    def __init__(self, gesture_list_fn=[]):
+        # TODO: Implement load from CSV full of names and sequence definitions.  For now, also give each movement a length
+        self.gesture_list = []
+        self.current_gestures = []
+
+    def is_idle(self):
+        to_del = [False]*len(self.current_gestures)
+        for i,g in enumerate(self.current_gestures):
+            if not g.is_alive():
+                g.join()
+                to_del[i] = True
+        for i,d in zip(range(len(self.current_gestures)),to_del):
+            if d:
+                self.current_gestures.pop(i)
+        return not len(self.current_gestures)
+
+    def execute(self,gesture):
+        t = Thread(target=execute_dummy_gesture(gesture,self.gesture_list[gesture][0],self.gesture_list[gesture][1]))
+        self.current_gestures.append(t)
+
+    def stop(self):
+        print "DummyActionModule stopped."
+
+    def start(self):
+        print "DummyActionModule started."
 
     def threadFunc(self):
         self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
@@ -221,7 +388,7 @@ if __name__ == '__main__':
             self.delay  = delay
             self.mutex  = QMutex()
             self.run    = True
-            self.actionModule = ActionModule(None)
+            self.actionModule = ActionModule()
 
         def generateMotion(self):
             print "started"

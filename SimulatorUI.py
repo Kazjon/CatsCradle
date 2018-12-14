@@ -10,16 +10,23 @@ from PyQt5.QtOpenGL import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from ActionModule import ActionModule
+from ActionModule import ActionModule, DummyActionModule
+from SensorModule import SensorModule
+from EmotionModule import EmotionModule
+from ResponseModule import ResponseModule
 
 from UIUtils import MarionetteWidget
 from Marionette import *
 
+import cv2
+
+import tensorflow as tf
+
 class App(QWidget):
 
-    def __init__(self):
+    def __init__(self, useDummy, cvpath):
         super(App, self).__init__()
-        self.title = 'Cat\'s Craddle - Simulator window'
+        self.title = 'Cat\'s Cradle - Simulator window'
         self.left = 10
         self.top = 10
         self.width = 1200
@@ -28,16 +35,20 @@ class App(QWidget):
 
         # Marionette object
         self.marionette = Marionette()
-        self.lastSentAngles = self.marionette.getAngles();
+        self.lastSentAngles = self.marionette.getAngles()
 
         # ActionModule
-        self.actionModule = ActionModule(None)
-        # Flag defining how the simulator is used:
-        # If True, use the controls to update the virtual visualization
-        # If False, use the controls to move the real marionette
-        self.simulate = not self.actionModule.connectedToArduino
+        if useDummy:
+            self.actionModule = DummyActionModule()
+        else:
+            self.actionModule = ActionModule()
+            # Flag defining how the simulator is used:
+            # If True, use the controls to update the virtual visualization
+            # If False, use the controls to move the real marionette
+            self.simulate = not self.actionModule.connectedToArduino
         #### To test arduino command without the connection uncomment:
         self.simulate = False
+
 
         # GL window
         self.visualWindow = None
@@ -86,9 +97,24 @@ class App(QWidget):
         self.positionsComboBox = QComboBox()
         self.gotoBtn = QPushButton('GoTo Target')
 
-        self.initUI()
+        self.initUI(useDummy)
 
-    def initUI(self):
+        config = tf.ConfigProto(allow_soft_placement=True)
+
+        with tf.Session(config=config) as tf_sess:
+            self.initAI(cvpath,tf_sess)
+
+            with tf.device('/cpu:0'):
+                while True:
+                    self.sensor_module.update()
+                    # print "found ", len(audience.persons), " persons"
+
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        self.sensor_module.cleanup()
+                        cv2.destroyAllWindows()
+                        break
+
+    def initUI(self, useDummy):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -148,112 +174,113 @@ class App(QWidget):
         self.zoomSlider.setTickInterval(1)
         self.zoomSlider.setEnabled(True)
 
-        # Marionette settings (string length and motor rotation sliders)
-        for motor in self.marionette.motorList:
-            self.labelMotorAngle[motor].setMinimumSize(30, 0)
-            self.labelMotorSpeed[motor].setMinimumSize(30, 0)
+        if not useDummy:
+            # Marionette settings (string length and motor rotation sliders)
+            for motor in self.marionette.motorList:
+                self.labelMotorAngle[motor].setMinimumSize(30, 0)
+                self.labelMotorSpeed[motor].setMinimumSize(30, 0)
 
-            # Motor rotation slider
-            slider = self.sliderMotor[motor]
-            slider.setEnabled(True)
-            slider.setToolTip('Rotate ' + motor.name)
-            # lambda does not work (all slider use the last motor)... why???
-            # slider.valueChanged.connect(lambda: self.updateMotorPos(motor))
-            slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
-            min = motor.minAngle
-            max = motor.maxAngle
-            defaultValue = 0
-            if motor.isStatic:
-                min = motor.stringLengthFromAngle(motor.minAngle)
-                max = motor.stringLengthFromAngle(motor.maxAngle)
-                defaultValue = motor.stringLengthFromAngle(0)
-            slider.setMinimum(min)
-            slider.setMaximum(max)
-            slider.setValue(defaultValue)
-            slider.setTickInterval(1)
+                # Motor rotation slider
+                slider = self.sliderMotor[motor]
+                slider.setEnabled(True)
+                slider.setToolTip('Rotate ' + motor.name)
+                # lambda does not work (all slider use the last motor)... why???
+                # slider.valueChanged.connect(lambda: self.updateMotorPos(motor))
+                slider.valueChanged.connect(functools.partial(self.updateMotorPos, motor))
+                min = motor.minAngle
+                max = motor.maxAngle
+                defaultValue = 0
+                if motor.isStatic:
+                    min = motor.stringLengthFromAngle(motor.minAngle)
+                    max = motor.stringLengthFromAngle(motor.maxAngle)
+                    defaultValue = motor.stringLengthFromAngle(0)
+                slider.setMinimum(min)
+                slider.setMaximum(max)
+                slider.setValue(defaultValue)
+                slider.setTickInterval(1)
 
-            # Speed slider
+                # Speed slider
+                slider = self.sliderSpeed[motor]
+                slider.setEnabled(1)
+                slider.setToolTip('Set the speed of the ' + motor.name)
+                slider.setMinimum(0)
+                slider.setMaximum(80)
+                # lambda does not work (all slider use the last motor)... why???
+                # slider.valueChanged.connect(lambda: self.updateSpeed(motor))
+                slider.valueChanged.connect(functools.partial(self.updateSpeed, motor))
+                slider.setValue(10)
+                slider.setTickInterval(1)
+
+                # Reset button
+                button = self.resetMotorBtn[motor]
+                button.setToolTip('Reset ' + motor.name + ' rotation to 0 degree')
+                button.clicked.connect(functools.partial(self.resetMotorAngle, [motor]))
+                button.setEnabled(True)
+
+                # Save checkbox
+                checkBox = self.checkMotorSave[motor]
+                checkBox.setChecked(1)
+                checkBox.setToolTip('Enable/Disable saving of the ' + motor.name + ' angle in the new position')
+
+            # Speed values for the head motor are 400-800
+            motor = self.marionette.motor['H']
             slider = self.sliderSpeed[motor]
-            slider.setEnabled(1)
-            slider.setToolTip('Set the speed of the ' + motor.name)
-            slider.setMinimum(0)
-            slider.setMaximum(80)
-            # lambda does not work (all slider use the last motor)... why???
-            # slider.valueChanged.connect(lambda: self.updateSpeed(motor))
-            slider.valueChanged.connect(functools.partial(self.updateSpeed, motor))
-            slider.setValue(10)
-            slider.setTickInterval(1)
+            slider.setMinimum(400)
+            slider.setMaximum(800)
+            slider.setValue(500)
 
-            # Reset button
-            button = self.resetMotorBtn[motor]
-            button.setToolTip('Reset ' + motor.name + ' rotation to 0 degree')
-            button.clicked.connect(functools.partial(self.resetMotorAngle, [motor]))
-            button.setEnabled(True)
-
-            # Save checkbox
+            # Disable Rigth Arm slider since there is no motor on that joint
+            motor = self.marionette.motor['AR']
+            slider = self.sliderMotor[motor]
+            slider.setEnabled(False)
+            slider = self.sliderSpeed[motor]
+            slider.setEnabled(False)
             checkBox = self.checkMotorSave[motor]
-            checkBox.setChecked(1)
-            checkBox.setToolTip('Enable/Disable saving of the ' + motor.name + ' angle in the new position')
+            checkBox.setChecked(0)
+            checkBox.setEnabled(False)
 
-        # Speed values for the head motor are 400-800
-        motor = self.marionette.motor['H']
-        slider = self.sliderSpeed[motor]
-        slider.setMinimum(400)
-        slider.setMaximum(800)
-        slider.setValue(500)
+            # Eye control settings
+            for slider in [self.sliderPitch, self.sliderYaw]:
+                slider.setEnabled(True)
+                slider.setToolTip('Rotate eyes')
+                slider.valueChanged.connect(self.moveEyes)
+                slider.setMinimum(-20)
+                slider.setMaximum(20)
+                slider.setValue(0)
+                slider.setTickInterval(1)
 
-        # Disable Rigth Arm slider since there is no motor on that joint
-        motor = self.marionette.motor['AR']
-        slider = self.sliderMotor[motor]
-        slider.setEnabled(False)
-        slider = self.sliderSpeed[motor]
-        slider.setEnabled(False)
-        checkBox = self.checkMotorSave[motor]
-        checkBox.setChecked(0)
-        checkBox.setEnabled(False)
+            # Reset motor angles button
+            self.resetAnglesBtn.setToolTip('Reset all motors rotation to 0 degree')
+            self.resetAnglesBtn.clicked.connect(functools.partial(self.resetMotorAngle, self.marionette.motorList))
+            self.resetAnglesBtn.setEnabled(True)
 
-        # Eye control settings
-        for slider in [self.sliderPitch, self.sliderYaw]:
-            slider.setEnabled(True)
-            slider.setToolTip('Rotate eyes')
-            slider.valueChanged.connect(self.moveEyes)
-            slider.setMinimum(-20)
-            slider.setMaximum(20)
-            slider.setValue(0)
-            slider.setTickInterval(1)
+            # Record poses button
+            self.recordBtn.setToolTip('Start recording the motor angles')
+            self.recordBtn.clicked.connect(self.record)
+            self.recordBtn.setEnabled(self.simulate)
+            # Play motion button
+            self.playBtn.setToolTip('Play the motion stored in a file')
+            self.playBtn.clicked.connect(self.play)
+            self.playBtn.setEnabled(self.simulate)
+            # Record/Play not working
+            # Disabled until fixed
+            self.playBtn.setEnabled(0)
+            self.recordBtn.setEnabled(0)
 
-        # Reset motor angles button
-        self.resetAnglesBtn.setToolTip('Reset all motors rotation to 0 degree')
-        self.resetAnglesBtn.clicked.connect(functools.partial(self.resetMotorAngle, self.marionette.motorList))
-        self.resetAnglesBtn.setEnabled(True)
+            # Close button
+            self.closeBtn.setToolTip('Close the Simulator window')
+            self.closeBtn.clicked.connect(self.close)
+            self.closeBtn.setEnabled(True)
+            # Print button
+            self.printBtn.setToolTip('Save the current motor angles')
+            self.printBtn.clicked.connect(self.savePosition)
+            self.printBtn.setEnabled(True)
 
-        # Record poses button
-        self.recordBtn.setToolTip('Start recording the motor angles')
-        self.recordBtn.clicked.connect(self.record)
-        self.recordBtn.setEnabled(self.simulate)
-        # Play motion button
-        self.playBtn.setToolTip('Play the motion stored in a file')
-        self.playBtn.clicked.connect(self.play)
-        self.playBtn.setEnabled(self.simulate)
-        # Record/Play not working
-        # Disabled until fixed
-        self.playBtn.setEnabled(0)
-        self.recordBtn.setEnabled(0)
-
-        # Close button
-        self.closeBtn.setToolTip('Close the Simulator window')
-        self.closeBtn.clicked.connect(self.close)
-        self.closeBtn.setEnabled(True)
-        # Print button
-        self.printBtn.setToolTip('Save the current motor angles')
-        self.printBtn.clicked.connect(self.savePosition)
-        self.printBtn.setEnabled(True)
-
-        # GoTo controls
-        self.updateTargetComboBox()
-        self.gotoBtn.setToolTip('Move the marionette to the selected pose at the selected speed')
-        self.gotoBtn.clicked.connect(self.gotoTarget)
-        self.gotoBtn.setEnabled(True)
+            # GoTo controls
+            self.updateTargetComboBox()
+            self.gotoBtn.setToolTip('Move the marionette to the selected pose at the selected speed')
+            self.gotoBtn.clicked.connect(self.gotoTarget)
+            self.gotoBtn.setEnabled(True)
 
         self.show()
 
@@ -550,8 +577,12 @@ class App(QWidget):
             value = decimal.Decimal(value).quantize(decimal.Decimal('1'))
             self.labelMotorAngle[motor].setText(str(value))
 
+    def initAI(self, cv_path, tf_sess):
+        self.response_module = ResponseModule(self.actionModule)
+        self.emotion_module = EmotionModule(self.response_module, visualise=True)
+        self.sensor_module = SensorModule({"cv_path":cv_path,"tf_sess":tf_sess},self.emotion_module)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
+    ex = App(sys.argv[1], sys.argv[2])
     sys.exit(app.exec_())

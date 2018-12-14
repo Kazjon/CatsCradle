@@ -26,14 +26,14 @@ class SensorModule(object):
         self.reactors = []
 
         self.loadCameras()
-        self.loadSensors(config["cv_path"])
+        self.loadSensors(config["tf_sess"])
         self.loadReactors()
 
     def loadCameras(self):
         self.cameras.append(Camera(0))
 
-    def loadSensors(self,cv_path):
-        self.personSensor = PersonSensor(self.cameras)
+    def loadSensors(self,tf_sess):
+        self.personSensor = PersonSensor(self.cameras, tf_sess)
         self.audience = Audience(self.personSensor)
 
     def loadReactors(self):
@@ -49,7 +49,10 @@ class SensorModule(object):
 
 
     def update(self):
-        self.audience.update()
+        self.audience.update(self.config["tf_sess"])
         for reactor in self.reactors:
-            reactor.update(self.audience)
+            reactor.update()
         self.emotion_module.update(self.audience)
+
+    def cleanup(self):
+        self.personSensor.video_capture.release()
