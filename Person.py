@@ -4,6 +4,7 @@ import numpy
 from MathUtils import *
 from Camera import *
 from BodyPartDetector import *
+from threading import Lock
 
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
@@ -12,16 +13,25 @@ class Person:
 
     def __str__(self):
         return "Id: %s, Gender: %s, Age: %s"%(self.id,\
-            self.gender, self.ageRange)
+            self.getGender(), self.getAgeRange())
 
-    def __init__(self, frame, faceEncoding, gender, ageRange, personCount, roi):
+    def __init__(self, frame, faceEncoding, personCount, roi):
         self.id = personCount
         # detector
         self.bodyDetector = BodyPartDetector()
         # Person's properties
-        self.gender = gender
+        self.gender = None
+        # As soon as a Person object is created, the age/gender detection thread
+        # grabs the gender and ageRange Lock objects. If any other program logic
+        # needs access to age and gender, it must access them through the
+        # getAgeRange and getGender functions which check if the lock has been
+        # released by the age/gender detection thread. If so, these methods
+        # return the detected age and gender. If not, they return None
+        self.genderLock = Lock()
+        self.ageRange = None
+        self.ageRangeLock = Lock()
+
         self.smile = False
-        self.ageRange = ageRange
         self.speed = 0
         # Height is a value proportional to the person's size on screen
         # could be a smaller person close to the camera, or a taller person
@@ -53,6 +63,20 @@ class Person:
                 print "Invalid tracker type", trackerType
 
         ok = self.tracker.init(frame, self.roi)
+
+    def getAgeRange(self):
+        """
+        Checks if ageRangeLock has been released. If so, returns ageRange.
+        If not returns None.
+        """
+        return None if self.ageRangeLock.locked() else self.ageRange
+
+    def getGender(self):
+        """
+        Checks if genderLock has been released. If so, returns gender. If not
+        returns None.
+        """
+        return None if self.genderLock.locked() else self.gender
 
     def update(self, frame):
         """Track the person in the frame"""
