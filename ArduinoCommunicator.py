@@ -34,6 +34,8 @@ class ArduinoCommunicator(object):
         time.sleep(2)
 
     def send(self, data):
+        # Makes sure the command sent ends with NULL
+        data += '\x00'
         print "Sending: ", data
         if self.serial_port is not None:
             self.serial_port.write(data)
