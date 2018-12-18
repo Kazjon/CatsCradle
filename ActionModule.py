@@ -235,7 +235,7 @@ def execute_dummy_gesture(gesture_name,movement_names,movement_time_max=4):
 
 class DummyActionModule(object):
 
-    def __init__(self, movement_list_fn="gestures/movements.csv",
+    def __init__(self, movement_list_fn="gestures/Positions.json",
                  neutral_gesture_list_fn="gestures/neutral_gestures.csv",
                  fear_gesture_list_fn="gestures/fear_gestures.csv",
                  happy_gesture_list_fn="gestures/longing_gestures.csv",
@@ -244,9 +244,9 @@ class DummyActionModule(object):
         self.gesture_list = {}
         self.current_gestures = []
 
-       # with open(movement_list_fn,"r") as mf:
-       #     reader = csv.reader(mf)
-       #     #TODO: Implement movement list loading when we hace the list.
+        with open(movement_list_fn,"r") as pf:
+            self.movements = sorted(json.load(pf).keys())
+            print self.movements
 
         with open(neutral_gesture_list_fn,"r") as nf:
             reader = csv.reader(nf)
@@ -278,14 +278,13 @@ class DummyActionModule(object):
             for row in reader:
                 self.gesture_list["shame_"+row[1]] = row[2:]
 
-        self.movements = []
         for name,gesture in self.gesture_list.iteritems():
             for i,movement in enumerate(gesture):
                 try:
                     gesture[i] = float(movement)
                 except ValueError:
                     if movement not in self.movements:
-                        self.movements.append(movement)
+                        raise ValueError("Found a movement within a gesture that was not defined in "+movement_list_fn+": "+movement+" in "+name+".")
 
 
     def is_idle(self):

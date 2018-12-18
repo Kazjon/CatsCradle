@@ -1,0 +1,6183 @@
+{
+    "001a_HeadLRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -159.75411464235873, 
+            -216.60051549259376, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "001b_HeadLRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "001c_HeadLRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -159.75411464235873, 
+            -216.60051549259376, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            46, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "001d_HeadLRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            46, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "001e_HeadLRupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -155.26032801388172, 
+            -207.61294223563968, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "001f_HeadLRDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    },
+    "002a_HeadLRupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -101.33488847215716, 
+            -135.71235618000696, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "002b_HeadLRDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "002c_HeadLRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -101.33488847215716, 
+            -135.71235618000696, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            41, 
+            42, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "002d_HeadLRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            41, 
+            42, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "002e_HeadLRupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -101.33488847215716, 
+            -135.71235618000696, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "002f_HeadLRDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003a_HeadRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -200.19819429865214, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003b_HeadRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003c_HeadRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -200.19819429865214, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            43, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003d_HeadRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            43, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003e_HeadRupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -200.19819429865214, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "003f_HeadRDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004a_HeadRupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -110.32246172911125, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004b_HeadRDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004c_HeadRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -110.32246172911125, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004d_HeadRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004e_HeadRupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -114.8162483575883, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "004f_HeadRDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "005a_HeadRupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -69.87838207281784, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "005b_HeadRDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    },
+ 
+    "005c_HeadRupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -56.39702218738671, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "005d_HeadRDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "005e_HeadRupLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -56.39702218738671, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "005f_HeadRDownLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006a_HeadRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -216.60051549259376, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006b_HeadRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006c_HeadRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -216.60051549259376, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006d_HeadRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006e_HeadRupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -216.60051549259376, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "006f_HeadRDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    },
+    "007a_HeadLupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.68750269391512, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "007b_HeadLDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "007c_HeadLupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -158.1812893223922, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            50, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "007d_HeadLDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            50, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "007e_HeadLupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -162.67507595086923, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "007f_HeadLDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008a_HeadLupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -81.78691663828242, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008b_HeadLDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008c_HeadLupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -108.74963640914468, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008d_HeadLDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008e_HeadLupLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -77.29313000980538, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "008f_HeadLDownLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256956133, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "009a_HandRupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2300.3693751173996, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0
+        ]
+    }, 
+    "009b_HandRDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0
+        ]
+    }, 
+    "010a_HandRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1136.478638341845, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0
+        ]
+    }, 
+    "010b_HandRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44, 
+            0
+        ]
+    },
+    "011a_HandRupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -633.174535952416, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            25, 
+            0
+        ]
+    }, 
+    "011b_HandRDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            25, 
+            0
+        ]
+    }, 
+    "011c_HandRupTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -39.99470099344611, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            32, 
+            0
+        ]
+    }, 
+    "011d_HandRDownTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            32, 
+            0
+        ]
+    }, 
+    "012a_HandLupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2784.1255056729533
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80
+        ]
+    }, 
+    "012b_HandLDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80
+        ]
+    }, 
+    "012c_HandLupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2784.1255056729533
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "012d_HandLDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "013a_HandLupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1328.1386380463905
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "013b_HandLDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "013c_HandLupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1346.1137845602987
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80
+        ]
+    }, 
+    "013d_HandLDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80
+        ]
+    }, 
+    "013e_HandLupHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1193.3250391920792
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            60
+        ]
+    }, 
+    "013f_HandLDownHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            60
+        ]
+    },
+    "014a_HandLupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -496.7881117781372
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            22
+        ]
+    }, 
+    "014b_HandLDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            22
+        ]
+    }, 
+    "014c_HandLupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -415.8999524655503
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "014d_HandLDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            44
+        ]
+    }, 
+    "014e_HandLupLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -339.50557978144053
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48
+        ]
+    }, 
+    "014f_HandLDownLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48
+        ]
+    }, 
+    "014g_HandLupTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -74.3721687012949
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35
+        ]
+    }, 
+    "014h_HandLDownTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35
+        ]
+    }, 
+    "015a_HandLRupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2300.3693751173996, 
+            -2784.1255056729533
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80
+        ]
+    }, 
+    "015b_HandLRDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            80
+        ]
+    }, 
+    "015c_HandLRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2300.3693751173996, 
+            -2784.1255056729533
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            45
+        ]
+    }, 
+    "015d_HandLRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            45, 
+            45
+        ]
+    }, 
+    "015e_HandLRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2300.3693751173996, 
+            -2784.1255056729533
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            32, 
+            32
+        ]
+    }, 
+    "015f_HandLRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            32, 
+            32
+        ]
+    }, 
+    "016a_HandLRupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1190.4040778835697, 
+            -1431.4957305013627
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            27, 
+            27
+        ]
+    }, 
+    "016b_HandLRDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            27, 
+            27
+        ]
+    }, 
+    "016c_HandLRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1105.022131942506, 
+            -1323.6448514179135
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            50, 
+            51
+        ]
+    }, 
+    "016d_HandLRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            50, 
+            51
+        ]
+    }, 
+    "016e_HandLRupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -1217.366797654432, 
+            -1391.0516508450692
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            71
+        ]
+    }, 
+    "016f_HandLRDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            71
+        ]
+    },
+    "017a_HandLRupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -448.92928418485724, 
+            -541.7259780629075
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            30
+        ]
+    }, 
+    "017b_HandLRDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            30
+        ]
+    }, 
+    "017c_HandLRupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -471.3982173272424, 
+            -532.7384048059536
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            47
+        ]
+    }, 
+    "017d_HandLRDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            47
+        ]
+    }, 
+    "017e_HandLRupTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -57.96984750735428, 
+            -47.40944893043262
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            47
+        ]
+    }, 
+    "017f_HandLRDownTwitch": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -4.044407965629749, 
+            -2.47158264566217
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            47, 
+            47
+        ]
+    }, 
+    "018a_ShoulderRupFullSlow": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "018b_ShoulderRDownFullSlow": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "018c_ShoulderRupFullMed": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            42, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "018d_ShoulderRDownFullMed": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            42, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "018e_ShoulderRupFullFast": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            62, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "018f_ShoulderRDownFullFast": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            62, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    },
+    "019a_ShoulderRupHalfSlow": {
+        "angles": [
+            null, 
+            -46.96007026758532, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "019b_ShoulderRDownHalfSlow": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "019c_ShoulderRupHalfMed": {
+        "angles": [
+            null, 
+            -46.96007026758532, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "019d_ShoulderRDownHalfMed": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "019e_ShoulderRupHalfFast": {
+        "angles": [
+            null, 
+            -42.46628363910828, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "019f_ShoulderRDownHalfFast": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020a_ShoulderLupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020b_ShoulderLDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020c_ShoulderLupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            49, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020d_ShoulderLDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            49, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020e_ShoulderLupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            68, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "020f_ShoulderLDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            68, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021a_ShoulderLupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            -42.46628363910828, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021b_ShoulderLDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021c_ShoulderLupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            -42.46628363910828, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            38, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021d_ShoulderLDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            38, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021e_ShoulderLupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            -46.96007026758532, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021f_ShoulderLDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021g_ShoulderLupHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            -37.97249701063123, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            60, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "021h_ShoulderLDownHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            60, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022a_ShoulderLRupFullSlow": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022b_ShoulderLRDownFullSlow": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022c_ShoulderLRupFullMed": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            32, 
+            33, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022d_ShoulderLRDownFullMed": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            32, 
+            33, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022e_ShoulderLRupFullFast": {
+        "angles": [
+            null, 
+            -73.9227900384476, 
+            -73.9227900384476, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            60, 
+            61, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "022f_ShoulderLRDownFullFast": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            60, 
+            61, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023a_ShoulderLRupMedSlow": {
+        "angles": [
+            null, 
+            -42.46628363910828, 
+            -42.46628363910828, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023b_ShoulderLRDownMedSlow": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            10, 
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023c_ShoulderLRupHalfMed": {
+        "angles": [
+            null, 
+            -42.46628363910828, 
+            -42.46628363910828, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            34, 
+            34, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023d_ShoulderLRDownHalfMed": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            34, 
+            34, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023e_ShoulderLRupHalfFast": {
+        "angles": [
+            null, 
+            -37.97249701063123, 
+            -37.97249701063123, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            51, 
+            50, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "023f_ShoulderLRDownHalfFast": {
+        "angles": [
+            null, 
+            -2.0222039828148746, 
+            -2.0222039828148746, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            51, 
+            50, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    },
+    "024a_ShoulderRotRFullFast": {
+        "angles": [
+            45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "024b_ShoulderRotR(0)FullFast": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "024c_ShoulderRotRFullMed": {
+        "angles": [
+            45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            37, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "024d_ShoulderRotR(0)FullMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            37, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "024e_ShoulderRotRFullSlow": {
+        "angles": [
+            45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            20, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "024f_ShoulderRotR(0)FullSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            20, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025a_ShoulderRotRHalfFast": {
+        "angles": [
+            23, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025b_ShoulderRotR(0)HalfFast": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025c_ShoulderRotRHalfMed": {
+        "angles": [
+            23, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025d_ShoulderRotR(0)HalfMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025e_ShoulderRotRHalfSlow": {
+        "angles": [
+            23, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            15, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "025f_ShoulderRotR(0)HalfSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            15, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026a_ShoulderRotLFullFast": {
+        "angles": [
+            -45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026b_ShoulderRotL(0)FullFast": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026c_ShoulderRotLFullMed2": {
+        "angles": [
+            -45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            55, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026d_ShoulderRotL(0)FullMed2": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            55, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026e_ShoulderRotLFullMed": {
+        "angles": [
+            -45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            30, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026f_ShoulderRotL(0)FullMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            30, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026g_ShoulderRotLFullSlow": {
+        "angles": [
+            -45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "026h_ShoulderRotL(0)FullSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            10, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027a_ShoulderRotLHalfFast": {
+        "angles": [
+            -20, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027b_ShoulderRotL(0)HalfFast": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027c_ShoulderRotLHalfMed2": {
+        "angles": [
+            -20, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            55, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027d_ShoulderRotL(0)HalfMed2": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            55, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027e_ShoulderRotLHalfMed": {
+        "angles": [
+            -22, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            30, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027f_ShoulderRotL(0)HalfMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            30, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027g_ShoulderRotLHalfSlow": {
+        "angles": [
+            -22, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            11, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "027h_ShoulderRotL(0)HalfSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            11, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "028a_ShoulderRotFullTurnRL": {
+        "angles": [
+            -45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "028b_ShoulderRotFullTurnLR": {
+        "angles": [
+            45, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            80, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "030a_FootRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -105.82867510063522, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "030b_FootRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "030c_FootRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -105.82867510063522, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "030d_FootRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            0, 
+            0, 
+            0
+        ]
+    },     
+    "031a_FootRupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -51.90323555891068, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "031b_FootRDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "031c_FootRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60.89080881586477, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            20, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "031d_FootRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            20, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "031e_FootRupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -56.39702218738773, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "031f_FootRDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032a_FootRupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -29.434302416525462, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032b_FootRDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032c_FootRupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -29.434302416525462, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            24, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032d_FootRDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            24, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032e_FootRupLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -24.94051578804842, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "032f_FootRDownLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "033a_FootLupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0
+        ]
+    }, 
+    "033b_FootLDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            10, 
+            0, 
+            0
+        ]
+    }, 
+    "033c_FootLupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            20, 
+            0, 
+            0
+        ]
+    }, 
+    "033d_FootLDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            20, 
+            0, 
+            0
+        ]
+    }, 
+    "033e_FootLupFullMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0
+        ]
+    }, 
+    "033f_FootLDownFullMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0
+        ]
+    }, 
+    "033g_FootLupFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            60, 
+            0, 
+            0
+        ]
+    }, 
+    "033h_FootLDownFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            60, 
+            0, 
+            0
+        ]
+    }, 
+    "033i_FootLupFullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0
+        ]
+    }, 
+    "033j_FootLDownFullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            80, 
+            0, 
+            0
+        ]
+    }, 
+    "034a_FootLupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -81.78691663828141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0
+        ]
+    }, 
+    "034b_FootLDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0
+        ]
+    }, 
+    "034c_FootLupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -81.78691663828141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35, 
+            0, 
+            0
+        ]
+    }, 
+    "034d_FootLDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            35, 
+            0, 
+            0
+        ]
+    }, 
+    "034e_FootLupHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -81.78691663828141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            61, 
+            0, 
+            0
+        ]
+    }, 
+    "034f_FootLDownHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            61, 
+            0, 
+            0
+        ]
+    }, 
+    "035a_FootLupLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -36.849050353510954, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0
+        ]
+    }, 
+    "035b_FootLDownLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            11, 
+            0, 
+            0
+        ]
+    }, 
+    "035c_FootLupLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -32.35526372503391, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0
+        ]
+    }, 
+    "035d_FootLDownLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0
+        ]
+    }, 
+    "035e_FootLupLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -36.849050353510954, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0
+        ]
+    }, 
+    "035f_FootLDownLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0
+        ]
+    }, 
+    "036a_FootLRupFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -105.82867510063522, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            14, 
+            14, 
+            0, 
+            0
+        ]
+    }, 
+    "036b_FootLRDownFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            14, 
+            14, 
+            0, 
+            0
+        ]
+    }, 
+    "036c_FootLRupFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -105.82867510063522, 
+            -153.6875026939141, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            30, 
+            0, 
+            0
+        ]
+    }, 
+    "036d_FootLRDownFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            30, 
+            30, 
+            0, 
+            0
+        ]
+    }, 
+    "037a_FootLRupHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -51.90323555891068, 
+            -72.7993433813273, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            14, 
+            14, 
+            0, 
+            0
+        ]
+    }, 
+    "037b_FootLRDownHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            14, 
+            14, 
+            0, 
+            0
+        ]
+    }, 
+    "037c_FootLRupHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -51.90323555891068, 
+            -72.7993433813273, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            28, 
+            28, 
+            0, 
+            0
+        ]
+    }, 
+    "037d_FootLRDownHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -2.471582645663192, 
+            -0.8987573256945915, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            28, 
+            28, 
+            0, 
+            0
+        ]
+    }
+}
