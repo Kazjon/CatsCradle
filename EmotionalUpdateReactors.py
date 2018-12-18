@@ -15,7 +15,7 @@ class LonelinessReactor(EmotionalReactor):
 
 
 # Induces slowly mounting shame when the audience is > 60% male
-class MaleFearReactor(EmotionalReactor):
+class MaleShameReactor(EmotionalReactor):
     def __init__(self, em, aud):
         EmotionalReactor.__init__(self,em, aud)
 

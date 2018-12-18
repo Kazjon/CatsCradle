@@ -12,6 +12,8 @@ import threading
 import json
 import os
 import glob
+import csv
+import random
 
 import ArduinoCommunicator
 import time
@@ -216,22 +218,75 @@ def execute_dummy_movement(movement_name, movement_length):
     time.sleep(movement_length)
     print "Finished movement", movement_name
 
-def execute_dummy_gesture(gesture_name,movement_names, movement_lengths):
-    print "Executing gesture", gesture_name
-    for movement_name, movement_length in zip(movement_names, movement_lengths):
+def execute_dummy_gesture(gesture_name,movement_names,movement_time_max=4):
+    print "Executing gesture", gesture_name,"("+str(movement_names)+")"
+    threads = []
+    for movement_name in movement_names:
         if type(movement_name) is str:
-            t = Thread(target=execute_dummy_movement, args=(movement_name, movement_length))
+            t = Thread(target=execute_dummy_movement, args=(movement_name, random.random()*movement_time_max))
             t.start()
-        elif type(movement_name) is int:
+            threads.append(t)
+        else:
+            print "Delaying for",movement_name,"seconds."
             time.sleep(movement_name)
+    for t in threads:
+        t.join()
     print "Finished gesture", gesture_name
 
 class DummyActionModule(object):
 
-    def __init__(self, gesture_list_fn=[]):
-        # TODO: Implement load from CSV full of names and sequence definitions.  For now, also give each movement a length
-        self.gesture_list = []
+    def __init__(self, movement_list_fn="gestures/movements.csv",
+                 neutral_gesture_list_fn="gestures/neutral_gestures.csv",
+                 fear_gesture_list_fn="gestures/fear_gestures.csv",
+                 happy_gesture_list_fn="gestures/longing_gestures.csv",
+                 sad_gesture_list_fn="gestures/sad_gestures.csv",
+                 shame_gesture_list_fn="gestures/shame_gestures.csv"):
+        self.gesture_list = {}
         self.current_gestures = []
+
+       # with open(movement_list_fn,"r") as mf:
+       #     reader = csv.reader(mf)
+       #     #TODO: Implement movement list loading when we hace the list.
+
+        with open(neutral_gesture_list_fn,"r") as nf:
+            reader = csv.reader(nf)
+            reader.next()
+            for row in reader:
+                self.gesture_list["neutral_"+row[1]] = row[2:]
+
+        with open(fear_gesture_list_fn, "r") as ff:
+            reader = csv.reader(ff)
+            reader.next()
+            for row in reader:
+                self.gesture_list["fear_"+row[1]] = row[2:]
+
+        with open(happy_gesture_list_fn, "r") as hf:
+            reader = csv.reader(hf)
+            reader.next()
+            for row in reader:
+                self.gesture_list["happiness_"+row[1]] = row[2:]
+
+        with open(sad_gesture_list_fn, "r") as sf:
+            reader = csv.reader(sf)
+            reader.next()
+            for row in reader:
+                self.gesture_list["sad_"+row[1]] = row[2:]
+
+        with open(shame_gesture_list_fn, "r") as sf:
+            reader = csv.reader(sf)
+            reader.next()
+            for row in reader:
+                self.gesture_list["shame_"+row[1]] = row[2:]
+
+        self.movements = []
+        for name,gesture in self.gesture_list.iteritems():
+            for i,movement in enumerate(gesture):
+                try:
+                    gesture[i] = float(movement)
+                except ValueError:
+                    if movement not in self.movements:
+                        self.movements.append(movement)
+
 
     def is_idle(self):
         to_del = [False]*len(self.current_gestures)
@@ -239,13 +294,14 @@ class DummyActionModule(object):
             if not g.is_alive():
                 g.join()
                 to_del[i] = True
-        for i,d in zip(range(len(self.current_gestures)),to_del):
+        for i,d in reversed(zip(range(len(self.current_gestures)),to_del)):
             if d:
                 self.current_gestures.pop(i)
         return not len(self.current_gestures)
 
     def execute(self,gesture):
-        t = Thread(target=execute_dummy_gesture(gesture,self.gesture_list[gesture][0],self.gesture_list[gesture][1]))
+        t = Thread(target=execute_dummy_gesture(gesture,self.gesture_list[gesture]))
+        t.start()
         self.current_gestures.append(t)
 
     def stop(self):
@@ -341,35 +397,6 @@ class DummyActionModule(object):
 
         return (angleY, angleZ)
 
-    def addPosition(self, name, angles, speeds):
-        # Check angles length
-        if not len(angles) == len(self.currentAngles):
-            print 'Invalid angles: ', angles
-            raise InvalidAnglesParameter
-        if not len(speeds) == len(self.currentAngles):
-            print 'Invalid speeds: ', speeds
-            raise InvalidSpeedsParameter
-
-        # Check for overwrite and print overwritten angles inc ase we want to recover
-        if name in self.positions.keys():
-            print 'WARNING: Overwrite "', name, '" position (old values: ', self.positions[name], ').'
-
-        # Add a position to the Position.json file
-        position = {}
-        position['angles'] = angles
-        position['speeds'] = speeds
-        # print "position = ", position
-        self.positions[name] = position
-        with open("Positions.json", "w") as write_file:
-            json.dump(self.positions, write_file, indent=4, sort_keys=True)
-
-    def loadPositionsFromFile(self, filename):
-        try:
-            with open(filename, "r") as read_file:
-                print "Loading positions from ", filename, "..."
-                self.positions.update(json.load(read_file))
-        except:
-            pass
 
 
 if __name__ == '__main__':

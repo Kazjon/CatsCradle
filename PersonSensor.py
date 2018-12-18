@@ -162,7 +162,6 @@ class PersonSensor(Sensor):
                     personCount_ += 1
 
                 self.face_names.append(name)
-                print "Num persons =", len(persons)
 
         else:
             persons = previousPersons

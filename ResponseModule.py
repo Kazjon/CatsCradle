@@ -38,10 +38,11 @@ class DummyResponseModule(object):
 
 class ResponseModule(object):
 
-    def __init__(self,action_module,gesture_queue_length=5,gesture_list="responses.csv"):
+    def __init__(self,action_module,gesture_queue_length=5):
         self.action_module = action_module
         self.gesture_queue = deque()
         self.responders = []
+        self.loadResponders(action_module)
 
         '''Disabled gesture list stuff -- may or may not end up using this
         with open(gesture_list) as f:
@@ -57,17 +58,18 @@ class ResponseModule(object):
                 gestures.append((g_pos,row[4:]))
         '''
 
-    def loadResponders(self):
+    def loadResponders(self, action_module):
         baseResponders = ["Responder"]
         # Load Emotional Responders (respodners that trigger based on the state of the audience and  for other reactors to work with)
         for r in dir(EmotionalResponders):
             if r not in baseResponders and inspect.isclass(getattr(EmotionalResponders,r)):
-                self.responders.append(getattr(EmotionalResponders, r)())
+                self.responders.append(getattr(EmotionalResponders, r)(action_module))
 
     def update(self,emotional_state, audience):
+        idle = self.action_module.is_idle()
         #Determine whether anything needs to be added to the queue
         for responder in self.responders:
-            responder.respond(emotional_state, audience, self.gesture_queue, self.action_module)
+            responder.respond(emotional_state, audience, idle)
 
-        if self.action_module.is_idle() and len(self.gesture_queue):
+        if idle and len(self.gesture_queue):
             self.action_module.execute(self.gesture_queue.pop())

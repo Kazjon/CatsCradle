@@ -1,0 +1,4 @@
+ID,Name,Sequence
+1,Up_fast_slow_down,001e_HeadLRupFullFast,0.1,002b_HeadLRDownHalfSlow,0.7,001b_HeadLRDownFullSlow
+2,Twitch,014g_HandLupTwitch
+3,Double_twitch,014g_HandLupTwitch,0.1,014g_HandLupTwitch
