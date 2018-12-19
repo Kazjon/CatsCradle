@@ -178,7 +178,7 @@
             0, 
             0
         ]
-    },
+    }, 
     "002a_HeadLRupHalfSlow": {
         "angles": [
             null, 
@@ -261,7 +261,7 @@
             0, 
             0, 
             0, 
-            41, 
+            42, 
             42, 
             0, 
             0, 
@@ -291,7 +291,7 @@
             0, 
             0, 
             0, 
-            41, 
+            42, 
             42, 
             0, 
             0, 
@@ -778,8 +778,7 @@
             0, 
             0
         ]
-    },
- 
+    }, 
     "005c_HeadRupLowMed": {
         "angles": [
             null, 
@@ -1079,7 +1078,7 @@
             0, 
             0
         ]
-    },
+    }, 
     "007a_HeadLupHalfSlow": {
         "angles": [
             null, 
@@ -1526,8 +1525,8 @@
             0, 
             0, 
             0, 
-            44, 
-            0
+	    80,
+	    0
         ]
     }, 
     "010b_HandRDownHalfMed": {
@@ -1556,10 +1555,10 @@
             0, 
             0, 
             0, 
-            44, 
+            20, 
             0
         ]
-    },
+    }, 
     "011a_HandRupLowSlow": {
         "angles": [
             null, 
@@ -1676,7 +1675,7 @@
             0, 
             0, 
             0, 
-            32, 
+            10, 
             0
         ]
     }, 
@@ -1767,7 +1766,7 @@
             0, 
             0, 
             0, 
-            44
+            60
         ]
     }, 
     "012d_HandLDownFullMed": {
@@ -1797,7 +1796,7 @@
             0, 
             0, 
             0, 
-            44
+            60
         ]
     }, 
     "013a_HandLupHalfMed": {
@@ -1917,7 +1916,7 @@
             0, 
             0, 
             0, 
-            80
+            30
         ]
     }, 
     "013e_HandLupHalfFast2": {
@@ -1979,7 +1978,7 @@
             0, 
             60
         ]
-    },
+    }, 
     "014a_HandLupLowSlow": {
         "angles": [
             null, 
@@ -2217,7 +2216,7 @@
             0, 
             0, 
             0, 
-            35
+            10
         ]
     }, 
     "015a_HandLRupFullFast": {
@@ -2487,7 +2486,7 @@
             0, 
             0, 
             50, 
-            51
+            50
         ]
     }, 
     "016d_HandLRDownHalfMed": {
@@ -2517,7 +2516,7 @@
             0, 
             0, 
             50, 
-            51
+            50
         ]
     }, 
     "016e_HandLRupHalfFast": {
@@ -2579,7 +2578,7 @@
             70, 
             71
         ]
-    },
+    }, 
     "017a_HandLRupLowSlow": {
         "angles": [
             null, 
@@ -2756,8 +2755,8 @@
             0, 
             0, 
             0, 
-            47, 
-            47
+            10, 
+            10
         ]
     }, 
     "018a_ShoulderRupFullSlow": {
@@ -2939,7 +2938,7 @@
             0, 
             0
         ]
-    },
+    }, 
     "019a_ShoulderRupHalfSlow": {
         "angles": [
             null, 
@@ -3899,7 +3898,7 @@
             0, 
             0
         ]
-    },
+    }, 
     "024a_ShoulderRotRFullFast": {
         "angles": [
             45, 
@@ -4919,7 +4918,7 @@
             0, 
             0
         ]
-    },     
+    }, 
     "031a_FootRupHalfSlow": {
         "angles": [
             null, 
@@ -6176,6 +6175,1806 @@
             0, 
             28, 
             28, 
+            0, 
+            0
+        ]
+    }, 
+    "038a_HeadRotRFullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038b_HeadRotR(0)FullSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038c_HeadRotRFullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038d_HeadRotR(0)FullMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038e_HeadRotRFullMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038f_HeadRotR(0)FullMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038g_HeadRotRFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038h_HeadRotR(0)FullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038i_HeadRotRFullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "038j_HeadRotR(0)FullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039a_HeadRotLFullSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039b_HeadRotL(0)FullSlow": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039c_HeadRotLFullMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039d_HeadRotL0FullMed": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039e_HeadRotLFullMed2": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039f_HeadRotL(0)FullMed2": {
+        "angles": [
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039g_HeadRotLFullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039h_HeadRotL(0)FullFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039i_HeadRotLFullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -60, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "039j_HeadRotL(0)FullFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040a_HeadRotRHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040b_HeadRotR(0)HalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040c_HeadRotRHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040d_HeadRotR(0)HalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040e_HeadRotRHalfMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040f_HeadRotR(0)HalfMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040g_HeadRotRHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040h_HeadRotR(0)HalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040i_HeadRotRHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "040j_HeadRotR(0)HalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041a_HeadRotLHalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041b_HeadRotL(0)HalfSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041c_HeadRotLHalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041d_HeadRotL(0)HalfMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041e_HeadRotLHalfMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041f_HeadRotL(0)HalfMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041g_HeadRotLHalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041h_HeadRotL(0)HalfFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041i_HeadRotLHalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -30, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "041j_HeadRotL(0)HalfFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042a_HeadRotRLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042b_HeadRotR(0)LowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042c_HeadRotRLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042d_HeadRotR(0)LowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042e_HeadRotRLowMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042f_HeadRotR(0)LowMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042g_HeadRotRLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042h_HeadRotR(0)LowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042i_HeadRotRLowFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "042j_HeadRotR(0)LowFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043a_HeadRotLLowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043b_HeadRotL(0)LowSlow": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            40, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043c_HeadRotLLowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043d_HeadRotL(0)LowMed": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            48, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043e_HeadRotLLowMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043f_HeadRotL(0)LowMed2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            70, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043g_HeadRotLLowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043h_HeadRotL(0)LowFast": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            100, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043i_HeadRotLLowFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            -10, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "043j_HeadRotL(0)LowFast2": {
+        "angles": [
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            0, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        ], 
+        "speeds": [
+            0, 
+            0, 
+            0, 
+            0, 
+            0, 
+            150, 
+            0, 
+            0, 
+            0, 
+            0, 
             0, 
             0
         ]

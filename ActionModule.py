@@ -246,7 +246,6 @@ class DummyActionModule(object):
 
         with open(movement_list_fn,"r") as pf:
             self.movements = sorted(json.load(pf).keys())
-            print self.movements
 
         with open(neutral_gesture_list_fn,"r") as nf:
             reader = csv.reader(nf)
