@@ -42,7 +42,12 @@ class ArduinoCommunicator(object):
             self.serial_port.flush()
 
     def receive(self):
-        print "Receiving " + self.serial_port.readline()
+        data = ''
+        if self.serial_port is not None:
+            if self.serial_port.in_waiting:
+                data = self.serial_port.readline()
+                print "Receiving: " + data
+        return data
 
     def _checkLookAtInput(self, angle):
         """

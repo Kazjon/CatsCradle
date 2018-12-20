@@ -45,8 +45,10 @@ class ActionModule(object):
 
         # Initialize the angles to the marionette's default (0 everywhere)
         self.currentAngles = Marionette().getAngles()
+        self.currentTargetAngles = Marionette().getAngles()
+        self.targetReached = False
 
-        # Arduino motor id
+        # motor name to Arduino motor id
         self.arduinoID = {}
         self.arduinoID['motorH'] = 'head'
         self.arduinoID['motorS'] = 'shoulder'
@@ -62,6 +64,26 @@ class ActionModule(object):
         self.arduinoID['motorFL'] = 4    # "Left foot"
         self.arduinoID['motorEX'] = 'eyeX'    # "Eye horizontal"
         self.arduinoID['motorEY'] = 'eyeY'    # "Eye vertical"
+
+        # Arduino motor id to index of the angle in the angles list
+        # motor:       'S' 'SR' 'SL' 'AR' 'AL' 'H' 'HR' 'HL' 'FR' 'FL' 'WR' 'WL' 'EX' 'EY'
+        # angle index:  0    1    2    3    4   5    6    7    8    9   10   11   12   13
+        # arduino id:   s  m,9  m,8   -1  m,7   h  m,0  m,1  m,5  m,6  m,2  m,3      e
+        self.arduinoIDToAngleIndex = {}
+        self.arduinoIDToAngleIndex['h'] = 5
+        self.arduinoIDToAngleIndex['s'] = 0
+        self.arduinoIDToAngleIndex['0'] = 6     # "Right head"
+        self.arduinoIDToAngleIndex['1'] = 7     # "Left head"
+        self.arduinoIDToAngleIndex['9'] = 1     # "Right shoulder"
+        self.arduinoIDToAngleIndex['8'] = 2     # "Left shoulder"
+        #self.arduinoIDToAngleIndex['6'] = 3   # "Right arm"
+        self.arduinoIDToAngleIndex['7'] = 4     # "Left arm"
+        self.arduinoIDToAngleIndex['2'] = 10    # "Right hand"
+        self.arduinoIDToAngleIndex['3'] = 11    # "Left hand"
+        self.arduinoIDToAngleIndex['5'] = 8     # "Right foot"
+        self.arduinoIDToAngleIndex['4'] = 9     # "Left foot"
+        self.arduinoIDToAngleIndex['e,x'] = 12  # "Eye horizontal"
+        self.arduinoIDToAngleIndex['e,y'] = 13  # "Eye vertical"
 
         # Thread related variables
         self.qMotorCmds = Queue.Queue()
@@ -101,6 +123,7 @@ class ActionModule(object):
                 eyeAngleY = 90 # speed will be 0 and no motion will be triggered
                 eyeSpeedX = 0
                 eyeSpeedY = 0
+                self.targetReached = False
                 for cmd in cmds:
                     # print "step = ", step
                     id = self.arduinoID[cmd[0]]
@@ -131,24 +154,61 @@ class ActionModule(object):
                 if eyeMotion:
                     self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
 
+            # Read from the arduino
+            receivedData = self.ac.receive()
+            if receivedData != '':
+                self.updateAnglesFromFeedback(receivedData);
+
+            # Check for target reached:
+            if self.currentAngles == self.currentTargetAngles:
+                self.targetReached = True
+                print "Target reached!!!!!"
+
+
         print "Arduino thread stopped"
+
+
+    def updateAnglesFromFeedback(self, receivedData):
+        # Parse data: m,<id>,<angle>
+        id = -1
+        data = receivedData.split(",")
+        #print "Data received = ", receivedData
+        f data[0] == "m":
+            if len(data) == 3:
+                id = self.arduinoIDToAngleIndex[data[1]]
+                angle = int(data[2])
+                self.currentAngles[id] = angle
+        elif data[0] == "s" or data[0] == "h":
+            if len(data) == 2:
+                id = self.arduinoIDToAngleIndex[data[0]]
+                angle = int(data[1])
+                self.currentAngles[id] = angle
+        elif data[0] == "e":
+            if len(data) == 3:
+                id = self.arduinoIDToAngleIndex['e,x']
+                angle = int(data[1])
+                self.currentAngles[id] = angle
+                id = self.arduinoIDToAngleIndex['e,y']
+                angle = int(data[2])
+                self.currentAngles[id] = angle
+        #print "currentAngles = ", self.currentAngles
 
 
     def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
         output = action.getCmdsToTarget(self.currentAngles, speeds)
-        newAngles = []
-        for oldAngle, newAngle in zip(self.currentAngles, target):
+        newTargetAngles = []
+        for oldAngle, newAngle in zip(self.currentTargetAngles, target):
             if newAngle is None:
-                newAngles.append(oldAngle)
+                newTargetAngles.append(oldAngle)
             else:
-                newAngles.append(newAngle)
+                newTargetAngles.append(newAngle)
         # print "self.currentAngles = ", self.currentAngles
         # print "target = ", target
-        # print "newAngles = ", newAngles
-        self.currentAngles = newAngles
+        # print "newTargetAngles = ", newTargetAngles
+        self.currentTargetAngles = newTargetAngles
         self.qMotorCmds.put(output)
-        return self.currentAngles
+        return self.currentTargetAngles
 
 
     def moveTo(self, targetKey):
@@ -242,6 +302,24 @@ if __name__ == '__main__':
     from PyQt5 import QtGui, QtCore, QtWidgets
     from PyQt5.Qt import QMutex
     import random
+
+    a = ActionModule(None)
+    print "Current angles = ", a.currentAngles
+    a.updateAnglesFromFeedback("s,10")
+    a.updateAnglesFromFeedback("h,20")
+    a.updateAnglesFromFeedback("m,0,-1")
+    a.updateAnglesFromFeedback("m,1,1")
+    a.updateAnglesFromFeedback("m,2,2")
+    a.updateAnglesFromFeedback("m,3,3")
+    a.updateAnglesFromFeedback("m,4,4")
+    a.updateAnglesFromFeedback("m,5,5")
+    #a.updateAnglesFromFeedback("m,6,6") # Right arm disabled
+    a.updateAnglesFromFeedback("m,7,7")
+    a.updateAnglesFromFeedback("m,8,8")
+    a.updateAnglesFromFeedback("m,9,9")
+    a.updateAnglesFromFeedback("e,30,40")
+
+    print "updateAnglesFromFeedback tests done"
 
     class MotionGenerator(QtCore.QObject):
 
