@@ -57,7 +57,10 @@ class PersonSensor(Sensor):
         self.known_face_numbers = deque(maxlen=50)
         self.scaling_factor = 1.5
         self.process_this_frame = True
-        self.video_capture = cv2.VideoCapture(0)
+        #Use filename for videos or 0 for the live camera
+        #if you use 0 for the live camera, make sure its plugged in!
+        self.video_capture = cv2.VideoCapture('/home/bill/Desktop/ishaanMovies/morePeople.mp4')
+        # self.video_capture = cv2.VideoCapture(0)
         # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
@@ -74,12 +77,12 @@ class PersonSensor(Sensor):
 
     def detectUndetectedPersons(self):
         #RUDE CARNIE DEFAULTS
-        gender_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+        gender_model_dir = "/home/bill/Desktop/ish/CatsCradle/age_and_gender_detection/" +\
             "pretrained_checkpoints/gender/"
-        age_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+        age_model_dir = "/home/bill/Desktop/ish/CatsCradle/age_and_gender_detection/" +\
             "pretrained_checkpoints/age/"
         # What processing unit to execute inference on
-        device_id = '/cpu:0'
+        device_id = '/gpu:0'
         # Checkpoint basename
         checkpoint = 'checkpoint'
         model_type = 'inception'
