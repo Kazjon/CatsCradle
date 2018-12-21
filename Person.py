@@ -7,6 +7,7 @@ from BodyPartDetector import *
 from sets import Set
 from collections import deque
 from scipy.spatial import distance
+from threading import Lock
 
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
@@ -21,7 +22,7 @@ class Person:
 
     def __str__(self):
         return "Id: %s, Gender: %s, Age: %s"%(self.id,\
-            self.gender, self.ageRange)
+            self.getGender(), self.getAgeRange())
 
     def __init__(self, frame, faceLocation, faceEncoding, gender, ageRange, personCount, roi):
         self.id = personCount
@@ -30,9 +31,18 @@ class Person:
         # detector
         self.bodyDetector = BodyPartDetector()
         # Person's properties
-        self.gender = gender
+        self.gender = None
+        # As soon as a Person object is created, the age/gender detection thread
+        # grabs the gender and ageRange Lock objects. If any other program logic
+        # needs access to age and gender, it must access them through the
+        # getAgeRange and getGender functions which check if the lock has been
+        # released by the age/gender detection thread. If so, these methods
+        # return the detected age and gender. If not, they return None
+        self.genderLock = Lock()
+        self.ageRange = None
+        self.ageRangeLock = Lock()
+
         self.smile = False
-        self.ageRange = ageRange
         self.speed = 0
         # Height is a value proportional to the person's size on screen
         # could be a smaller person close to the camera, or a taller person
@@ -48,7 +58,7 @@ class Person:
         self.roi = roi
         # TODO: Find the best tracker type
         trackerType = 'KCF'
-        if int(minor_ver) < 3:
+        if False:
             self.tracker = cv2.Tracker_create(trackerType)
         else:
             if trackerType == 'BOOSTING':
@@ -76,6 +86,20 @@ class Person:
     def updateInterest(self):
         self.interestingness *= INTEREST_DECAY
         self.interestingness = max(0,self.interestingness)
+
+    def getAgeRange(self):
+        """
+        Checks if ageRangeLock has been released. If so, returns ageRange.
+        If not returns None.
+        """
+        return None if self.ageRangeLock.locked() else self.ageRange
+
+    def getGender(self):
+        """
+        Checks if genderLock has been released. If so, returns gender. If not
+        returns None.
+        """
+        return None if self.genderLock.locked() else self.gender
 
     def update(self, frame):
         """Track the person in the frame"""
