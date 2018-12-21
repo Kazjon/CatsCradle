@@ -44,7 +44,7 @@ class Person:
         self.roi = roi
         # TODO: Find the best tracker type
         trackerType = 'KCF'
-        if int(minor_ver) < 3:
+        if False:
             self.tracker = cv2.Tracker_create(trackerType)
         else:
             if trackerType == 'BOOSTING':

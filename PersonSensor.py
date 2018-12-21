@@ -73,12 +73,12 @@ class PersonSensor(Sensor):
 
     def detectUndetectedPersons(self):
         #RUDE CARNIE DEFAULTS
-        gender_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+        gender_model_dir = "/home/bill/Desktop/ish/CatsCradle/age_and_gender_detection/" +\
             "pretrained_checkpoints/gender/"
-        age_model_dir = "/Users/ishaanjhaveri/CornellDrive/git/CatsCradle/age_and_gender_detection/" +\
+        age_model_dir = "/home/bill/Desktop/ish/CatsCradle/age_and_gender_detection/" +\
             "pretrained_checkpoints/age/"
         # What processing unit to execute inference on
-        device_id = '/cpu:0'
+        device_id = '/gpu:0'
         # Checkpoint basename
         checkpoint = 'checkpoint'
         model_type = 'inception'
@@ -176,6 +176,7 @@ class PersonSensor(Sensor):
             # video
             self.face_locations = face_recognition.face_locations\
                 (rgb_small_frame)
+                #(rgb_small_frame, model="cnn")
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
 
@@ -272,7 +273,7 @@ if __name__ == '__main__':
     sensor = PersonSensor([])
     sensor.show = True
     Thread(target=sensor.detectUndetectedPersons).start()
-    time.sleep(15) # sleep to allow the tensor flow/rude carnie stuff to load
+    time.sleep(10) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
         persons = sensor.getPersons(previousPersons)
         print "Num persons =", len(persons)
