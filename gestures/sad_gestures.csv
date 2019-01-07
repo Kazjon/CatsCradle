@@ -1,0 +1,4 @@
+ID,Name,Sequence
+1,Head_and_hands_1,003a_HeadRupFullSlow,014a_HandLupLowSlow,022a_ShoulderLRupFullSlow
+2,Look_up_and_shift,027g_ShoulderRotLHalfSlow,006c_HeadRupFullMed,0.4,031c_FootRupHalfMed
+3,Shift_foot,035a_FootLupLowSlow
