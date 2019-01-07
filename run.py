@@ -20,17 +20,17 @@ if __name__ == "__main__":
     actionModule = ActionModule()
     config = tf.ConfigProto(allow_soft_placement=True)
     
-    print('Loaded Action Module. Hit Enter to Continue...\n')
+    print('Loaded Action Module...\n')
     
     with tf.Session(config=config) as tf_sess:
     
         response_module = ResponseModule(actionModule)
         
-        print('Loaded Response Module. Hit Enter to Continue...\n')
+        print('Loaded Response Module...\n')
         
         emotion_module = EmotionModule(response_module, visualise=True)
         
-        print('Loaded Emotion Module. Hit Enter to Continue...\n')
+        print('Loaded Emotion Module...\n')
         
         sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess}, emotion_module)
         camera = cv2.VideoCapture(0)
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         sensor_module.audience = Audience(sensor_module.personSensor)
         sensor_module.loadReactors()
         
-        print('Loaded Sensor Module. Hit Enter to Continue...\n')
+        print('Loaded Sensor Module...\n')
         
         person_detector_thread = Thread(target=sensor_module.personSensor.detectUndetectedPersons)
         person_detector_thread.setDaemon(True)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 #        person_detector_process = Process(target=sensor_module.personSensor.detectUndetectedPersons)
 #        person_detector_process.start()
 
-        print('Loaded Person Detector. Hit Enter to Continue...\n')
+        print('Loaded Person Detector...\n')
 
         while True:
         
