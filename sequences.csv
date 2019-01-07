@@ -402,9 +402,9 @@ number 23 - reverse
 010b_HandRDownHalfMed,
 
 number 24
-013c_HandLupHalfFast,
+013c_HandLupHalfFast, 044c_ArmLeftUpFullMed
 number 24 - reverse
-013b_HandLDownHalfMed,
+013b_HandLDownHalfMed, 044d_ArmLeftDownFullMed
 
 number 25
 018e_ShoulderRupFullFast,
@@ -429,17 +429,17 @@ number 28 - reverse
 number 29
 024a_ShoulderRotRFullFast,
 number 29 - reverse
-024f_ShoulderRotR(0)FullSlow,
+024d_ShoulderRotR(0)FullMed,
 
 number 30
 026c_ShoulderRotLFullMed2,
 number 30 - reverse
-026h_ShoulderRotL(0)FullSlow,
+026f_ShoulderRotL(0)FullMed,
 
 number 31
 027a_ShoulderRotLHalfFast,
 number 31 - reverse
-027h_ShoulderRotL(0)HalfSlow,
+027f_ShoulderRotL(0)HalfMed,
 
 number 32
 032e_FootRupLowFast,
