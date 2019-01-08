@@ -50,15 +50,15 @@ class PersonSensor(Sensor):
         self.standardBodyHeight = 1700
         self.standardFaceWidth = 200
         self.standardFaceHeight = 400
-        
+
         # Create arrays of known face encodings and their names
         self.known_face_encodings = deque(maxlen=50)
         self.known_face_numbers = deque(maxlen=50)
         self.scaling_factor = 1.5
-        
+
         self.frame_process_timer = 0
         self.frame_process_stride = 12
-        
+
         #Use filename for videos or 0 for the live camera
         #if you use 0 for the live camera, make sure its plugged in!
 #        self.video_capture = cv2.VideoCapture(os.path.expanduser('~/Downloads/ishaanMovies/people gesturing-converted.mp4'))
@@ -75,15 +75,15 @@ class PersonSensor(Sensor):
         # self.initAgeAndGender(tf_sess)
         self.undetected_persons = deque()
         self.undetected_persons_lock = Lock()
-    
+
 #        self.getPersons([])
 
 
     def detectUndetectedPersons(self):
         #RUDE CARNIE DEFAULTS
-        
+
         print("starting the process to detect people's age and gender...")
-        
+
         gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
         age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
         # What processing unit to execute inference on
@@ -102,11 +102,11 @@ class PersonSensor(Sensor):
             #Gender detection model
             n_genders = len(GENDER_LIST)
             gender_model_fn = select_model(model_type)
-            
+
             print("initializing the model to detect age and gender")
-            
+
             with tf.device(device_id):
-            
+
                 print "initializing the model to detect age and gender using ", str(device_id)
                 images = tf.placeholder(tf.float32, [None, RESIZE_FINAL, RESIZE_FINAL, 3])
                 requested_step = None
@@ -131,9 +131,9 @@ class PersonSensor(Sensor):
                 coder = ImageCoder()
 
                 writer = None
-                
+
                 print("starting the loop for detecting age and gender in each frame")
-                
+
                 while True:
                     self.undetected_persons_lock.acquire()
                     if len(self.undetected_persons):
@@ -169,7 +169,7 @@ class PersonSensor(Sensor):
         return AGE_MAP[ageRange], gender
 
     def getPersons(self, previousPersons):
-        
+
         if self.frame_process_timer == self.frame_process_stride:
             self.frame_process_timer = 0
         else:
@@ -215,7 +215,7 @@ class PersonSensor(Sensor):
 
         # Resize frame of video to 1/4 size for faster face recognition
         # processing
-        small_frame = cv2.resize(frame, (0, 0), 
+        small_frame = cv2.resize(frame, (0, 0),
                 fx=(1/self.scaling_factor), fy=(1/self.scaling_factor))
 
         # Convert the image from BGR color (which OpenCV uses) to RGB color
@@ -244,9 +244,9 @@ class PersonSensor(Sensor):
                 right = int(right)
                 bottom = int(bottom)
                 left = int(left)
-                face_top = top - int((bottom-top)/2)
+                face_top = max(top - int((bottom-top)/2), 0)
                 face_bottom = bottom + int((bottom-top)/2)
-                face_left = left - int((right-left)/2)
+                face_left = max(left - int((right-left)/2), 0)
                 face_right = right + int((right-left)/2)
                 face_close_up = small_frame[face_top:face_bottom, face_left:face_right, :]
 
