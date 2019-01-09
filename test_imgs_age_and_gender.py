@@ -36,7 +36,7 @@ WHITE = [255,255, 255]
 TARGET_IMG_HEIGHT = 231
 TARGET_IMG_WIDTH = 231
 
-def detectUndetectedPersons(undetected_persons):
+def detectUndetectedPersons(outfile, undetected_persons):
     #RUDE CARNIE DEFAULTS
 
     print("starting the process to detect people's age and gender...")
@@ -44,7 +44,7 @@ def detectUndetectedPersons(undetected_persons):
     gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
     age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
     # What processing unit to execute inference on
-    device_id = '/cpu:0'
+    device_id = '/device:GPU:0'
     # Checkpoint basename
     checkpoint = 'checkpoint'
     model_type = 'inception'
@@ -91,9 +91,9 @@ def detectUndetectedPersons(undetected_persons):
             print("starting the loop for detecting age and gender in each frame")
             time.sleep(15) # sleep to allow the tensor flow/rude carnie stuff to load
             for person_name, person_img in undetected_persons:
-                print(person_name, getAgeAndGender(person_name, person_img, sess, coder, images,\
+                outfile.write("%s%s%s"%(person_name, getAgeAndGender(person_name, person_img, sess, coder, images,\
                         writer, AGE_LIST, GENDER_LIST, age_softmax_output,\
-                        gender_softmax_output))
+                        gender_softmax_output), '\n'))
 
 def getAgeAndGender(person_number, target_image, sess, coder, images,\
     writer, age_list, gender_list, age_softmax_output,\
@@ -137,16 +137,17 @@ def _prepare_image(image):
 if __name__ == '__main__':
     raw_undetected_persons = list(map(lambda filename: os.path.join("imgs",
         filename), os.listdir("imgs/")))
-    raw_undetected_persons.remove("imgs/.DS_Store")
+    # raw_undetected_persons.remove("imgs/.DS_Store")
     undetected_persons = []
-    for i, img_name in enumerate(raw_undetected_persons):
-        img = cv2.imread(img_name)
-        height, width, channels = img.shape
-        vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
-        horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
-        new_img = cv2.copyMakeBorder(img, vertical_padding, vertical_padding,\
-            horizontal_padding, horizontal_padding,\
-            cv2.BORDER_CONSTANT,value=WHITE)
-        undetected_persons.append((img_name, new_img))
+    with open("imgs/guesses.txt", "wb") as f:
+        for i, img_name in enumerate(raw_undetected_persons):
+            img = cv2.imread(img_name)
+            height, width, channels = img.shape
+            vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
+            horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
+            new_img = cv2.copyMakeBorder(img, vertical_padding, vertical_padding,\
+                horizontal_padding, horizontal_padding,\
+                cv2.BORDER_CONSTANT,value=WHITE)
+            undetected_persons.append((img_name, new_img))
 
-    detectUndetectedPersons(undetected_persons)
+            detectUndetectedPersons(f, undetected_persons)
