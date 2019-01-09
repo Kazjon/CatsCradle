@@ -243,7 +243,7 @@ class PersonSensor(Sensor):
             # Find all the faces and face encodings in the current frame of
             # video
             self.face_locations = face_recognition.face_locations\
-                (rgb_small_frame, number_of_times_to_upsample=0, model="cnn")
+                (rgb_small_frame, number_of_times_to_upsample=2, model="cnn")
                 #(rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
@@ -293,7 +293,7 @@ class PersonSensor(Sensor):
                         person
                     persons.append(person)
                     personCount_ += 1
-                    # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_%d.jpg"%personCount_, face_close_up)
+                    cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/camera_above/%d.jpg"%personCount_, face_close_up)
 
                 self.face_names.append(name)
 
@@ -323,24 +323,24 @@ class PersonSensor(Sensor):
 
         #Far away person detection
     	# detect people in the image
-    	(rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
-    		padding=(8, 8), scale=1.05)
+    	# (rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
+    	# 	padding=(8, 8), scale=1.05)
 
     	# draw the original bounding boxes
-    	for (x, y, w, h) in rects:
-    		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+    	# for (x, y, w, h) in rects:
+    	# 	cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
     	# apply non-maxima suppression to the bounding boxes using a
     	# fairly large overlap threshold to try to maintain overlapping
     	# boxes that are still people
-    	rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
-    	pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
+    	# rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+    	# pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
     	# draw the final bounding boxes
-    	for (xA, yA, xB, yB) in pick:
-    		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+    	# for (xA, yA, xB, yB) in pick:
+    	# 	cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
 
-#        print "updating the frame..."
+        # print "updating the frame..."
         # Display the resulting image
         cv2.imshow('Video', frame)
 

@@ -111,14 +111,13 @@ def getAgeAndGender(person_number, target_image, sess, coder, images,\
 
 
 if __name__ == '__main__':
-    raw_undetected_persons = list(map(lambda filename: os.path.join("imgs",
-        filename), os.listdir("imgs/")))
-    raw_undetected_persons.remove("imgs/guesses.txt")
-
-    raw_undetected_persons = ['/home/bill/Desktop/CatsCradle-fusion/imgs/1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_10.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_11.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_12.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_13.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_14.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_15.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_16.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/10.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/11.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/12.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/13.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/14.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/15.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/16.jpg']
+    img_folder = "imgs/"
+    raw_undetected_persons = list(map(lambda filename: os.path.join(img_folder,
+        filename), os.listdir(img_folder)))
+    raw_undetected_persons = list(filter(lambda filename: ".jpg" in filename, raw_undetected_persons))
 
     undetected_persons = []
-    with open("imgs/guesses.txt", "wb") as f:
+    with open(os.path.join(img_folder, "guesses.txt"), "wb") as f:
         for i, img_name in enumerate(raw_undetected_persons):
             img = cv2.imread(img_name)
             height, width, channels = img.shape
