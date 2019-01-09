@@ -82,6 +82,10 @@ class PersonSensor(Sensor):
         self.undetected_persons = deque()
         self.undetected_persons_lock = Lock()
 
+        #Far away person detection
+        self.hog = cv2.HOGDescriptor()
+        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+
 #        self.getPersons([])
 
 
@@ -312,6 +316,26 @@ class PersonSensor(Sensor):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (0,\
                 0, 0), 1)
 
+
+        #Far away person detection
+    	# detect people in the image
+    	(rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
+    		padding=(8, 8), scale=1.05)
+
+    	# draw the original bounding boxes
+    	for (x, y, w, h) in rects:
+    		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+
+    	# apply non-maxima suppression to the bounding boxes using a
+    	# fairly large overlap threshold to try to maintain overlapping
+    	# boxes that are still people
+    	rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+    	pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
+
+    	# draw the final bounding boxes
+    	for (xA, yA, xB, yB) in pick:
+    		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+
 #        print "updating the frame..."
         # Display the resulting image
         cv2.imshow('Video', frame)
@@ -389,8 +413,8 @@ class PersonSensor(Sensor):
 if __name__ == '__main__':
     previousPersons = []
     sensor = PersonSensor([], None)
-    # sensor.video_capture = cv2.VideoCapture(0)
-    sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
+    sensor.video_capture = cv2.VideoCapture(0)
+    # sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 
