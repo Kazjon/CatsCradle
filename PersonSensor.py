@@ -24,6 +24,10 @@ from Sensor import *
 from threading import Lock, Thread
 import time
 
+from imutils.object_detection import non_max_suppression
+from imutils import paths
+import imutils
+
 personCount_ = 0
 
 RESIZE_FINAL = 227
