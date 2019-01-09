@@ -76,6 +76,7 @@ def detectUndetectedPersons(outfile, undetected_persons):
             saver_age.restore(sess, age_checkpoint_path)
             age_softmax_output = tf.nn.softmax(age_logits)
 
+
             #gender_model
             gender_logits = gender_model_fn("gender", n_genders, images, 1, False)
             gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir, requested_step, checkpoint)
@@ -108,36 +109,14 @@ def getAgeAndGender(person_number, target_image, sess, coder, images,\
 
     return AGE_MAP[ageRange], gender
 
-def _prepare_image(image):
-    """Resize the image to a maximum height of `self.height` and maximum
-    width of `self.width` while maintaining the aspect ratio. Pad the
-    resized image to a fixed size of ``[self.height, self.width]``."""
-    img = tf.image.decode_png(image, channels=1)
-    dims = tf.shape(img)
-
-    max_width = tf.to_int32(tf.ceil(tf.truediv(dims[1], dims[0]) * self.height_float))
-    max_height = tf.to_int32(tf.ceil(tf.truediv(self.width, max_width) * self.height_float))
-
-    resized = tf.cond(
-        tf.greater_equal(self.width, max_width),
-        lambda: tf.cond(
-            tf.less_equal(dims[0], self.height),
-            lambda: tf.to_float(img),
-            lambda: tf.image.resize_images(img, [self.height, max_width],
-                                           method=tf.image.ResizeMethod.BICUBIC),
-        ),
-        lambda: tf.image.resize_images(img, [max_height, self.width],
-                                       method=tf.image.ResizeMethod.BICUBIC)
-    )
-
-    padded = tf.image.pad_to_bounding_box(resized, 0, 0, self.height, self.width)
-    return padded
-
 
 if __name__ == '__main__':
     raw_undetected_persons = list(map(lambda filename: os.path.join("imgs",
         filename), os.listdir("imgs/")))
-    # raw_undetected_persons.remove("imgs/.DS_Store")
+    raw_undetected_persons.remove("imgs/guesses.txt")
+
+    raw_undetected_persons = ['/home/bill/Desktop/CatsCradle-fusion/imgs/1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_10.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_11.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_12.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_13.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_14.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_15.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/2ndvid_16.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_1.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_2.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_3.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/4.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/5.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/6.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/7.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/8.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/9.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/10.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/11.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/12.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/13.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/14.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/15.jpg', '/home/bill/Desktop/CatsCradle-fusion/imgs/16.jpg']
+
     undetected_persons = []
     with open("imgs/guesses.txt", "wb") as f:
         for i, img_name in enumerate(raw_undetected_persons):
@@ -150,4 +129,4 @@ if __name__ == '__main__':
                 cv2.BORDER_CONSTANT,value=WHITE)
             undetected_persons.append((img_name, new_img))
 
-            detectUndetectedPersons(f, undetected_persons)
+        detectUndetectedPersons(f, undetected_persons)
