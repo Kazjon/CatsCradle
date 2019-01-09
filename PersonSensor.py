@@ -34,6 +34,12 @@ AGE_LIST = ['(0, 2)','(4, 6)','(8, 12)','(15, 20)','(25, 32)','(38, 43)',\
 AGE_MAP = {'(0, 2)':"child",'(4, 6)':"child",'(8, 12)':"child",'(15, 20)':"teen",'(25, 32)':"adult",'(38, 43)':"adult",'(48, 53)':"adult",'(60, 100)':"senior"}
 MAX_BATCH_SZ = 128
 
+WHITE = [255, 255, 255]
+TARGET_IMG_HEIGHT = 231
+TARGET_IMG_WIDTH = 231
+
+
+
 class PersonSensor(Sensor):
     """
     Use the BodyPartDetector to sense a person
@@ -167,6 +173,7 @@ class PersonSensor(Sensor):
             person.ageRange = ageRange
 
         return AGE_MAP[ageRange], gender
+	#return 'adult', 'M'
 
     def getPersons(self, previousPersons):
 
@@ -228,7 +235,7 @@ class PersonSensor(Sensor):
             # Find all the faces and face encodings in the current frame of
             # video
             self.face_locations = face_recognition.face_locations\
-                (rgb_small_frame, number_of_times_to_upsample=1, model="cnn")
+                (rgb_small_frame, number_of_times_to_upsample=0, model="cnn")
                 #(rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
@@ -248,7 +255,14 @@ class PersonSensor(Sensor):
                 face_bottom = bottom + int((bottom-top)/2)
                 face_left = max(left - int((right-left)/2), 0)
                 face_right = right + int((right-left)/2)
+                # NOTE FOR ISHAAN: Change to 1.5 and cut off if interfering with next face
                 face_close_up = small_frame[face_top:face_bottom, face_left:face_right, :]
+		height, width, channels = face_close_up.shape
+		vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
+		horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
+		face_close_up = cv2.copyMakeBorder(face_close_up, vertical_padding, vertical_padding, \
+			horizontal_padding, horizontal_padding,\
+			cv2.BORDER_CONSTANT, value=WHITE)
 
                 # If a match was found in self.known_face_encodings,
                 # just use the first one.
@@ -271,7 +285,7 @@ class PersonSensor(Sensor):
                         person
                     persons.append(person)
                     personCount_ += 1
-                    cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/%d.jpg"%personCount_, face_close_up)
+                    # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/3rdvid_%d.jpg"%personCount_, face_close_up)
 
                 self.face_names.append(name)
 
@@ -376,7 +390,7 @@ if __name__ == '__main__':
     previousPersons = []
     sensor = PersonSensor([], None)
     # sensor.video_capture = cv2.VideoCapture(0)
-    sensor.video_capture = cv2.VideoCapture(os.path.expanduser('~/Desktop/ishaanMovies/people walking around-converted.mp4'))
+    sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 

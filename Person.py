@@ -31,7 +31,7 @@ class Person:
         # detector
         self.bodyDetector = BodyPartDetector()
         # Person's properties
-        self.gender = None
+        self.gender = 'M'
         # As soon as a Person object is created, the age/gender detection thread
         # grabs the gender and ageRange Lock objects. If any other program logic
         # needs access to age and gender, it must access them through the
@@ -39,7 +39,7 @@ class Person:
         # released by the age/gender detection thread. If so, these methods
         # return the detected age and gender. If not, they return None
         self.genderLock = Lock()
-        self.ageRange = None
+        self.ageRange = '25-32'
         self.ageRangeLock = Lock()
 
         self.smile = False

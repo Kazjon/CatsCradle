@@ -22,8 +22,10 @@ class IdleResponder(Responder):
                         emotion_quantity = max(0,emotion_quantity)
                         emotion_quantity *= 1.33
                         if random() < emotion_quantity:
+			    print "Responding to:", emotion_name
                             self.action_module.executeGesture(choice(self.emotional_gestures[emotion_name]))
                 if len(self.emotional_gestures["neutral"]):
+		    print "Responding in neutral."
                     self.action_module.executeGesture(choice(self.emotional_gestures["neutral"]))
 
 

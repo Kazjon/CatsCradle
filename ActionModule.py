@@ -199,15 +199,26 @@ class ActionModule(object):
             # Read from the arduino
             receivedData = self.ac.receive()
             if receivedData != '':
-                self.updateAnglesFromFeedback(receivedData);
+		#print "received data: ", receivedData
+                self.updateAnglesFromFeedback(receivedData)
 
             # Check for target reached:
-            if self.currentAngles == self.currentTargetAngles:
+            if self.checkTargetReached():
                 self.targetReached = True
                 self.isIdle = True
                 #print "Target reached!!!!!"
 
         print "Arduino thread stopped"
+
+
+    def checkTargetReached(self):
+	for angleIndex in range(0, len(self.currentAngles)):
+	    # ignoring head rotation motor
+            if angleIndex == self.arduinoIDToAngleIndex['h']:
+		continue
+	    if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
+                return False
+        return True
 
 
     def updateAnglesFromFeedback(self, receivedData):
@@ -234,6 +245,7 @@ class ActionModule(object):
                 angle = int(data[2])
                 self.currentAngles[id] = angle
         #print "currentAngles = ", self.currentAngles
+	#print "targetAngles = ", self.currentTargetAngles
 
 
     def moveToAngles(self, target, speeds):
