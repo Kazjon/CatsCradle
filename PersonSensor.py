@@ -35,7 +35,9 @@ GENDER_LIST =['M','F']
 AGE_LIST = ['(0, 2)','(4, 6)','(8, 12)','(15, 20)','(25, 32)','(38, 43)',\
     '(48, 53)','(60, 100)']
 
-AGE_MAP = {'(0, 2)':"child",'(4, 6)':"child",'(8, 12)':"child",'(15, 20)':"teen",'(25, 32)':"adult",'(38, 43)':"adult",'(48, 53)':"adult",'(60, 100)':"senior"}
+AGE_MAP = {'(0, 2)':"child",'(4, 6)':"child",'(8, 12)':"child",\
+    '(15, 20)':"teen",'(25, 32)':"adult",'(38, 43)':"adult",\
+    '(48, 53)':"adult",'(60, 100)':"senior"}
 MAX_BATCH_SZ = 128
 
 WHITE = [255, 255, 255]
@@ -123,22 +125,27 @@ class PersonSensor(Sensor):
 
             with tf.device(device_id):
 
-                print "initializing the model to detect age and gender using ", str(device_id)
-                images = tf.placeholder(tf.float32, [None, RESIZE_FINAL, RESIZE_FINAL, 3])
+                print "initializing the model to detect age and gender using ",\
+                    str(device_id)
+                images = tf.placeholder(tf.float32, [None, RESIZE_FINAL, \
+                    RESIZE_FINAL, 3])
                 requested_step = None
                 init = tf.global_variables_initializer()
 
                 #age model
                 age_logits = age_model_fn("age", n_ages, images, 1, False)
-                age_checkpoint_path, global_step = get_checkpoint(age_model_dir, requested_step, checkpoint)
+                age_checkpoint_path, global_step = get_checkpoint(age_model_dir,\
+                    requested_step, checkpoint)
                 age_vars = set(tf.global_variables())
                 saver_age = tf.train.Saver(list(age_vars))
                 saver_age.restore(sess, age_checkpoint_path)
                 age_softmax_output = tf.nn.softmax(age_logits)
 
                 #gender_model
-                gender_logits = gender_model_fn("gender", n_genders, images, 1, False)
-                gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir, requested_step, checkpoint)
+                gender_logits = gender_model_fn("gender", n_genders, images,\
+                    1, False)
+                gender_checkpoint_path, global_step = \
+                    get_checkpoint(gender_model_dir, requested_step, checkpoint)
                 gender_vars = set(tf.global_variables()) - age_vars
                 saver_gender = tf.train.Saver(list(gender_vars))
                 saver_gender.restore(sess, gender_checkpoint_path)
@@ -153,11 +160,12 @@ class PersonSensor(Sensor):
                 while True:
                     self.undetected_persons_lock.acquire()
                     if len(self.undetected_persons):
-                        (person_number, target_image) = self.undetected_persons.popleft()
+                        (person_number, target_image) = \
+                            self.undetected_persons.popleft()
                         self.undetected_persons_lock.release()
-                        self.getAgeAndGender(person_number, target_image, sess, coder, images,\
-                                writer, AGE_LIST, GENDER_LIST, age_softmax_output,\
-                                gender_softmax_output)
+                        self.getAgeAndGender(person_number, target_image,\
+                            sess, coder, images, writer, AGE_LIST, GENDER_LIST,\
+                            age_softmax_output, gender_softmax_output)
                     else:
                         self.undetected_persons_lock.release()
 
@@ -182,9 +190,8 @@ class PersonSensor(Sensor):
         with person.ageRangeLock:
             person.ageRange = ageRange
 
-        cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
+        # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
         return AGE_MAP[ageRange], gender
-	#return 'adult', 'M'
 
     def getPersons(self, previousPersons):
 
@@ -224,7 +231,8 @@ class PersonSensor(Sensor):
                     person.posCamera = centerROI(face)
                     person.posWorld = camera.cameraToWorld(person.posCamera)
                     # Estimate person's height
-                    person.height = camera.estimateSize(face[3], self.standardFaceHeight)
+                    person.height = camera.estimateSize(face[3], \
+                        self.standardFaceHeight)
         '''
 
         # Grab a single frame of video
@@ -253,7 +261,8 @@ class PersonSensor(Sensor):
                 (rgb_small_frame, self.face_locations)
 
             self.face_names = []
-            for face_location,face_encoding in zip(self.face_locations,self.face_encodings):
+            for face_location, face_encoding in zip(self.face_locations,\
+                self.face_encodings):
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces\
                     (self.known_face_encodings, face_encoding)
@@ -268,13 +277,18 @@ class PersonSensor(Sensor):
                 face_left = max(left - int((right-left)/2), 0)
                 face_right = right + int((right-left)/2)
                 # NOTE FOR ISHAAN: Change to 1.5 and cut off if interfering with next face
-                face_close_up = small_frame[face_top:face_bottom, face_left:face_right, :]
-		height, width, channels = face_close_up.shape
-		vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
-		horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
-		face_close_up = cv2.copyMakeBorder(face_close_up, vertical_padding, vertical_padding, \
-			horizontal_padding, horizontal_padding,\
-			cv2.BORDER_CONSTANT, value=WHITE)
+                # NOTE FOR ISHAAN: Zoom image instead of adding padding
+                # NOTE FOR ISHAAN: Experiment with probabilities for children/etc.
+                face_close_up = small_frame[face_top:face_bottom,\
+                    face_left:face_right, :]
+
+                height, width, channels = face_close_up.shape
+                vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
+                horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
+
+                face_close_up = cv2.copyMakeBorder(face_close_up,\
+                    vertical_padding, vertical_padding, horizontal_padding, \
+                    horizontal_padding, cv2.BORDER_CONSTANT, value=WHITE)
 
                 # If a match was found in self.known_face_encodings,
                 # just use the first one.
@@ -287,7 +301,8 @@ class PersonSensor(Sensor):
                     persons.append(person)
                 else:
                     global personCount_
-                    person = Person(frame, None, face_encoding, None, None, personCount_, None)
+                    person = Person(frame, face_close_up, face_location,\
+                        face_encoding, None, None, personCount_, None)
                     with self.undetected_persons_lock:
                         self.undetected_persons.append((personCount_,\
                             face_close_up))
@@ -367,21 +382,25 @@ class PersonSensor(Sensor):
         n_genders = len(GENDER_LIST)
         gender_model_fn = select_model(model_type)
 
-        self.images_tfvar = tf.placeholder(tf.float32, [None, RESIZE_FINAL,RESIZE_FINAL, 3])
+        self.images_tfvar = tf.placeholder(tf.float32, [None, RESIZE_FINAL, \
+            RESIZE_FINAL, 3])
         requested_step = None
         init = tf.global_variables_initializer()
 
         # age model
         age_logits = age_model_fn("age", n_ages, self.images_tfvar, 1, False)
-        age_checkpoint_path, global_step = get_checkpoint(age_model_dir,requested_step, checkpoint)
+        age_checkpoint_path, global_step = get_checkpoint(age_model_dir,\
+            requested_step, checkpoint)
         age_vars = set(tf.global_variables())
         saver_age = tf.train.Saver(list(age_vars))
         saver_age.restore(tf_sess, age_checkpoint_path)
         self.age_softmax_output_tfvar = tf.nn.softmax(age_logits)
 
         # gender_model
-        gender_logits = gender_model_fn("gender", n_genders, self.images_tfvar, 1,False)
-        gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir, requested_step, checkpoint)
+        gender_logits = gender_model_fn("gender", n_genders, self.images_tfvar,\
+            1,False)
+        gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir,\
+            requested_step, checkpoint)
         gender_vars = set(tf.global_variables()) - age_vars
         saver_gender = tf.train.Saver(list(gender_vars))
         saver_gender.restore(tf_sess, gender_checkpoint_path)

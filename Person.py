@@ -24,7 +24,8 @@ class Person:
         return "Id: %s, Gender: %s, Age: %s"%(self.id,\
             self.getGender(), self.getAgeRange())
 
-    def __init__(self, frame, faceLocation, faceEncoding, gender, ageRange, personCount, roi):
+    def __init__(self, frame, faceCloseUp, faceLocation, faceEncoding, gender, ageRange,\
+        personCount, roi):
         self.id = personCount
         self.labels = Set()
         self.interestingness = 0
@@ -52,6 +53,7 @@ class Person:
         self.posCamera = (0, 0)
         self.posWorld = (0, 0, 0)
         self.faceLocation = faceLocation # Tuple of bounding box: (top,right,bottom,left)
+        self.faceCloseUp = faceCloseUp
         self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
         self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
         self.faceEncoding = faceEncoding # 128-length vector encoding differences from average face for easy cosine comparisons
