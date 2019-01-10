@@ -44,12 +44,15 @@ def detectUndetectedPersons(outfile, undetected_persons):
     gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
     age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
     # What processing unit to execute inference on
-    device_id = '/device:GPU:0'
+    device_id = '/device:CPU:0'
     # Checkpoint basename
     checkpoint = 'checkpoint'
     model_type = 'inception'
 
-    config = tf.ConfigProto(allow_soft_placement=True)
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
+    config = tf.ConfigProto(allow_soft_placement=True,
+        gpu_options=gpu_options)
+    # config = tf.ConfigProto(allow_soft_placement=True)
 
     with tf.Session(config=config) as sess:
         #Age detection model
@@ -113,7 +116,7 @@ def getAgeAndGender(person_number, target_image, sess, coder, images,\
 if __name__ == '__main__':
     img_folder = "imgs/"
     raw_undetected_persons = list(map(lambda filename: os.path.join(img_folder,
-        filename), os.listdir(img_folder)))
+        filename), sorted(os.listdir(img_folder))))
     raw_undetected_persons = list(filter(lambda filename: ".jpg" in filename, raw_undetected_persons))
 
     undetected_persons = []
@@ -129,3 +132,55 @@ if __name__ == '__main__':
             undetected_persons.append((img_name, new_img))
 
         detectUndetectedPersons(f, undetected_persons)
+
+    correct_age_guesses = 0
+    correct_age_guess_list = []
+
+    correct_gender_guesses = 0
+    correct_gender_guess_list = []
+
+    correct_both_guesses = 0
+    correct_both_guess_list = []
+
+    test_set_size = 0
+
+    with open(os.path.join(img_folder, "guesses.txt"), "rb") as guesses:
+        with open(os.path.join(img_folder, "correct_guesses.txt"), "rb") as correct_guesses:
+            guess_lines = guesses.readlines()
+            for i, correct_guess in enumerate(correct_guesses.readlines()):
+                img_id = correct_guess[:correct_guess.index('(')]
+                assert img_id == guess_lines[i][:guess_lines[i].index('(')]
+
+                correct_guess = correct_guess[correct_guess.index('(')+1:\
+                    correct_guess.index(')')]
+                [correct_guess_age, correct_guess_gender] = correct_guess.split(',')
+
+                rude_carnie_guess = guess_lines[i][guess_lines[i].index('(')+1:\
+                    guess_lines[i].index(')')]
+                [rude_carnie_guess_age, rude_carnie_guess_gender] = rude_carnie_guess.split(',')
+
+                if rude_carnie_guess_age == correct_guess_age:
+                    correct_age_guesses += 1
+                    correct_age_guess_list.append(img_id)
+
+                if rude_carnie_guess_gender == correct_guess_gender:
+                    correct_gender_guesses += 1
+                    correct_gender_guess_list.append(img_id)
+
+                if rude_carnie_guess_age == correct_guess_age and \
+                    rude_carnie_guess_gender == correct_guess_gender:
+                    correct_both_guesses += 1
+                    correct_both_guess_list.append(img_id)
+
+                test_set_size += 1
+
+            print "test set size", test_set_size
+
+            print "correct_age_guesses", correct_age_guesses
+            # print "correct_age_guess_list", correct_age_guess_list
+
+            print "correct_gender_guesses", correct_gender_guesses
+            # print "correct_gender_guess_list", correct_gender_guess_list
+
+            print "correct_both_guesses", correct_both_guesses
+            # print "correct_both_guess_list", correct_both_guess_list

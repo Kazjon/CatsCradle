@@ -64,8 +64,8 @@ class PersonSensor(Sensor):
         # Create arrays of known face encodings and their names
         self.known_face_encodings = deque(maxlen=50)
         self.known_face_numbers = deque(maxlen=50)
-        self.scaling_factor = 1.5
 
+        self.scaling_factor = 1.1
         self.frame_process_timer = 0
         self.frame_process_stride = 12
 
@@ -101,12 +101,14 @@ class PersonSensor(Sensor):
         gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
         age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
         # What processing unit to execute inference on
-        device_id = '/device:GPU:0'
+        device_id = '/device:CPU:0'
         # Checkpoint basename
         checkpoint = 'checkpoint'
         model_type = 'inception'
 
-        config = tf.ConfigProto(allow_soft_placement=True)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
+        config = tf.ConfigProto(allow_soft_placement=True,
+            gpu_options=gpu_options)
 
         with tf.Session(config=config) as sess:
             #Age detection model
@@ -180,6 +182,7 @@ class PersonSensor(Sensor):
         with person.ageRangeLock:
             person.ageRange = ageRange
 
+        cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
         return AGE_MAP[ageRange], gender
 	#return 'adult', 'M'
 
@@ -243,8 +246,9 @@ class PersonSensor(Sensor):
             # Find all the faces and face encodings in the current frame of
             # video
             self.face_locations = face_recognition.face_locations\
-                (rgb_small_frame, number_of_times_to_upsample=2, model="cnn")
-                #(rgb_small_frame)
+                (rgb_small_frame, number_of_times_to_upsample=3, model="cnn")
+            # self.face_locations = face_recognition.face_locations\
+            #     (rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
 
@@ -293,7 +297,7 @@ class PersonSensor(Sensor):
                         person
                     persons.append(person)
                     personCount_ += 1
-                    cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/camera_above/%d.jpg"%personCount_, face_close_up)
+                    # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%d.jpg"%personCount_, face_close_up)
 
                 self.face_names.append(name)
 
@@ -418,13 +422,13 @@ if __name__ == '__main__':
     previousPersons = []
     sensor = PersonSensor([], None)
     sensor.video_capture = cv2.VideoCapture(0)
-    # sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # sensor.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    # sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
 
 
-    # Thread(target=sensor.detectUndetectedPersons).start()
-    # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
+    Thread(target=sensor.detectUndetectedPersons).start()
+    time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
         persons = sensor.getPersons(previousPersons)
         print "Num persons =", len(persons)

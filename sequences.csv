@@ -31,12 +31,12 @@ number 6 - reverse
 031d_FootRDownHalfMed,
 
 number 7
-007a_HeadLupHalfSlow, 014a_HandLupLowSlow, 033a_FootLupFullSlow ,045a_ArmLeftUpHalfSlow,
+007a_HeadLupHalfSlow, 014a_HandLupLowSlow, 033a_FootLupFullSlow , 045a_ArmLeftUpHalfSlow,
 number 7 - reverse
 007b_HeadLDownHalfSlow, 014b_HandLDownLowSlow, 033b_FootLDownFullSlow, 045b_ArmLeftDownHalfSlow
 
 number 8
-001c_HeadLRupFullMed, 022c_ShoulderLRupFullMed, 037c_FootLRupHalfMed,
+001c_HeadLRupFullMed, 022a_ShoulderLRupFullSlow, 037a_FootLRupHalfSlow,
 number 8 - reverse
 001b_HeadLRDownFullSlow, 022b_ShoulderLRDownFullSlow, 037b_FootLRDownHalfSlow,
 
@@ -91,9 +91,9 @@ number 18 - reverse
 007d_HeadLDownHalfMed,
 
 number 19
-016a_HandLRupHalfSlow, 044a_ArmLeftFullSlow
+044a_ArmLeftUpFullSlow, 016a_HandLRupHalfSlow,
 number 19 - reverse
-016b_HandLRDownHalfSlow, 044b_ArmLeftFullSlow
+044b_ArmLeftDownFullSlow, 016b_HandLRDownHalfSlow, 
 
 number 20
 019a_ShoulderRupHalfSlow,
@@ -189,24 +189,24 @@ number 5 - reverse
 004b_HeadRDownHalfSlow, 033b_FootLDownFullSlow,
 
 number 6
-016c_HandLRupHalfMed, 031a_FootRupHalfSlow, 044c_ArmLeftFullMed
+044e_ArmLeftUpFullFast, 016c_HandLRupHalfMed, 031a_FootRupHalfSlow,
 number 6 - reverse
-016d_HandLRDownHalfMed, 031b_FootRDownHalfSlow, 044d_ArmLeftDownFullMed
+044f_ArmLeftDownFullFast, 016d_HandLRDownHalfMed, 031b_FootRDownHalfSlow,
 
 number 7
-041a_HeadRotLHalfSlow, 012a_HandLupFullFast, 044e_ArmLeftUpFullFast, 035c_FootLupLowMed,
+041a_HeadRotLHalfSlow, 013c_HandLupHalfFast, 044e_ArmLeftUpFullFast, 034c_FootLupHalfMed,
 number 7 - reverse
-041b_HeadRotL(0)HalfSlow, 012d_HandLDownFullMed, 044d_ArmLeftDownFullMed, 035d_FootLDownLowMed,
+041b_HeadRotL(0)HalfSlow, 013d_HandLDownHalfFast, 044d_ArmLeftDownFullMed, 034d_FootLDownHalfMed,
 
 number 8
-040c_HeadRotRHalfMed, 012a_HandLupFullFast,  044c_ArmLeftFullMed,
+040c_HeadRotRHalfMed, 012a_HandLupFullFast,  044c_ArmLeftUpFullMed,
 number 8 - reverse
 040d_HeadRotR(0)HalfMed, 012d_HandLDownFullMed, 044d_ArmLeftDownFullMed, 
 
 number 9
-041a_HeadRotLHalfSlow, 015a_HandLRupFullFast, 031a_FootRupHalfSlow, 044e_ArmLeftUpFullFast
+041a_HeadRotLHalfSlow, 015a_HandLRupFullFast, 031a_FootRupHalfSlow, 045a_ArmLeftUpHalfSlow
 number 9 - reverse
-041b_HeadRotL(0)HalfSlow, 015d_HandLRDownFullMed, 031b_FootRDownHalfSlow, 044b_ArmLeftFullSlow
+041b_HeadRotL(0)HalfSlow, 015d_HandLRDownFullMed, 031b_FootRDownHalfSlow, 045b_ArmLeftDownHalfSlow
 
 number 10
 042c_HeadRotRLowMed, 016a_HandLRupHalfSlow, 045a_ArmLeftUpHalfSlow
@@ -261,7 +261,7 @@ number 19 - reverse
 number 20
 015a_HandLRupFullFast, .5, 044e_ArmLeftUpFullFast
 number 20 - reverse
-015f_HandLRDownFullSlow, .5, 044b_ArmLeftFullSlow
+015f_HandLRDownFullSlow, .5, 044b_ArmLeftDownFullSlow
 
 number 21
 016a_HandLRupHalfSlow, 045a_ArmLeftUpHalfSlow
