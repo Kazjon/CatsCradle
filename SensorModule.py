@@ -8,10 +8,13 @@ SensorModule (Handles all the sensory data with the exception of the in-head IMU
   - Able to visualise current sensory input (just as simple points/lines/labels)
 """
 
-from Reactor import LonelinessReactor,NewPersonReactor
 from Camera import Camera
 from PersonSensor import PersonSensor
 from Audience import Audience
+import AudienceUpdateReactors
+import EmotionalUpdateReactors
+import inspect
+from threading import Thread
 
 class SensorModule(object):
 
@@ -23,21 +26,30 @@ class SensorModule(object):
         self.audience = None
         self.reactors = []
 
-        self.loadCameras()
-        self.loadSensors()
-        self.loadReactors()
 
-    def loadCameras(self):
-        self.cameras.append(Camera(0))
-
-    def loadSensors(self):
-        self.personSensor = PersonSensor(self.cameras)
+    def loadSensors(self,tf_sess):
+        self.personSensor = PersonSensor(self.cameras, tf_sess)
         self.audience = Audience(self.personSensor)
 
+
     def loadReactors(self):
-        self.reactors.append(LonelinessReactor(self.emotion_module))
-        self.reactors.append(NewPersonReactor(self.emotion_module))
+        baseReactors = ["Reactor", "AudienceReactor", "EmotionalReactor"]
+        # Load Audience Updaters (reactors that only change the audience state for other reactors to work with)
+        for r in dir(AudienceUpdateReactors):
+            if r not in baseReactors and inspect.isclass(getattr(AudienceUpdateReactors,r)):
+                self.reactors.append(getattr(AudienceUpdateReactors, r)(self.emotion_module,self.audience))
+        # Load Emotional Updaters (reactors that only change the audience state for other reactors to work with)
+        for r in dir(EmotionalUpdateReactors):
+            if r not in baseReactors and inspect.isclass(getattr(EmotionalUpdateReactors,r)):
+                self.reactors.append(getattr(EmotionalUpdateReactors, r)(self.emotion_module,self.audience))
+
 
     def update(self):
-        self.audience.update()
+        self.audience.update(self.config["tf_sess"])
+        for reactor in self.reactors:
+            reactor.update()
         self.emotion_module.update(self.audience)
+
+
+    def cleanup(self):
+        self.personSensor.video_capture.release()

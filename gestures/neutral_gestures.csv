@@ -1,0 +1,4 @@
+ID,Name,Sequence
+1,Weight_shift_1,032a_FootRupLowSlow,1.5,035a_FootLupLowSlow
+2,Weight_shift_2,035a_FootLupLowSlow,0.7,032a_FootRupLowSlow
+3,Shoulder_and_hands,022b_ShoulderLRDownFullSlow,017a_HandLRupLowSlow,0.3,022a_ShoulderLRupFullSlow,017b_HandLRDownLowSlow

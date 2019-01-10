@@ -1,6 +1,7 @@
-import sys
+import sys, os
 import functools
 import decimal
+import re
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -11,14 +12,24 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from ActionModule import ActionModule
+from SensorModule import SensorModule
+from EmotionModule import EmotionModule
+from ResponseModule import ResponseModule
 
 from Marionette import *
+
+from threading import Thread
+from time import sleep
+import datetime
+
+import cv2
+import tensorflow as tf
 
 class App(QWidget):
 
     def __init__(self):
         super(App, self).__init__()
-        self.title = 'Cat\'s Craddle - Simulator window'
+        self.title = 'Cat\'s Cradle - Simulator window'
         self.left = 10
         self.top = 10
         self.width = 1200
@@ -27,10 +38,10 @@ class App(QWidget):
 
         # Marionette object
         self.marionette = Marionette()
-        self.lastSentAngles = self.marionette.getAngles();
+        self.lastSentAngles = self.marionette.getAngles()
 
         # ActionModule
-        self.actionModule = ActionModule(None)
+        self.actionModule = ActionModule()
 
         # View control widgets
         self.zoomLabel = QLabel('Zoom')
@@ -58,6 +69,7 @@ class App(QWidget):
             self.checkMotorSave[motor] = QCheckBox()
 
         # commands widgets
+        self.seqWinBtn = QPushButton('Show Sequences Sketch')
         self.resetAnglesBtn = QPushButton('Reset angles')
         self.closeBtn = QPushButton('Close')
         self.printBtn = QPushButton('Save Position')
@@ -67,6 +79,7 @@ class App(QWidget):
         self.gotoBtn = QPushButton('GoTo Target')
 
         self.initUI()
+
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -128,7 +141,7 @@ class App(QWidget):
             # lambda does not work (all slider use the last motor)... why???
             # slider.valueChanged.connect(lambda: self.updateSpeed(motor))
             slider.valueChanged.connect(functools.partial(self.updateSpeed, motor))
-            slider.setValue(10)
+            slider.setValue(20)
             slider.setTickInterval(1)
 
             # Reset button
@@ -145,9 +158,9 @@ class App(QWidget):
         # Speed values for the head motor are 400-800
         motor = self.marionette.motor['H']
         slider = self.sliderSpeed[motor]
-        slider.setMinimum(400)
-        slider.setMaximum(800)
-        slider.setValue(500)
+        slider.setMinimum(30)
+        slider.setMaximum(125)
+        slider.setValue(30)
 
         # Disable Rigth Arm slider since there is no motor on that joint
         motor = self.marionette.motor['AR']
@@ -158,6 +171,10 @@ class App(QWidget):
         checkBox = self.checkMotorSave[motor]
         checkBox.setChecked(0)
         checkBox.setEnabled(False)
+
+        # Open Sequence Sketch Window button
+        self.seqWinBtn.setToolTip('Open sequence sketch window')
+        self.seqWinBtn.clicked.connect(self.openSeqSketchWindow)
 
         # Reset motor angles button
         self.resetAnglesBtn.setToolTip('Reset all motors rotation to 0 degree')
@@ -179,6 +196,9 @@ class App(QWidget):
         self.gotoBtn.clicked.connect(self.gotoTarget)
         self.gotoBtn.setEnabled(True)
 
+        # Sequence Sketch Window
+        self.seqSketchWindow = None
+
         self.show()
 
 
@@ -187,6 +207,7 @@ class App(QWidget):
         layout = QGridLayout()
         i = 1
         for btnList in [[self.resetAnglesBtn],
+                        [self.seqWinBtn],
                         [self.closeBtn, self.printBtn]]:
             j = 1
             for btn in btnList:
@@ -289,6 +310,16 @@ class App(QWidget):
             self.sliderMotor[motor].repaint()
 
 
+    def openSeqSketchWindow(self):
+        if self.seqSketchWindow is None:
+            self.seqSketchWindow = SequenceSketchWindow()
+            self.seqSketchWindow.setGestureList(sorted(self.actionModule.positions.keys()))
+            self.seqSketchWindow.executionSignal.connect(self.gotoTargetGesture)
+            self.seqSketchWindow.show()
+        else:
+            self.seqSketchWindow.show()
+
+
     def savePosition(self):
         # Get current angles
         angles = []
@@ -346,9 +377,33 @@ class App(QWidget):
             angles = self.actionModule.moveToAngles(self.sliderAngles(), self.sliderSpeeds())
         else:
             angles = self.actionModule.moveTo(target)
+
+        # in case action module fails
+        if angles is None:
+            return
+
         self.marionette.setAngles(angles)
 
         self.updateSliders()
+
+
+    @pyqtSlot(str)
+    def gotoTargetGesture(self, gesture):
+        # Go to selected gesture
+        #print(str(datetime.datetime.now()), "gotoTargetGesture: started.")
+        self.actionModule.currentAngles = self.marionette.getAngles()
+        target = gesture
+
+        #print(str(datetime.datetime.now()), "gotoTargetGesture: sending", target)
+        angles = self.actionModule.moveTo(target)
+        # in case action module fails
+        if angles is None:
+            #print(str(datetime.datetime.now()), "gotoTargetGesture: failed executing", target)
+            return
+
+        self.marionette.setAngles(angles)
+        self.updateSliders()
+        #print(str(datetime.datetime.now()), "gotoTargetGesture: done with", target)
 
 
     def updateSliders(self):
@@ -362,6 +417,79 @@ class App(QWidget):
             # value with precision 1
             value = decimal.Decimal(value).quantize(decimal.Decimal('1'))
             self.labelMotorAngle[motor].setText(str(value))
+
+
+class SequenceSketchWindow(QWidget):
+
+    executionSignal = pyqtSignal(str)
+
+    def __init__(self):
+        super(SequenceSketchWindow, self).__init__()
+        self.setWindowTitle('Sequence Sketch')
+        self.setGeometry(150, 150, 950, 660)
+        self.generateUI()
+
+        if os.path.exists('./sequences.csv'):
+            with open('./sequences.csv', 'rt') as f:
+                self.seqEditor.document().setPlainText(f.read())
+                print("loaded some sequences from sequences.csv.")
+
+        self.show()
+
+    def generateUI(self):
+        self.seqEditor = QPlainTextEdit(self)
+        self.seqEditor.move(20, 20)
+        self.seqEditor.resize(650, 600)
+
+        self.gestureList = QPlainTextEdit(self)
+        self.gestureList.move(680, 20)
+        self.gestureList.resize(250, 600)
+
+        self.saveButton = QPushButton('Save Sketch', self)
+        self.saveButton.move(20, 625)
+        self.saveButton.width = 200
+        self.saveButton.clicked.connect(self.saveClicked)
+
+        self.executeButton = QPushButton('Execute Sequence', self)
+        self.executeButton.move(150, 625)
+        self.executeButton.width = 200
+        self.executeButton.clicked.connect(self.executeClicked)
+
+    def saveClicked(self):
+        # save to file: 'sequences.csv'
+        with open('./sequences.csv', 'wt') as f:
+            f.write(self.seqEditor.toPlainText())
+            print("Saved the current sequences!")
+            QMessageBox.information(self, "Saved!", "Save succesful.")
+
+    def executeClicked(self):
+        # execute highlighted text
+        sequenceText = self.seqEditor.textCursor().selectedText()
+        sequenceList = re.split(' |,|\n|\r|\u2029', sequenceText)
+        sequenceList = list(filter(None, sequenceList))
+
+        # This function will be executed by a thread to execute a sequence
+        def executeSequence(seqList):
+            print(seqList)
+            self.executeButton.setEnabled(0)
+            for item in seqList:
+                try:
+                    # if int -> sleep
+                    delay = float(item)
+                    sleep(delay)
+                except:
+                    # if str -> execute
+                    self.executionSignal.emit(item)
+            self.executeButton.setEnabled(1)
+
+        seqThread = Thread(target=executeSequence, args=[sequenceList])
+        seqThread.start()
+
+    def setGestureList(self, itemsList):
+        str = ''
+        for item in itemsList:
+            str = str + item + '\n'
+        self.gestureList.document().setPlainText(str)
 
 
 if __name__ == '__main__':

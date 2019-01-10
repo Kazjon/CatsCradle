@@ -12,6 +12,7 @@ import threading
 import json
 import os
 import glob
+import csv
 
 import ArduinoCommunicator
 import time
@@ -19,12 +20,52 @@ import time
 from Action import *
 from Marionette import *
 
+from threading import Thread
+from time import sleep
+
 class ActionModule(object):
 
-    def __init__(self, config):
+    def __init__(self, movement_list_fn="gestures/Positions.json"):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """
+
+        # this variable is True when no gestures are being executed
+        self.isIdle = True
+
+        # TODO: hardcoded configs?
+        gesture_files = {
+            "neutral": "gestures/neutral_gestures.csv",
+            "fear": "gestures/fear_gestures.csv",
+            "happy": "gestures/longing_gestures.csv",
+            "sad": "gestures/sad_gestures.csv",
+            "shame": "gestures/shame_gestures.csv"
+        }
+
+        # contains a dictionary of emotions to sequences
+        self.emotionToSeq = {}
+
+        # TODO: duplicate read of positions.json file
+        with open(movement_list_fn, "r") as pf:
+            self.movements = sorted(json.load(pf).keys())
+
+        # reading gesture files
+        for gesture_type, filename in gesture_files.iteritems():
+            with open(filename, "r") as f:
+                reader = csv.reader(f)
+                reader.next()
+                for row in reader:
+                    self.emotionToSeq[gesture_type + "_" + row[1]] = row[2:]
+
+        # double checking to see if all sequences contains valid items
+        for name, gesture in self.emotionToSeq.iteritems():
+            for i, movement in enumerate(gesture):
+                try:
+                    gesture[i] = float(movement)
+                except ValueError:
+                    if movement not in self.movements:
+                        raise ValueError("Found a movement within a gesture that was not defined in "+movement_list_fn+": "+movement+" in "+name+".")
+
         # Read the positions from the Positions.json file
         self.positions = {}
 
@@ -112,11 +153,12 @@ class ActionModule(object):
 
 
     def threadFunc(self):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
         self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
         while(self.running):
             if not self.qMotorCmds.empty():
+                self.isIdle = False
                 cmds = self.qMotorCmds.get()
                 eyeMotion = False
                 eyeAngleX = 90 # The eye angles needs an int. If it should be None,
@@ -157,15 +199,26 @@ class ActionModule(object):
             # Read from the arduino
             receivedData = self.ac.receive()
             if receivedData != '':
-                self.updateAnglesFromFeedback(receivedData);
+		#print "received data: ", receivedData
+                self.updateAnglesFromFeedback(receivedData)
 
             # Check for target reached:
-            if self.currentAngles == self.currentTargetAngles:
+            if self.checkTargetReached():
                 self.targetReached = True
-                print "Target reached!!!!!"
-
+                self.isIdle = True
+                #print "Target reached!!!!!"
 
         print "Arduino thread stopped"
+
+
+    def checkTargetReached(self):
+	for angleIndex in range(0, len(self.currentAngles)):
+	    # ignoring head rotation motor
+            if angleIndex == self.arduinoIDToAngleIndex['h']:
+		continue
+	    if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
+                return False
+        return True
 
 
     def updateAnglesFromFeedback(self, receivedData):
@@ -173,7 +226,7 @@ class ActionModule(object):
         id = -1
         data = receivedData.split(",")
         #print "Data received = ", receivedData
-        f data[0] == "m":
+        if data[0] == "m":
             if len(data) == 3:
                 id = self.arduinoIDToAngleIndex[data[1]]
                 angle = int(data[2])
@@ -192,6 +245,7 @@ class ActionModule(object):
                 angle = int(data[2])
                 self.currentAngles[id] = angle
         #print "currentAngles = ", self.currentAngles
+	#print "targetAngles = ", self.currentTargetAngles
 
 
     def moveToAngles(self, target, speeds):
@@ -213,10 +267,34 @@ class ActionModule(object):
 
     def moveTo(self, targetKey):
         if targetKey not in self.positions.keys():
-            raise InvalidTargetKeyError
+            print "No targetKey = ", targetKey
+            return None
 
         position = self.positions[targetKey]
         return self.moveToAngles(position['angles'], position['speeds'])
+
+
+    def executeGesture(self, gesture):
+        sequenceList = self.emotionToSeq[gesture]
+
+        # This function will be executed by a thread to execute a sequence
+        def executeSequence(seqList):
+            print(seqList)
+            for item in seqList:
+                try:
+                    # if int -> sleep
+                    delay = float(item)
+                    sleep(delay)
+                except:
+                    # if str -> execute
+                    self.moveTo(item)
+
+        seqThread = Thread(target=executeSequence, args=[sequenceList])
+        seqThread.start()
+
+
+    def isMarionetteIdle(self):
+        return self.isIdle
 
 
     def eyeTargetToAngles(self, eyeToWorld, target):

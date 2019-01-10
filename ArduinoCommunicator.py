@@ -13,7 +13,7 @@ class ArduinoCommunicator(object):
                 print "Invalid port :", port
 
         print "Using port : ", self.serial_port
-        
+
         self.servo_min = -50
         self.servo_max = 50
         self.head_angle_max = 1000
@@ -36,7 +36,7 @@ class ArduinoCommunicator(object):
     def send(self, data):
         # Makes sure the command sent ends with NULL
         data += '\x00'
-        print "Sending: ", data
+        #print "Sending: ", data
         if self.serial_port is not None:
             self.serial_port.write(data)
             self.serial_port.flush()
@@ -45,8 +45,8 @@ class ArduinoCommunicator(object):
         data = ''
         if self.serial_port is not None:
             if self.serial_port.in_waiting:
-                data = self.serial_port.readline()
-                print "Receiving: " + data
+               data = self.serial_port.readline()
+               #print "Receiving: " + data
         return data
 
     def _checkLookAtInput(self, angle):
