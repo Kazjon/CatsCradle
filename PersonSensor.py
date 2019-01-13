@@ -69,7 +69,7 @@ class PersonSensor(Sensor):
 
         self.scaling_factor = 1.1
         self.frame_process_timer = 0
-        self.frame_process_stride = 12
+        self.frame_process_stride = 32 #corresponds to processing roughly 1 frame every 2 seconds
 
         #Use filename for videos or 0 for the live camera
         #if you use 0 for the live camera, make sure its plugged in!
@@ -305,7 +305,7 @@ class PersonSensor(Sensor):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (0,\
                 0, 0), 1)
 
-        # faraway_people_positions, frame = self.getFarawayPeoplePositions(frame)
+        faraway_people_positions, frame = self.getFarawayPeoplePositions(frame)
         cv2.imshow('Video', frame)
 
         return persons
@@ -358,6 +358,8 @@ class PersonSensor(Sensor):
 
         # Process frames periodically
         if self.frame_process_timer == 1:
+            now = time.localtime()
+            print ("processing frame", "%s:%s:%s"%(now.tm_hour, now.tm_min, now.tm_sec))
             back_persons, frame = self.getFarawayPeoplePositions(frame)
             # convert each position to a BackPerson object
 
@@ -426,6 +428,8 @@ if __name__ == '__main__':
 
     sensor.back_camera = cv2.VideoCapture(0)
 
+    camera_to_release = sensor.back_camera
+
 
     # Thread(target=sensor.detectUndetectedPersons).start()
     # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
@@ -437,11 +441,10 @@ if __name__ == '__main__':
         # previousPersons = persons
 
         back_persons = sensor.getBackPersons(prevBackPersons)
-        print "Num back persons =", len(back_persons)
+        # print "Num back persons =", len(back_persons)
 
         # Hit 'q' on the keyboard to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            # sensor.front_camera.release()
-            sensor.back_camera.release()
+            camera_to_release.release()
             cv2.destroyAllWindows()
             break
