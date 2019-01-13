@@ -73,12 +73,13 @@ class PersonSensor(Sensor):
 
         #Use filename for videos or 0 for the live camera
         #if you use 0 for the live camera, make sure its plugged in!
-#        self.video_capture = cv2.VideoCapture(os.path.expanduser('~/Downloads/ishaanMovies/people gesturing-converted.mp4'))
-        # self.video_capture = cv2.VideoCapture(0)
-        # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
-        # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 680)
+#        self.front_camera = cv2.VideoCapture(os.path.expanduser('~/Downloads/ishaanMovies/people gesturing-converted.mp4'))
+        # self.front_camera = cv2.VideoCapture(0)
+        # self.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        # self.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        # self.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
+        # self.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 680)
+
         self.face_names = []
         self.face_locations = []
         self.face_encodings = []
@@ -91,8 +92,6 @@ class PersonSensor(Sensor):
         #Far away person detection
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-
-#        self.getPersons([])
 
 
     def detectUndetectedPersons(self):
@@ -202,41 +201,8 @@ class PersonSensor(Sensor):
 
         persons = []
 
-        '''#Old, disabled pre-face-detection person sensing stuff
-        for camera in self.cameras:
-            ret, frame = camera.getFrame()
-            if not ret:
-                continue
-
-            # For now only detect faces
-            #
-            # bodies = self.bodyDetector.detectFullBodies(frame)
-            # for body in bodies:
-            #     # detect the face(s???) inside the body
-            #     face = self.bodyDetector.detectFaces(frame, body)
-            faces = self.bodyDetector.detectFaces(frame)
-            for face in faces:
-                alreadyExists = False
-                for prevPerson in previousPersons:
-                    if overlapROIs(face, prevPerson.roi):
-                        alreadyExists = True
-                        persons.append(prevPerson)
-                        #prevPerson.update(frame)
-                        break
-                if not alreadyExists:
-                    person = Person(frame, face, self.cv_path)
-                    eyes = self.bodyDetector.detectEyes(frame, face)
-                    # Estimate person's position
-                    # TODO: use eyes spacing to estimate distance from camera
-                    person.posCamera = centerROI(face)
-                    person.posWorld = camera.cameraToWorld(person.posCamera)
-                    # Estimate person's height
-                    person.height = camera.estimateSize(face[3], \
-                        self.standardFaceHeight)
-        '''
-
         # Grab a single frame of video
-        ret, frame = self.video_capture.read()
+        ret, frame = self.front_camera.read()
         # print(ret, frame)
 
         # Resize frame of video to 1/4 size for faster face recognition
@@ -339,31 +305,69 @@ class PersonSensor(Sensor):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (0,\
                 0, 0), 1)
 
+        # faraway_people_positions, frame = self.getFarawayPeoplePositions(frame)
+        cv2.imshow('Video', frame)
 
+        return persons
+
+
+    def getFarawayPeoplePositions(self, frame):
+        """
+            Detects bodies.
+            Params:
+            frame (numpy.ndarray) : the frame to detect bodies in
+            Returns a list of positions and the original frame with the bodies
+            highlighted.
+        """
         #Far away person detection
     	# detect people in the image
-    	# (rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
-    	# 	padding=(8, 8), scale=1.05)
+    	(rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
+    		padding=(8, 8), scale=1.05)
 
     	# draw the original bounding boxes
-    	# for (x, y, w, h) in rects:
-    	# 	cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+    	for (x, y, w, h) in rects:
+    		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
     	# apply non-maxima suppression to the bounding boxes using a
     	# fairly large overlap threshold to try to maintain overlapping
     	# boxes that are still people
-    	# rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
-    	# pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
+    	rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+    	pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
     	# draw the final bounding boxes
-    	# for (xA, yA, xB, yB) in pick:
-    	# 	cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+    	for (xA, yA, xB, yB) in pick:
+    		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
 
-        # print "updating the frame..."
-        # Display the resulting image
+        return pick, frame
+
+    def getBackPersons(self, prevBackPersons):
+        """
+            This function returns a list of BackPerson objects corresponding
+            to the people that the back camera sees.
+        """
+
+        back_persons = []
+
+        if self.frame_process_timer == self.frame_process_stride:
+            self.frame_process_timer = 0
+        else:
+            self.frame_process_timer += 1
+
+        # Grab a single frame of video
+        ret, frame = self.back_camera.read()
+
+        # Process frames periodically
+        if self.frame_process_timer == 1:
+            back_persons, frame = self.getFarawayPeoplePositions(frame)
+            # convert each position to a BackPerson object
+
+        else:
+            back_persons = prevBackPersons
+
         cv2.imshow('Video', frame)
 
-        return persons
+        return back_persons
+
 
     def initAgeAndGender(self, tf_sess):
         # RUDE CARNIE DEFAULTS
@@ -411,52 +415,33 @@ class PersonSensor(Sensor):
         self.writer = None
 
 
-################################################################################
-########################### WITHOUT RUDE CARNIE ################################
-################################################################################
-
-# if __name__ == '__main__':
-#     # Tests
-#     sensor = PersonSensor([], None, None, None, None, None, None, None, None)
-#     sensor.show = True
-#
-#     previousPersons = []
-#     Thread(target=sensor.detectUndetectedPersons).start()
-#     while True:
-#         persons = sensor.getPersons(previousPersons)
-#         print "Num persons =", len(persons)
-#         previousPersons = persons
-#
-#         # Hit 'q' on the keyboard to quit
-#         if cv2.waitKey(1) & 0xFF == ord('q'):
-#             sensor.video_capture.release()
-#             cv2.destroyAllWindows()
-#             break
-
-################################################################################
-########################### WITH RUDE CARNIE ################################
-################################################################################
-
 if __name__ == '__main__':
     previousPersons = []
+    prevBackPersons = []
     sensor = PersonSensor([], None)
-    sensor.video_capture = cv2.VideoCapture(0)
-    # sensor.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    # sensor.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    # sensor.video_capture = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
+    # sensor.front_camera = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
+    # sensor.front_camera = cv2.VideoCapture(0)
+    # sensor.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    # sensor.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+
+    sensor.back_camera = cv2.VideoCapture(0)
 
 
-    Thread(target=sensor.detectUndetectedPersons).start()
-    time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
+    # Thread(target=sensor.detectUndetectedPersons).start()
+    # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
-        persons = sensor.getPersons(previousPersons)
-        print "Num persons =", len(persons)
-        for person in persons:
-            print(person)
-        previousPersons = persons
+        # persons = sensor.getPersons(previousPersons)
+        # print "Num persons =", len(persons)
+        # for person in persons:
+        #     print(person)
+        # previousPersons = persons
+
+        back_persons = sensor.getBackPersons(prevBackPersons)
+        print "Num back persons =", len(back_persons)
 
         # Hit 'q' on the keyboard to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            sensor.video_capture.release()
+            # sensor.front_camera.release()
+            sensor.back_camera.release()
             cv2.destroyAllWindows()
             break
