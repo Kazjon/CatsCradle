@@ -35,6 +35,7 @@ WHITE = [255,255, 255]
 
 TARGET_IMG_HEIGHT = 231
 TARGET_IMG_WIDTH = 231
+SECOND_PROB_THRESHOLD = 0.3
 
 def detectUndetectedPersons(outfile, undetected_persons):
     #RUDE CARNIE DEFAULTS
@@ -44,14 +45,14 @@ def detectUndetectedPersons(outfile, undetected_persons):
     gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
     age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
     # What processing unit to execute inference on
-    device_id = '/device:CPU:0'
+    device_id = '/device:GPU:0'
     # Checkpoint basename
     checkpoint = 'checkpoint'
     model_type = 'inception'
 
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
-    config = tf.ConfigProto(allow_soft_placement=True,
-        gpu_options=gpu_options)
+    config = tf.ConfigProto(allow_soft_placement=True)
+        # gpu_options=gpu_options)
     # config = tf.ConfigProto(allow_soft_placement=True)
 
     with tf.Session(config=config) as sess:
@@ -103,27 +104,38 @@ def getAgeAndGender(person_number, target_image, sess, coder, images,\
     writer, age_list, gender_list, age_softmax_output,\
     gender_softmax_output):
 
-    (ageRange, ageRange_prob) = classify_one_multi_crop(sess, age_list,\
-        age_softmax_output, coder, images, target_image,\
-        writer)
-    (gender, gender_prob) = classify_one_multi_crop(sess,\
-        gender_list, gender_softmax_output, coder,\
+    (age_range, age_range_prob), (age_range_guess_2, age_range_guess_2_prob) =\
+        classify_one_multi_crop(sess, age_list, age_softmax_output, coder,\
         images, target_image, writer)
+    (gender, gender_prob) = classify_one_multi_crop(sess, gender_list,\
+        gender_softmax_output, coder, images, target_image, writer)
 
-    return AGE_MAP[ageRange], gender
+    first_age_guess = AGE_MAP[age_range]
+    second_age_guess = AGE_MAP[age_range_guess_2]
+    final_age_guess = first_age_guess
+
+    if first_age_guess != second_age_guess and age_range_guess_2_prob > SECOND_PROB_THRESHOLD:
+        final_age_guess = second_age_guess
+        # print('first_age_guess', first_age_guess)
+        # print('second_age_guess', second_age_guess)
+        # print('final_age_guess', final_age_guess)
+
+    return final_age_guess, gender
 
 
 if __name__ == '__main__':
     img_folder = "imgs/"
     raw_undetected_persons = list(map(lambda filename: os.path.join(img_folder,
         filename), sorted(os.listdir(img_folder))))
-    raw_undetected_persons = list(filter(lambda filename: ".jpg" in filename, raw_undetected_persons))
+    raw_undetected_persons = list(filter(lambda filename: ".jpg" in filename, raw_undetected_persons))#[:2]
 
     undetected_persons = []
-    with open(os.path.join(img_folder, "guesses.txt"), "wb") as f:
+    with open(os.path.join(img_folder, "guesses.txt"), "wb") as guesses_file:
         for i, img_name in enumerate(raw_undetected_persons):
             img = cv2.imread(img_name)
             height, width, channels = img.shape
+            # img = cv2.resize(img, (0, 0),
+            #         fx=1.5, fy=1.5)
             vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
             horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
             new_img = cv2.copyMakeBorder(img, vertical_padding, vertical_padding,\
@@ -131,7 +143,7 @@ if __name__ == '__main__':
                 cv2.BORDER_CONSTANT,value=WHITE)
             undetected_persons.append((img_name, new_img))
 
-        detectUndetectedPersons(f, undetected_persons)
+        detectUndetectedPersons(guesses_file, undetected_persons)
 
     correct_age_guesses = 0
     correct_age_guess_list = []
@@ -144,31 +156,40 @@ if __name__ == '__main__':
 
     test_set_size = 0
 
-    with open(os.path.join(img_folder, "guesses.txt"), "rb") as guesses:
-        with open(os.path.join(img_folder, "correct_guesses.txt"), "rb") as correct_guesses:
-            guess_lines = guesses.readlines()
-            for i, correct_guess in enumerate(correct_guesses.readlines()):
-                img_id = correct_guess[:correct_guess.index('(')]
-                assert img_id == guess_lines[i][:guess_lines[i].index('(')]
+    with open(os.path.join(img_folder, "guesses.txt"), "rb") as guesses_file:
+        with open(os.path.join(img_folder, "correct_guesses.txt"), "rb") as correct_guesses_file:
+            correct_guess_lines = correct_guesses_file.readlines()
+            for i, rude_carnie_guess in enumerate(guesses_file.readlines()):
+                img_id = rude_carnie_guess[:rude_carnie_guess.index('(')]
+                assert img_id == correct_guess_lines[i][:correct_guess_lines[i].index('(')]
 
-                correct_guess = correct_guess[correct_guess.index('(')+1:\
-                    correct_guess.index(')')]
-                [correct_guess_age, correct_guess_gender] = correct_guess.split(',')
+                rude_carnie_guess = rude_carnie_guess[rude_carnie_guess.index('(')+1:\
+                    rude_carnie_guess.index(')')]
+                [rude_carnie_guess_age, rude_carnie_guess_gender] =\
+                    rude_carnie_guess.split(',')
 
-                rude_carnie_guess = guess_lines[i][guess_lines[i].index('(')+1:\
-                    guess_lines[i].index(')')]
-                [rude_carnie_guess_age, rude_carnie_guess_gender] = rude_carnie_guess.split(',')
+                correct_guess = correct_guess_lines[i][correct_guess_lines[i]\
+                    .index('(')+1:correct_guess_lines[i].index(')')]
+                [correct_guess_age, correct_guess_gender, ] =\
+                    correct_guess.split(',')
 
-                if rude_carnie_guess_age == correct_guess_age:
+
+                # print("*****************************************************")
+                # print(rude_carnie_guess_age, rude_carnie_guess_gender)
+                # print(correct_guess_age, correct_guess_gender)
+                # print("*****************************************************")
+
+
+                if correct_guess_age in rude_carnie_guess_age:
                     correct_age_guesses += 1
                     correct_age_guess_list.append(img_id)
 
-                if rude_carnie_guess_gender == correct_guess_gender:
+                if correct_guess_gender in rude_carnie_guess_gender:
                     correct_gender_guesses += 1
                     correct_gender_guess_list.append(img_id)
 
-                if rude_carnie_guess_age == correct_guess_age and \
-                    rude_carnie_guess_gender == correct_guess_gender:
+                if correct_guess_age in rude_carnie_guess_age and \
+                    correct_guess_gender in rude_carnie_guess_gender:
                     correct_both_guesses += 1
                     correct_both_guess_list.append(img_id)
 

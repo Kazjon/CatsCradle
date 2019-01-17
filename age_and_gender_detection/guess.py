@@ -105,13 +105,16 @@ def classify_one_multi_crop(sess, label_list, softmax_output, coder, images, ima
         best = np.argmax(output)
         best_choice = (label_list[best], output[best])
         # print(best_choice)
-        return best_choice
 
-        # nlabels = len(label_list)
-        # if nlabels > 2:
-        #     output[best] = 0
-        #     second_best = np.argmax(output)
-        #     print('Guess @ 2 %s, prob = %.2f' % (label_list[second_best], output[second_best]))
+
+        nlabels = len(label_list)
+        if nlabels > 2:
+            output[best] = 0
+            second_best = np.argmax(output)
+            # print('Guess @ 2 %s, prob = %.2f' % (label_list[second_best], output[second_best]))
+            return best_choice, (label_list[second_best], output[second_best])
+        else:
+            return best_choice
 
         if writer is not None:
             writer.writerow((image_file, best_choice[0], '%.2f' % best_choice[1]))

@@ -85,11 +85,10 @@ class PersonSensor(Sensor):
         self.face_encodings = []
         self.known_face_numbers_to_person_objects = {}
 
-        # self.initAgeAndGender(tf_sess)
         self.undetected_persons = deque()
         self.undetected_persons_lock = Lock()
 
-        #Far away person detection
+        #Person body detection
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
@@ -107,7 +106,7 @@ class PersonSensor(Sensor):
         checkpoint = 'checkpoint'
         model_type = 'inception'
 
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.0001)
         config = tf.ConfigProto(allow_soft_placement=True,
             gpu_options=gpu_options)
 
@@ -192,7 +191,8 @@ class PersonSensor(Sensor):
         # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
         return AGE_MAP[ageRange], gender
 
-    def getPersons(self, previousPersons):
+    def getPersonsAndPersonBodies(self, previousPersons, previousPersonBodies,\
+        getPersonBodies=True):
 
         if self.frame_process_timer == self.frame_process_stride:
             self.frame_process_timer = 0
@@ -200,6 +200,7 @@ class PersonSensor(Sensor):
             self.frame_process_timer += 1
 
         persons = []
+        personBodies = []
 
         # Grab a single frame of video
         ret, frame = self.front_camera.read()
@@ -215,7 +216,7 @@ class PersonSensor(Sensor):
         # rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
         rgb_small_frame = small_frame[:, :, ::-1]
 
-        # Only process every other frame of video to save time
+        # Only process every one in every few frames of video to save time
         if self.frame_process_timer == 1:
             # Find all the faces and face encodings in the current frame of
             # video
@@ -242,9 +243,8 @@ class PersonSensor(Sensor):
                 face_bottom = bottom + int((bottom-top)/2)
                 face_left = max(left - int((right-left)/2), 0)
                 face_right = right + int((right-left)/2)
-                # NOTE FOR ISHAAN: Change to 1.5 and cut off if interfering with next face
-                # NOTE FOR ISHAAN: Zoom image instead of adding padding
-                # NOTE FOR ISHAAN: Experiment with probabilities for children/etc.
+                # NOTE FOR ISHAAN: Change to 1.5 and cut off if interfering
+                # with next face
                 face_close_up = small_frame[face_top:face_bottom,\
                     face_left:face_right, :]
 
@@ -252,6 +252,13 @@ class PersonSensor(Sensor):
                 vertical_padding = int(max(0, (TARGET_IMG_HEIGHT - height)/2))
                 horizontal_padding = int(max(0, (TARGET_IMG_WIDTH - width)/2))
 
+                #To experiment with zooming instead of adding padding/in
+                # addition to adding padding
+                # face_close_up = cv2.resize(face_close_up, (0, 0),
+                #         fx=8.0, fy=8.0)
+
+                # add padding so that image meets minimum image size requirement
+                # of rude carnie
                 face_close_up = cv2.copyMakeBorder(face_close_up,\
                     vertical_padding, vertical_padding, horizontal_padding, \
                     horizontal_padding, cv2.BORDER_CONSTANT, value=WHITE)
@@ -281,9 +288,12 @@ class PersonSensor(Sensor):
                     # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%d.jpg"%personCount_, face_close_up)
 
                 self.face_names.append(name)
+                if getPersonBodies:
+                    personBodies, frame = self.getPersonBodies(frame)
 
         else:
             persons = previousPersons
+            personBodies = previousPersonBodies
 
         # Display the results
         for (top, right, bottom, left), name in zip(self.face_locations,\
@@ -305,13 +315,12 @@ class PersonSensor(Sensor):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (0,\
                 0, 0), 1)
 
-        faraway_people_positions, frame = self.getFarawayPeoplePositions(frame)
         cv2.imshow('Video', frame)
 
-        return persons
+        return persons, personBodies
 
 
-    def getFarawayPeoplePositions(self, frame):
+    def getPersonBodies(self, frame):
         """
             Detects bodies.
             Params:
@@ -340,7 +349,7 @@ class PersonSensor(Sensor):
 
         return pick, frame
 
-    def getBackPersons(self, prevBackPersons):
+    def getPersonBodiesOnly(self, prevBackPersons):
         """
             This function returns a list of BackPerson objects corresponding
             to the people that the back camera sees.
@@ -371,80 +380,36 @@ class PersonSensor(Sensor):
         return back_persons
 
 
-    def initAgeAndGender(self, tf_sess):
-        # RUDE CARNIE DEFAULTS
-        gender_model_dir = "age_and_gender_detection/pretrained_checkpoints/gender/"
-        age_model_dir = "age_and_gender_detection/pretrained_checkpoints/age/"
-
-        # Checkpoint basename
-        checkpoint = 'checkpoint'
-        model_type = 'inception'
-
-        # Age detection model
-        n_ages = len(AGE_LIST)
-        age_model_fn = select_model(model_type)
-
-        # Gender detection model
-        n_genders = len(GENDER_LIST)
-        gender_model_fn = select_model(model_type)
-
-        self.images_tfvar = tf.placeholder(tf.float32, [None, RESIZE_FINAL, \
-            RESIZE_FINAL, 3])
-        requested_step = None
-        init = tf.global_variables_initializer()
-
-        # age model
-        age_logits = age_model_fn("age", n_ages, self.images_tfvar, 1, False)
-        age_checkpoint_path, global_step = get_checkpoint(age_model_dir,\
-            requested_step, checkpoint)
-        age_vars = set(tf.global_variables())
-        saver_age = tf.train.Saver(list(age_vars))
-        saver_age.restore(tf_sess, age_checkpoint_path)
-        self.age_softmax_output_tfvar = tf.nn.softmax(age_logits)
-
-        # gender_model
-        gender_logits = gender_model_fn("gender", n_genders, self.images_tfvar,\
-            1,False)
-        gender_checkpoint_path, global_step = get_checkpoint(gender_model_dir,\
-            requested_step, checkpoint)
-        gender_vars = set(tf.global_variables()) - age_vars
-        saver_gender = tf.train.Saver(list(gender_vars))
-        saver_gender.restore(tf_sess, gender_checkpoint_path)
-        self.gender_softmax_output_tfvar = tf.nn.softmax(gender_logits)
-
-        self.coder = ImageCoder()
-
-        self.writer = None
-
-
 if __name__ == '__main__':
     previousPersons = []
     prevBackPersons = []
     sensor = PersonSensor([], None)
     # sensor.front_camera = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
-    # sensor.front_camera = cv2.VideoCapture(0)
+    sensor.front_camera = cv2.VideoCapture(0)
     # sensor.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # sensor.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 
-    sensor.back_camera = cv2.VideoCapture(0)
+    # sensor.back_camera = cv2.VideoCapture(0)
 
-    camera_to_release = sensor.back_camera
+    camera_to_release = sensor.front_camera
 
 
-    # Thread(target=sensor.detectUndetectedPersons).start()
-    # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
+    t = Thread(target=sensor.detectUndetectedPersons)
+    t.start()
+    time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
-        # persons = sensor.getPersons(previousPersons)
-        # print "Num persons =", len(persons)
-        # for person in persons:
-        #     print(person)
-        # previousPersons = persons
+        persons = sensor.getPersons(previousPersons)
+        print "Num persons =", len(persons)
+        for person in persons:
+            print(person)
+        previousPersons = persons
 
-        back_persons = sensor.getBackPersons(prevBackPersons)
+        # back_persons = sensor.getBackPersons(prevBackPersons)
         # print "Num back persons =", len(back_persons)
 
         # Hit 'q' on the keyboard to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             camera_to_release.release()
             cv2.destroyAllWindows()
+            t._Thread_stop()
             break
