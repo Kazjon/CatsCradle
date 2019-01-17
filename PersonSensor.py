@@ -44,6 +44,8 @@ WHITE = [255, 255, 255]
 TARGET_IMG_HEIGHT = 231
 TARGET_IMG_WIDTH = 231
 
+NUM_PEOPLE_TO_REMEMBER = 100
+
 
 
 class PersonSensor(Sensor):
@@ -64,21 +66,12 @@ class PersonSensor(Sensor):
         self.standardFaceHeight = 400
 
         # Create arrays of known face encodings and their names
-        self.known_face_encodings = deque(maxlen=50)
-        self.known_face_numbers = deque(maxlen=50)
+        self.known_face_encodings = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
+        self.known_face_numbers = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
 
         self.scaling_factor = 1.1
         self.frame_process_timer = 0
         self.frame_process_stride = 32 #corresponds to processing roughly 1 frame every 2 seconds
-
-        #Use filename for videos or 0 for the live camera
-        #if you use 0 for the live camera, make sure its plugged in!
-#        self.front_camera = cv2.VideoCapture(os.path.expanduser('~/Downloads/ishaanMovies/people gesturing-converted.mp4'))
-        # self.front_camera = cv2.VideoCapture(0)
-        # self.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        # self.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        # self.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
-        # self.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 680)
 
         self.face_names = []
         self.face_locations = []
@@ -270,7 +263,8 @@ class PersonSensor(Sensor):
                     person_number = self.known_face_numbers[first_match_index]
                     name = "Person %d"%person_number
                     person = self.known_face_numbers_to_person_objects[person_number]
-                    person.updateFace(face_location)
+                    person.updateFace(self.get_2d_and_3d_coordinates_of_bb\
+                        (face_location))
                     persons.append(person)
                 else:
                     global personCount_
@@ -384,6 +378,9 @@ if __name__ == '__main__':
     previousPersons = []
     prevBackPersons = []
     sensor = PersonSensor([], None)
+
+    #Use filename for videos or 0 for the live camera
+    #if you use 0 for the live camera, make sure its plugged in!
     # sensor.front_camera = cv2.VideoCapture(os.path.expanduser('/home/bill/Desktop/ishaanMovies/morePeople-converted.mp4'))
     sensor.front_camera = cv2.VideoCapture(0)
     # sensor.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
@@ -396,7 +393,7 @@ if __name__ == '__main__':
 
     t = Thread(target=sensor.detectUndetectedPersons)
     t.start()
-    time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
+    # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
         persons = sensor.getPersons(previousPersons)
         print "Num persons =", len(persons)

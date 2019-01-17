@@ -31,3 +31,6 @@ class PersonBody:
             self.bottom_right_3d = bottom_right_3d
             self.bottom_left_3d = bottom_left_3d
             self.center_3d = center_3d
+
+    def getHeight(self):
+        

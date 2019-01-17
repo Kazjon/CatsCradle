@@ -14,8 +14,13 @@ from threading import Lock
 INTEREST_DECAY = 0.99
 FACE_HISTORY_LENGTH = 10
 
-def face_size(face_loc):
-    return distance.euclidean([face_loc[0],face_loc[1]],[face_loc[2],face_loc[3]])
+def face_size(face_top_left, face_top_right, face_bottom_right,\
+    face_bottom_left):
+    """
+        Gives the size of a given face bounding box. Typically would use 2d
+        coordinates for this, but can use 3d too.
+    """
+    # return distance.euclidean([face_loc[0],face_loc[1]],[face_loc[2],face_loc[3]])
 
 class Person:
     """Class to handle a person parameters"""
@@ -24,8 +29,10 @@ class Person:
         return "Id: %s, Gender: %s, Age: %s"%(self.id,\
             self.getGender(), self.getAgeRange())
 
-    def __init__(self, frame, faceCloseUp, faceLocation, faceEncoding, gender, ageRange,\
-        personCount, roi):
+    def __init__(self, frame, faceCloseUp, faceEncoding, gender, ageRange,\
+        personCount, roi, face_top_left_2d, face_top_right_2d, face_bottom_right_2d,\
+            face_bottom_left_2d, face_center_2d, face_top_left_3d, face_top_right_3d,\
+            face_bottom_right_3d, face_bottom_left_3d, face_center_3d):
         self.id = personCount
         self.labels = Set()
         self.interestingness = 0
@@ -52,11 +59,26 @@ class Person:
         # Person's position in Camera and World space
         self.posCamera = (0, 0)
         self.posWorld = (0, 0, 0)
-        self.faceLocation = faceLocation # Tuple of bounding box: (top,right,bottom,left)
-        self.faceCloseUp = faceCloseUp
+        #2d face bounding box location coordinates
+        self.top_left_2d = top_left_2d
+        self.top_right_2d = top_right_2d
+        self.bottom_right_2d = bottom_right_2d
+        self.bottom_left_2d = bottom_left_2d
+        self.center_2d = center_2d
+
+        #3d face bounding box location coordinates
+        self.top_left_3d = top_left_3d
+        self.top_right_3d = top_right_3d
+        self.bottom_right_3d = bottom_right_3d
+        self.bottom_left_3d = bottom_left_3d
+        self.center_3d = center_3d
+
+        self.faceCloseUp = faceCloseUp #close up image
         self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
         self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
-        self.faceEncoding = faceEncoding # 128-length vector encoding differences from average face for easy cosine comparisons
+        self.faceEncoding = faceEncoding # 128-length vector encoding
+        # differences from average face for easy cosine comparisons
+
         self.roi = roi
         # TODO: Find the best tracker type
         trackerType = 'KCF'
@@ -80,10 +102,29 @@ class Person:
 
         ok = self.tracker.init(frame, self.roi)
 
-    def updateFace(self,new_face_loc):
-        self.faceLocation = new_face_loc
-        self.faceLocHistory.appendleft(new_face_loc)
-        self.faceSizeHistory.appendleft(face_size(new_face_loc))
+    def updateFace(self, face_top_left_2d, face_top_right_2d,\
+        face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
+        face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
+        face_bottom_left_3d, face_center_3d):
+
+        self.face_top_left_2d = face_top_left_2d
+        self.face_top_right_2d = face_top_right_2d
+        self.face_bottom_right_2d = face_bottom_right_2d
+        self.face_bottom_left_2d = face_bottom_left_2d
+        self.face_center_2d = face_center_2d
+
+        self.face_top_left_3d = face_top_left_3d
+        self.face_top_right_3d = face_top_right_3d
+        self.face_bottom_right_3d = face_bottom_right_3d
+        self.face_bottom_left_3d = face_bottom_left_3d
+        self.face_center_3d = face_center_3d
+
+        self.faceLocHistory.appendleft((face_top_left_2d, face_top_right_2d,\
+            face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
+            face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
+            face_bottom_left_3d, face_center_3d))
+        self.faceSizeHistory.appendleft(face_size(face_top_left_2d,\
+            face_top_right_2d, face_bottom_right_2d, face_bottom_left_2d))
 
     def updateInterest(self):
         self.interestingness *= INTEREST_DECAY
