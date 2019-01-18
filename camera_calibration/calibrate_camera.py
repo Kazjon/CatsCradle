@@ -4,57 +4,60 @@ import glob
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+dim_0 = 6
+dim_1 = 7
 
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6*7,3), np.float32)
-objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
+for i in [0,1]:
+    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+    objp = np.zeros((dim_0*dim_1,3), np.float32)
+    objp[:,:2] = np.mgrid[0:dim_1,0:dim_0].T.reshape(-1,2)
 
-# Arrays to store object points and image points from all the images.
-objpoints = [] # 3d point in real world space
-imgpoints = [] # 2d points in image plane.
+    # Arrays to store object points and image points from all the images.
+    objpoints = [] # 3d point in real world space
+    imgpoints = [] # 2d points in image plane.
 
-images = glob.glob('calibration_imgs/*.png')
+    images = glob.glob('calibration_imgs/cam%d_*.png'%i)
 
-for fname in images:
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    for fname in images:
+        img = cv2.imread(fname)
+        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-    # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
+        # Find the chess board corners
+        ret, corners = cv2.findChessboardCorners(gray, (dim_1,dim_0),None)
 
-    # If found, add object points, image points (after refining them)
-    if ret == True:
-        objpoints.append(objp)
+        # If found, add object points, image points (after refining them)
+        if ret == True:
+            objpoints.append(objp)
 
-        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-        imgpoints.append(corners2)
+            corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+            imgpoints.append(corners2)
 
-        # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (7,6), corners2,ret)
-        cv2.imshow(fname, img)
-        cv2.waitKey(500)
+            # Draw and display the corners
+            img = cv2.drawChessboardCorners(img, (dim_1, dim_0), corners2,ret)
+            cv2.imshow(fname, img)
+            cv2.waitKey(500)
 
-cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
-################# Getting projection matrix ######################
-ret, camera_mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
+    ################# Getting projection matrix ######################
+    ret, camera_mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 
-# print('camera_mtx', camera_mtx)
-# print("*************")
-# print('rvecs', rvecs)
-# print("*************")
-# print('tvecs', tvecs)
-# print("*************")
-# print('dist', dist)
-# print("*************")
-M = np.matmul(camera_mtx, rvecs[0])
-M = np.concatenate((camera_mtx, tvecs[0]), axis=1)
-M.dump("projection_mtx.npy")
-# print('M', M)
-#
-# print('objpoints', objpoints)
-# print('imgpoints', imgpoints)
+    # print('camera_mtx', camera_mtx)
+    # print("*************")
+    # print('rvecs', rvecs)
+    # print("*************")
+    # print('tvecs', tvecs)
+    # print("*************")
+    # print('dist', dist)
+    # print("*************")
+    M = np.matmul(camera_mtx, rvecs[0])
+    M = np.concatenate((camera_mtx, tvecs[0]), axis=1)
+    M.dump("projection_mtx_%d.npy"%i)
+    # print('M', M)
+    #
+    # print('objpoints', objpoints)
+    # print('imgpoints', imgpoints)
 
 ################### DISTORT/UNDISTORT STUFF #####################
 #
