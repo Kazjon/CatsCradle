@@ -45,7 +45,7 @@ TARGET_IMG_HEIGHT = 231
 TARGET_IMG_WIDTH = 231
 
 NUM_PEOPLE_TO_REMEMBER = 100
-
+USE_TRIANGULATION = False
 
 
 class PersonSensor(Sensor):
@@ -373,6 +373,17 @@ class PersonSensor(Sensor):
 
         return back_persons
 
+
+    def _objective_p(self, point3d, point_2d_0, point_2d_1, projection_mtx_0,\
+        projection_mtx_1):
+        
+
+    def get3dPointFrom2dPoint(self, point):
+        # TODO: Experiment using triangulation or simply appending 1
+        if USE_TRIANGULATION:
+
+        else:
+            return (point[0], point[1], 1)
 
 if __name__ == '__main__':
     previousPersons = []
