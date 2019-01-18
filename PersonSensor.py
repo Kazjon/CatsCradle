@@ -376,12 +376,37 @@ class PersonSensor(Sensor):
 
     def _objective_p(self, point3d, point_2d_0, point_2d_1, projection_mtx_0,\
         projection_mtx_1):
-        
+        left_term0 = np.square(point_2d_0[0] - multiply_points\
+            (projection_mtx_0[0], point3d)/multiply_points\
+            (projection_mtx_0[-1], point3d))
+        right_term0 = np.square(point_2d_0[1] - multiply_points\
+            (projection_mtx_0[1], point3d)/multiply_points\
+            (projection_mtx_0[-1], point3d))
+        left_term1 = np.square(point_2d_1[0] - multiply_points\
+            (projection_mtx_1[0], point3d)/multiply_points\
+            (projection_mtx_1[-1], point3d))
+        right_term1 = np.square(point_2d_1[1] - multiply_points\
+            (projection_mtx_1[1], point3d)/multiply_points\
+            (projection_mtx_1[-1], point3d))
 
-    def get3dPointFrom2dPoint(self, point):
+        return left_term0 + right_term0 + left_term1 + right_term1
+
+
+    def get3dPointFrom2dPoint(self, point_cam_0, point_cam_1):
         # TODO: Experiment using triangulation or simply appending 1
         if USE_TRIANGULATION:
+            projection_mtx_0 = numpy.load\
+                ("camera_calibration/projection_mtx_0.npy")
+            projection_mtx_1 = numpy.load\
+                ("camera_calibration/projection_mtx_1.npy")
+            point3d = np.ones((4,))
+            point3d = minimize(self._objective_p, point3d, args=(point_cam_0,\
+                point_cam_1, projection_mtx_0, projection_mtx_1),\
+                method="Powell").x
+            point3d = (point3d[0]/point3d[3], point3d[1]/point3d[3],\
+                point3d[2]/point3d[3])
 
+            return point3d
         else:
             return (point[0], point[1], 1)
 
