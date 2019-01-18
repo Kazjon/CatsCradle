@@ -14,13 +14,13 @@ from threading import Lock
 INTEREST_DECAY = 0.99
 FACE_HISTORY_LENGTH = 10
 
-def face_size(face_top_left, face_top_right, face_bottom_right,\
-    face_bottom_left):
+def face_size(face_top_left, face_bottom_right):
     """
         Gives the size of a given face bounding box. Typically would use 2d
         coordinates for this, but can use 3d too.
     """
-    # return distance.euclidean([face_loc[0],face_loc[1]],[face_loc[2],face_loc[3]])
+    return distance.euclidean([face_top_left[0],face_top_left[1]],\
+        [face_bottom_right[0],face_bottom_right[1]])
 
 class Person:
     """Class to handle a person parameters"""
@@ -124,7 +124,7 @@ class Person:
             face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
             face_bottom_left_3d, face_center_3d))
         self.faceSizeHistory.appendleft(face_size(face_top_left_2d,\
-            face_top_right_2d, face_bottom_right_2d, face_bottom_left_2d))
+            face_bottom_right_2d))
 
     def updateInterest(self):
         self.interestingness *= INTEREST_DECAY

@@ -1,3 +1,9 @@
+"""
+Running this script will open the camera. Take 10 pictures of a chessboard from
+different angles and positions by pressing "p" on the keyboard. After the 10th
+picture is taken, the script will automatically terminate.
+"""
+
 import numpy as np
 import cv2
 
