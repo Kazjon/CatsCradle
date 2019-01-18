@@ -23,10 +23,14 @@ from Person import *
 from Sensor import *
 from threading import Lock, Thread
 import time
+from PersonBody import *
 
 from imutils.object_detection import non_max_suppression
 from imutils import paths
 import imutils
+
+from scipy.optimize import minimize
+from scipy.linalg import rq
 
 personCount_ = 0
 
@@ -46,6 +50,8 @@ TARGET_IMG_WIDTH = 231
 
 NUM_PEOPLE_TO_REMEMBER = 100
 USE_TRIANGULATION = False
+
+SECOND_PROB_THRESHOLD = 0.3
 
 
 class PersonSensor(Sensor):
@@ -70,7 +76,8 @@ class PersonSensor(Sensor):
         self.known_face_numbers = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
 
         self.scaling_factor = 1.1
-        self.frame_process_timer = 0
+        self.front_frame_process_timer = 0
+        self.back_frame_process_timer = 0
         self.frame_process_stride = 32 #corresponds to processing roughly 1 frame every 2 seconds
 
         self.face_names = []
@@ -84,6 +91,9 @@ class PersonSensor(Sensor):
         #Person body detection
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+
+        self.front_camera = None
+        self.back_camera = None
 
 
     def detectUndetectedPersons(self):
@@ -161,39 +171,44 @@ class PersonSensor(Sensor):
                         self.undetected_persons_lock.release()
 
 
-
-
     def getAgeAndGender(self, person_number, target_image, sess, coder, images,\
         writer, age_list, gender_list, age_softmax_output,\
         gender_softmax_output):
 
-        (ageRange, ageRange_prob) = classify_one_multi_crop(sess, age_list,\
-            age_softmax_output, coder, images, target_image,\
-            writer)
-        (gender, gender_prob) = classify_one_multi_crop(sess,\
-            gender_list, gender_softmax_output, coder,\
+        (age_range, age_range_prob), (age_range_guess_2, age_range_guess_2_prob) =\
+            classify_one_multi_crop(sess, age_list, age_softmax_output, coder,\
             images, target_image, writer)
+        (gender, gender_prob) = classify_one_multi_crop(sess, gender_list,\
+            gender_softmax_output, coder, images, target_image, writer)
 
+        first_age_guess = AGE_MAP[age_range]
+        second_age_guess = AGE_MAP[age_range_guess_2]
+        final_age_guess = first_age_guess
+
+        if first_age_guess != second_age_guess and age_range_guess_2_prob > SECOND_PROB_THRESHOLD:
+            final_age_guess = second_age_guess
+            # print('first_age_guess', first_age_guess)
+            # print('second_age_guess', second_age_guess)
+            # print('final_age_guess', final_age_guess)
+
+        # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
         person = self.known_face_numbers_to_person_objects[person_number]
 
         with person.genderLock:
             person.gender = gender
         with person.ageRangeLock:
-            person.ageRange = ageRange
-
-        # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%s-%s.jpg"%(gender, AGE_MAP[ageRange]), target_image)
-        return AGE_MAP[ageRange], gender
+            person.ageRange = final_age_guess
 
     def getPersonsAndPersonBodies(self, previousPersons, previousPersonBodies,\
         getPersonBodies=True):
 
-        if self.frame_process_timer == self.frame_process_stride:
-            self.frame_process_timer = 0
+        if self.front_frame_process_timer == self.frame_process_stride:
+            self.front_frame_process_timer = 0
         else:
-            self.frame_process_timer += 1
+            self.front_frame_process_timer += 1
 
         persons = []
-        personBodies = []
+        personBodies = previousPersonBodies
 
         # Grab a single frame of video
         ret, frame = self.front_camera.read()
@@ -210,7 +225,7 @@ class PersonSensor(Sensor):
         rgb_small_frame = small_frame[:, :, ::-1]
 
         # Only process every one in every few frames of video to save time
-        if self.frame_process_timer == 1:
+        if self.front_frame_process_timer == 1:
             # Find all the faces and face encodings in the current frame of
             # video
             self.face_locations = face_recognition.face_locations\
@@ -263,13 +278,26 @@ class PersonSensor(Sensor):
                     person_number = self.known_face_numbers[first_match_index]
                     name = "Person %d"%person_number
                     person = self.known_face_numbers_to_person_objects[person_number]
-                    person.updateFace(self.get_2d_and_3d_coordinates_of_bb\
-                        (face_location))
+                    person.updateFace(self.get2dAnd3dCoordsFromLocation\
+                        (top, right, bottom, left))
                     persons.append(person)
                 else:
                     global personCount_
-                    person = Person(frame, face_close_up, face_location,\
-                        face_encoding, None, None, personCount_, None)
+                    # print('face_location', face_location)
+                    face_top_left_2d, face_top_right_2d, face_bottom_right_2d,\
+                        face_bottom_left_2d, face_center_2d, face_top_left_3d,\
+                        face_top_right_3d, face_bottom_right_3d,\
+                        face_bottom_left_3d, face_center_3d =\
+                        self.get2dAnd3dCoordsFromLocation(top, right,\
+                            bottom, left)
+
+                    person = Person(frame, face_close_up, face_encoding,\
+                        None, None, personCount_, None, face_top_left_2d,\
+                            face_top_right_2d, face_bottom_right_2d,\
+                            face_bottom_left_2d, face_center_2d, face_top_left_3d,\
+                            face_top_right_3d, face_bottom_right_3d,\
+                            face_bottom_left_3d, face_center_3d)
+
                     with self.undetected_persons_lock:
                         self.undetected_persons.append((personCount_,\
                             face_close_up))
@@ -282,12 +310,12 @@ class PersonSensor(Sensor):
                     # cv2.imwrite("/home/bill/Desktop/CatsCradle-fusion/imgs/age_gender_tests/%d.jpg"%personCount_, face_close_up)
 
                 self.face_names.append(name)
-                if getPersonBodies:
-                    personBodies, frame = self.getPersonBodies(frame)
+
+            if getPersonBodies:
+                personBodies = self.getPersonBodies(frame)
 
         else:
             persons = previousPersons
-            personBodies = previousPersonBodies
 
         # Display the results
         for (top, right, bottom, left), name in zip(self.face_locations,\
@@ -309,7 +337,12 @@ class PersonSensor(Sensor):
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (0,\
                 0, 0), 1)
 
-        cv2.imshow('Video', frame)
+        for personBody in personBodies:
+            cv2.rectangle(frame, (personBody.body_top_left_2d),\
+                (personBody.body_bottom_right_2d), (255, 0, 0), 2)
+
+
+        cv2.imshow('Front Video', frame)
 
         return persons, personBodies
 
@@ -319,10 +352,9 @@ class PersonSensor(Sensor):
             Detects bodies.
             Params:
             frame (numpy.ndarray) : the frame to detect bodies in
-            Returns a list of positions and the original frame with the bodies
-            highlighted.
+            Returns a list of PersonBody objects and the original
+            frame with the bodies highlighted.
         """
-        #Far away person detection
     	# detect people in the image
     	(rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
     		padding=(8, 8), scale=1.05)
@@ -338,63 +370,78 @@ class PersonSensor(Sensor):
     	pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
     	# draw the final bounding boxes
-    	for (xA, yA, xB, yB) in pick:
-    		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+        personBodies = []
+    	for (left, top, right, bottom) in pick:
+            body_top_left_2d, body_top_right_2d,\
+                body_bottom_right_2d, body_bottom_left_2d, body_center_2d,\
+                body_top_left_3d, body_top_right_3d, body_bottom_right_3d,\
+                body_bottom_left_3d, body_center_3d =\
+                self.get2dAnd3dCoordsFromLocation(top, right, bottom, left,\
+                scale=False)
+            personBodies.append(PersonBody(body_top_left_2d, body_top_right_2d,\
+                body_bottom_right_2d, body_bottom_left_2d, body_center_2d,\
+                body_top_left_3d, body_top_right_3d, body_bottom_right_3d,\
+                body_bottom_left_3d, body_center_3d))
 
-        return pick, frame
+        return personBodies
 
-    def getPersonBodiesOnly(self, prevBackPersons):
+    def getPersonBodiesOnly(self, previousPersonBodiesBehindMarionette):
         """
-            This function returns a list of BackPerson objects corresponding
-            to the people that the back camera sees.
+            This function returns a list of PersonBody objects detected by the
+            back camera.
         """
 
-        back_persons = []
+        personBodiesBehindMarionette = previousPersonBodiesBehindMarionette
 
-        if self.frame_process_timer == self.frame_process_stride:
-            self.frame_process_timer = 0
+        if self.back_frame_process_timer == self.frame_process_stride:
+            self.back_frame_process_timer = 0
         else:
-            self.frame_process_timer += 1
+            self.back_frame_process_timer += 1
 
         # Grab a single frame of video
         ret, frame = self.back_camera.read()
 
         # Process frames periodically
-        if self.frame_process_timer == 1:
-            now = time.localtime()
-            print ("processing frame", "%s:%s:%s"%(now.tm_hour, now.tm_min, now.tm_sec))
-            back_persons, frame = self.getFarawayPeoplePositions(frame)
-            # convert each position to a BackPerson object
+        if self.back_frame_process_timer == 1:
+            personBodiesBehindMarionette = self.getPersonBodies(frame)
 
-        else:
-            back_persons = prevBackPersons
 
-        cv2.imshow('Video', frame)
+        for personBody in personBodiesBehindMarionette:
+            cv2.rectangle(frame, (personBody.body_top_left_2d),\
+                (personBody.body_bottom_right_2d), (0, 255, 0), 2)
 
-        return back_persons
+        cv2.imshow('Back Video', frame)
+
+        return personBodiesBehindMarionette
+
+
+    def _multiply_points(self, p1, p2):
+        return np.dot(p1, p2)
 
 
     def _objective_p(self, point3d, point_2d_0, point_2d_1, projection_mtx_0,\
         projection_mtx_1):
-        left_term0 = np.square(point_2d_0[0] - multiply_points\
-            (projection_mtx_0[0], point3d)/multiply_points\
+        left_term0 = np.square(point_2d_0[0] - self._multiply_points\
+            (projection_mtx_0[0], point3d)/self._multiply_points\
             (projection_mtx_0[-1], point3d))
-        right_term0 = np.square(point_2d_0[1] - multiply_points\
-            (projection_mtx_0[1], point3d)/multiply_points\
+        right_term0 = np.square(point_2d_0[1] - self._multiply_points\
+            (projection_mtx_0[1], point3d)/self._multiply_points\
             (projection_mtx_0[-1], point3d))
-        left_term1 = np.square(point_2d_1[0] - multiply_points\
-            (projection_mtx_1[0], point3d)/multiply_points\
+        left_term1 = np.square(point_2d_1[0] - self._multiply_points\
+            (projection_mtx_1[0], point3d)/self._multiply_points\
             (projection_mtx_1[-1], point3d))
-        right_term1 = np.square(point_2d_1[1] - multiply_points\
-            (projection_mtx_1[1], point3d)/multiply_points\
+        right_term1 = np.square(point_2d_1[1] - self._multiply_points\
+            (projection_mtx_1[1], point3d)/self._multiply_points\
             (projection_mtx_1[-1], point3d))
 
         return left_term0 + right_term0 + left_term1 + right_term1
 
 
-    def get3dPointFrom2dPoint(self, point_cam_0, point_cam_1):
+    def get3dPointFrom2dPoint(self, point_cam_0, point_cam_1=None):
         # TODO: Experiment using triangulation or simply appending 1
         if USE_TRIANGULATION:
+            #for now use point_cam_1 = point_cam_0
+            point_cam_1 = point_cam_0
             projection_mtx_0 = numpy.load\
                 ("camera_calibration/projection_mtx_0.npy")
             projection_mtx_1 = numpy.load\
@@ -408,11 +455,39 @@ class PersonSensor(Sensor):
 
             return point3d
         else:
-            return (point[0], point[1], 1)
+            return (point_cam_0[0], point_cam_0[1], 1)
+
+
+    def get2dAnd3dCoordsFromLocation(self, top, right, bottom, left,\
+        scale=True):
+
+        if scale:
+            top = int(top*self.scaling_factor)
+            right = int(right*self.scaling_factor)
+            bottom = int(bottom*self.scaling_factor)
+            left = int(left*self.scaling_factor)
+
+        top_left_2d = (left, top)
+        top_right_2d = (right, top)
+        bottom_right_2d = (right, bottom)
+        bottom_left_2d = (left, bottom)
+        center_2d = ((bottom-top)/2.0, (right-left)/2.0)
+
+        top_left_3d = self.get3dPointFrom2dPoint(top_left_2d)
+        top_right_3d = self.get3dPointFrom2dPoint(top_right_2d)
+        bottom_right_3d = self.get3dPointFrom2dPoint(bottom_right_2d)
+        bottom_left_3d = self.get3dPointFrom2dPoint(bottom_left_2d)
+        center_3d = self.get3dPointFrom2dPoint(center_2d)
+
+        return top_left_2d, top_right_2d, bottom_right_2d,\
+            bottom_left_2d, center_2d, top_left_3d,\
+            top_right_3d, bottom_right_3d, bottom_left_3d,\
+            center_3d
 
 if __name__ == '__main__':
     previousPersons = []
-    prevBackPersons = []
+    previousPersonBodies = []
+    previousPersonBodiesBehindMarionette = []
     sensor = PersonSensor([], None)
 
     #Use filename for videos or 0 for the live camera
@@ -422,27 +497,39 @@ if __name__ == '__main__':
     # sensor.front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # sensor.front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 
+    # sensor.back_camera = sensor.front_camera
     # sensor.back_camera = cv2.VideoCapture(0)
-
-    camera_to_release = sensor.front_camera
 
 
     t = Thread(target=sensor.detectUndetectedPersons)
     t.start()
-    # time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
+    time.sleep(7) # sleep to allow the tensor flow/rude carnie stuff to load
     while True:
-        persons = sensor.getPersons(previousPersons)
-        print "Num persons =", len(persons)
+        persons, personBodies = sensor.getPersonsAndPersonBodies(previousPersons,\
+            previousPersonBodies, False)
+        previousPersons = persons
+        previousPersonBodies = personBodies
+
+        # if len(persons):
+        #     print "Num persons =", len(persons)
+        # if len(personBodies):
+        #     print "Num person bodies =", len(personBodies)
         for person in persons:
             print(person)
-        previousPersons = persons
 
-        # back_persons = sensor.getBackPersons(prevBackPersons)
-        # print "Num back persons =", len(back_persons)
+        # personBodiesBehindMarionette = sensor.getPersonBodiesOnly\
+        #     (previousPersonBodiesBehindMarionette)
+        # previousPersonBodiesBehindMarionette = personBodiesBehindMarionette
+        #
+        # if len(personBodiesBehindMarionette):
+        #     print "Num persons behind marionette =", len(personBodiesBehindMarionette)
 
         # Hit 'q' on the keyboard to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            camera_to_release.release()
+            if sensor.front_camera:
+                sensor.front_camera.release()
+            if sensor.back_camera:
+                sensor.back_camera.release()
             cv2.destroyAllWindows()
-            t._Thread_stop()
+            t._Thread__stop()
             break

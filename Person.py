@@ -60,18 +60,18 @@ class Person:
         self.posCamera = (0, 0)
         self.posWorld = (0, 0, 0)
         #2d face bounding box location coordinates
-        self.top_left_2d = top_left_2d
-        self.top_right_2d = top_right_2d
-        self.bottom_right_2d = bottom_right_2d
-        self.bottom_left_2d = bottom_left_2d
-        self.center_2d = center_2d
+        self.face_top_left_2d = face_top_left_2d
+        self.face_top_right_2d = face_top_right_2d
+        self.face_bottom_right_2d = face_bottom_right_2d
+        self.face_bottom_left_2d = face_bottom_left_2d
+        self.face_center_2d = face_center_2d
 
         #3d face bounding box location coordinates
-        self.top_left_3d = top_left_3d
-        self.top_right_3d = top_right_3d
-        self.bottom_right_3d = bottom_right_3d
-        self.bottom_left_3d = bottom_left_3d
-        self.center_3d = center_3d
+        self.face_top_left_3d = face_top_left_3d
+        self.face_top_right_3d = face_top_right_3d
+        self.face_bottom_right_3d = face_bottom_right_3d
+        self.face_bottom_left_3d = face_bottom_left_3d
+        self.face_center_3d = face_center_3d
 
         self.faceCloseUp = faceCloseUp #close up image
         self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
@@ -102,10 +102,10 @@ class Person:
 
         ok = self.tracker.init(frame, self.roi)
 
-    def updateFace(self, face_top_left_2d, face_top_right_2d,\
+    def updateFace(self, (face_top_left_2d, face_top_right_2d,\
         face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
         face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
-        face_bottom_left_3d, face_center_3d):
+        face_bottom_left_3d, face_center_3d)):
 
         self.face_top_left_2d = face_top_left_2d
         self.face_top_right_2d = face_top_right_2d

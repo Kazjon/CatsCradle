@@ -11,7 +11,7 @@ class Audience:
         self.personSensor = personSensor
         self.persons = []
         self.previousPersons = []
-        self.personBodies =
+        self.personBodies = []
         self.previousPersonBodies = []
         self.personBodiesBehindMarionette = []
         self.previousPersonBodiesBehindMarionette = []
@@ -22,7 +22,8 @@ class Audience:
         self.previousPersonBodiesBehindMarionette =\
             self.personBodiesBehindMarionette
 
-        self.persons = self.personSensor.getPersonsAndPersonBodies\
+        self.persons, self.personBodies =\
+            self.personSensor.getPersonsAndPersonBodies\
             (self.previousPersons, self.previousPersonBodies)
 
         self.personBodiesBehindMarionette = self.personSensor.\
@@ -35,13 +36,13 @@ class Audience:
 
 if __name__ == '__main__':
     # Tests
-    personSensor = PersonSensor([Camera(0)])
+    personSensor = PersonSensor([Camera(0)], None)
     personSensor.show = True
 
     audience = Audience(personSensor)
 
     while True:
-        audience.update()
+        audience.update(None)
         for person in audience.persons:
             print(person)
         if cv2.waitKey(1) & 0xFF == ord('q'):

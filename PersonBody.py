@@ -1,3 +1,4 @@
+import cv2
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
 class PersonBody:
@@ -13,24 +14,25 @@ class PersonBody:
             "bottom left: %.2f, bottom right: %.2f, center: %.2f\n" + \
             "3D Position:\ntop left: %.2f, top right: %.2f," + \
             "bottom left: %.2f, bottom right: %.2f, center: %.2f"%\
-            (self.top_left_2d, self.top_right_2d, self.bottom_right_2d,\
-            self.bottom_left_2d, self.center_2d, self.top_left_3d,\
-            self.top_right_3d, self.bottom_right_3d, self.bottom_left_3d,\
-            self.center_3d)
+            (self.body_top_left_2d, self.body_top_right_2d, self.body_bottom_right_2d,\
+            self.body_bottom_left_2d, self.body_center_2d, self.body_top_left_3d,\
+            self.body_top_right_3d, self.body_bottom_right_3d, self.body_bottom_left_3d,\
+            self.body_center_3d)
 
-    def __init__(self, top_left_2d, top_right_2d, bottom_right_2d,\
-        bottom_left_2d, center_2d, top_left_3d, top_right_3d,\
-        bottom_right_3d, bottom_left_3d, center_3d):
-            self.top_left_2d = top_left_2d
-            self.top_right_2d = top_right_2d
-            self.bottom_right_2d = bottom_right_2d
-            self.bottom_left_2d = bottom_left_2d
-            self.center_2d = center_2d
-            self.top_left_3d = top_left_3d
-            self.top_right_3d = top_right_3d
-            self.bottom_right_3d = bottom_right_3d
-            self.bottom_left_3d = bottom_left_3d
-            self.center_3d = center_3d
+    def __init__(self, body_top_left_2d, body_top_right_2d,\
+        body_bottom_right_2d, body_bottom_left_2d, body_center_2d,\
+        body_top_left_3d, body_top_right_3d, body_bottom_right_3d,\
+        body_bottom_left_3d, body_center_3d):
+            self.body_top_left_2d = body_top_left_2d
+            self.body_top_right_2d = body_top_right_2d
+            self.body_bottom_right_2d = body_bottom_right_2d
+            self.body_bottom_left_2d = body_bottom_left_2d
+            self.body_center_2d = body_center_2d
+            self.body_top_left_3d = body_top_left_3d
+            self.body_top_right_3d = body_top_right_3d
+            self.body_bottom_right_3d = body_bottom_right_3d
+            self.body_bottom_left_3d = body_bottom_left_3d
+            self.body_center_3d = body_center_3d
 
     def getHeight(self):
-        
+        return self.body_top_left_2d[1] - self.body_bottom_left_2d[1]
