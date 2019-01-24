@@ -45,18 +45,29 @@ AGE_MAP = {'(0, 2)':"child",'(4, 6)':"child",'(8, 12)':"child",\
 MAX_BATCH_SZ = 128
 
 WHITE = [255, 255, 255]
+
+# This is the minimum height and width for an image sent to rude carnie for
+# an age and gender guess
 TARGET_IMG_HEIGHT = 231
 TARGET_IMG_WIDTH = 231
 
+# the marionette will recoginze up to the last NUM_PEOPLE_TO_REMEMBER people
+# it has seen
 NUM_PEOPLE_TO_REMEMBER = 100
+
+# This determines whether a triangulation algorithm is used to determine the
+# 3d coordinates of a person or person's face. It is set to False by default
+# because it doesn't work well when there is only one camera.
 USE_TRIANGULATION = False
 
+# This variable is used in the getAgeAndGender function. It is explained there
 SECOND_PROB_THRESHOLD = 0.3
 
 
 class PersonSensor(Sensor):
     """
-    Use the BodyPartDetector to sense a person
+    Class used to detect faces and bodies in front of the marionette and
+    bodies behind the marionette.
     """
     def __init__(self, camera, tf_sess):
         Sensor.__init__(self, camera)
@@ -75,10 +86,15 @@ class PersonSensor(Sensor):
         self.known_face_encodings = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
         self.known_face_numbers = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
 
+        # the image is divided by this number when reducing its size to speed up
+        # processing
         self.scaling_factor = 1.1
+
         self.front_frame_process_timer = 0
         self.back_frame_process_timer = 0
-        self.frame_process_stride = 32 #corresponds to processing roughly 1 frame every 2 seconds
+
+        # 16 corresponds to processing roughly 1 frame every second
+        self.frame_process_stride = 32
 
         self.face_names = []
         self.face_locations = []
@@ -97,14 +113,21 @@ class PersonSensor(Sensor):
 
 
     def detectUndetectedPersons(self):
-        #RUDE CARNIE DEFAULTS
-
-        print("starting the process to detect people's age and gender...")
+        """
+            On a loop, checks if there are faces added to the queue whose age
+            and gender haven't been guessed yet. If there are any such faces,
+            guesses their age and gender and updates the necessary Person object
+            with this information.
+        """
+        print "starting the process to detect people's age and gender..."
 
         gender_model_dir = "./age_and_gender_detection/pretrained_checkpoints/gender/"
         age_model_dir = "./age_and_gender_detection/pretrained_checkpoints/age/"
+
         # What processing unit to execute inference on
+        # use CPU to free up GPU for face detection
         device_id = '/device:CPU:0'
+
         # Checkpoint basename
         checkpoint = 'checkpoint'
         model_type = 'inception'
@@ -122,7 +145,7 @@ class PersonSensor(Sensor):
             n_genders = len(GENDER_LIST)
             gender_model_fn = select_model(model_type)
 
-            print("initializing the model to detect age and gender")
+            print "initializing the model to detect age and gender"
 
             with tf.device(device_id):
 
@@ -156,7 +179,7 @@ class PersonSensor(Sensor):
 
                 writer = None
 
-                print("starting the loop for detecting age and gender in each frame")
+                print "starting the loop for detecting age and gender in each frame"
 
                 while True:
                     self.undetected_persons_lock.acquire()
@@ -174,6 +197,10 @@ class PersonSensor(Sensor):
     def getAgeAndGender(self, person_number, target_image, sess, coder, images,\
         writer, age_list, gender_list, age_softmax_output,\
         gender_softmax_output):
+        """
+            Guesses the age and gender of the person in target_image and updates
+            the Person object pointed to by person_number with this information
+        """
 
         (age_range, age_range_prob), (age_range_guess_2, age_range_guess_2_prob) =\
             classify_one_multi_crop(sess, age_list, age_softmax_output, coder,\
@@ -184,6 +211,11 @@ class PersonSensor(Sensor):
         first_age_guess = AGE_MAP[age_range]
         second_age_guess = AGE_MAP[age_range_guess_2]
         final_age_guess = first_age_guess
+
+        # This block of logic works as follows:
+        # If the second most likely age guess is a different age category than
+        # the first, and the second guess has a probability greater than
+        # SECOND_PROB_THRESHOLD, then use it as the final guess.
 
         if first_age_guess != second_age_guess and age_range_guess_2_prob > SECOND_PROB_THRESHOLD:
             final_age_guess = second_age_guess
@@ -201,6 +233,11 @@ class PersonSensor(Sensor):
 
     def getPersonsAndPersonBodies(self, previousPersons, previousPersonBodies,\
         getPersonBodies=True):
+        """
+        Returns a list of Person objects and a list of PersonBody objects
+        as seen by the front camera of the marionette.
+
+        """
 
         if self.front_frame_process_timer == self.frame_process_stride:
             self.front_frame_process_timer = 0
@@ -262,8 +299,10 @@ class PersonSensor(Sensor):
 
                 #To experiment with zooming instead of adding padding/in
                 # addition to adding padding
+                # Note after testing zoom, I found it to worsen the guess quality
+                # (even a tiny zoom of 1.1)
                 # face_close_up = cv2.resize(face_close_up, (0, 0),
-                #         fx=8.0, fy=8.0)
+                #         fx=2.0, fy=2.0)
 
                 # add padding so that image meets minimum image size requirement
                 # of rude carnie
@@ -327,7 +366,7 @@ class PersonSensor(Sensor):
             bottom = int(bottom*self.scaling_factor)
             left = int(left*self.scaling_factor)
 
-            # Draw a box around the face
+            # Draw a red box around the face
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
             # Draw a label with a name below the face
@@ -338,6 +377,7 @@ class PersonSensor(Sensor):
                 0, 0), 1)
 
         for personBody in personBodies:
+            # Draw a green box around the body
             cv2.rectangle(frame, (personBody.body_top_left_2d),\
                 (personBody.body_bottom_right_2d), (255, 0, 0), 2)
 
@@ -352,8 +392,7 @@ class PersonSensor(Sensor):
             Detects bodies.
             Params:
             frame (numpy.ndarray) : the frame to detect bodies in
-            Returns a list of PersonBody objects and the original
-            frame with the bodies highlighted.
+            Returns a list of PersonBody objects
         """
     	# detect people in the image
     	(rects, weights) = self.hog.detectMultiScale(frame, winStride=(4, 4),
@@ -438,6 +477,12 @@ class PersonSensor(Sensor):
 
 
     def get3dPointFrom2dPoint(self, point_cam_0, point_cam_1=None):
+        """
+            This function can either triangulate a 3D point estimate based on
+            2 different camera's views of a given object or simply returns a
+            3d point estimate for where the marionette should look to see this
+            point based on the point's 2d coordinates.
+        """
         # TODO: Experiment using triangulation or simply appending 1
         if USE_TRIANGULATION:
             #for now use point_cam_1 = point_cam_0
@@ -455,6 +500,11 @@ class PersonSensor(Sensor):
 
             return point3d
         else:
+            #NOTE FROM ISHAAN TO ALEX: For now I just append a 1 in the z-coordinate
+            # of the 2d point to convert it to 3d. Once I have the entire marionette
+            # pipeline to play with, I will refine this so that based on where the camera
+            # is located, and based on the 2d points it sees, we can figure out exactly
+            # where the marionette should look in its own 3d coordinate system.
             return (point_cam_0[0], point_cam_0[1], 1)
 
 

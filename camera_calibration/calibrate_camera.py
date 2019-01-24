@@ -1,9 +1,17 @@
+"""
+Given 10 chessboard photos taken with one camera and 10 taken with another this
+script computes the 3x4 camera projection matrices for each of these cameras.
+It writes the matrices to "projection_mtx_0.npy" and "projection_mtx_1.npy"
+respectively.
+"""
+
 import numpy as np
 import cv2
 import glob
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
 dim_0 = 6
 dim_1 = 7
 
