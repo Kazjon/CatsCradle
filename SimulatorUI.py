@@ -158,9 +158,9 @@ class App(QWidget):
         # Speed values for the head motor are 400-800
         motor = self.marionette.motor['H']
         slider = self.sliderSpeed[motor]
-        slider.setMinimum(30)
-        slider.setMaximum(125)
-        slider.setValue(30)
+        slider.setMinimum(10)
+        slider.setMaximum(60)
+        slider.setValue(20)
 
         # Disable Rigth Arm slider since there is no motor on that joint
         motor = self.marionette.motor['AR']

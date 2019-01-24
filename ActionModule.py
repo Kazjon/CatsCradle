@@ -35,11 +35,12 @@ class ActionModule(object):
 
         # TODO: hardcoded configs?
         gesture_files = {
-            "neutral": "gestures/neutral_gestures.csv",
+            "automatic": "gestures/automatic_gestures.csv",
             "fear": "gestures/fear_gestures.csv",
-            "happy": "gestures/longing_gestures.csv",
+            "longing": "gestures/longing_gestures.csv",
             "sad": "gestures/sad_gestures.csv",
-            "shame": "gestures/shame_gestures.csv"
+            "shame": "gestures/shame_gestures.csv",
+	    "surprise": "gestures/surprise_gestures.csv"
         }
 
         # contains a dictionary of emotions to sequences

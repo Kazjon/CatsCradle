@@ -19,15 +19,15 @@ class Audience:
     def update(self, tf_sess):
         self.previousPersons = self.persons
         self.previousPersonBodies = self.personBodies
-        self.previousPersonBodiesBehindMarionette =\
-            self.personBodiesBehindMarionette
+        #self.previousPersonBodiesBehindMarionette =\
+        #    self.personBodiesBehindMarionette
 
         self.persons, self.personBodies =\
             self.personSensor.getPersonsAndPersonBodies\
             (self.previousPersons, self.previousPersonBodies)
 
-        self.personBodiesBehindMarionette = self.personSensor.\
-            getPersonBodiesOnly(self.previousPersonBodiesBehindMarionette)
+        #self.personBodiesBehindMarionette = self.personSensor.\
+        #    getPersonBodiesOnly(self.previousPersonBodiesBehindMarionette)
         # print "Num persons =", len(self.persons)
         # for person in self.persons:
         #     print(person)

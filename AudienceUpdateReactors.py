@@ -12,6 +12,8 @@ class ThreateningPersonDetector(AudienceReactor):
         found = False
         for person in self.audience.persons:
             if person.isAdult() and len(person.faceSizeHistory):
+                if person.faceSizeHistory is None or person.faceSizeHistory[0] is None:
+		    continue
                 if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.size_ratio_threshold:
                     self.targets.append(person)
                     found = True

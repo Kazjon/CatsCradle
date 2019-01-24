@@ -39,7 +39,7 @@ simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., math.sqrt(8) / 3., 0],
                              [-1. / 3., -math.sqrt(2) / 3., math.sqrt(2. / 3.)],
                              [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
-EMOTION_LABELS = ["fear", "anger", "happiness", "shame"]
+EMOTION_LABELS = ["fear", "anger", "longing", "shame"]#, "surprise", "sad"]
 
 def softmax(x):
     '''Compute softmax values for each sets of scores in x.  Used to normalise emotion vectors.'''

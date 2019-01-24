@@ -92,7 +92,7 @@ class PersonSensor(Sensor):
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
-        self.front_camera = None
+        self.front_camera = camera
         self.back_camera = None
 
 
@@ -228,10 +228,10 @@ class PersonSensor(Sensor):
         if self.front_frame_process_timer == 1:
             # Find all the faces and face encodings in the current frame of
             # video
+            #self.face_locations = face_recognition.face_locations\
+            #    (rgb_small_frame, number_of_times_to_upsample=3, model="cnn")
             self.face_locations = face_recognition.face_locations\
-                (rgb_small_frame, number_of_times_to_upsample=3, model="cnn")
-            # self.face_locations = face_recognition.face_locations\
-            #     (rgb_small_frame)
+                (rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
 
@@ -385,34 +385,34 @@ class PersonSensor(Sensor):
 
         return personBodies
 
-    def getPersonBodiesOnly(self, previousPersonBodiesBehindMarionette):
+#    def getPersonBodiesOnly(self, previousPersonBodiesBehindMarionette):
         """
             This function returns a list of PersonBody objects detected by the
             back camera.
         """
 
-        personBodiesBehindMarionette = previousPersonBodiesBehindMarionette
+#        personBodiesBehindMarionette = previousPersonBodiesBehindMarionette
 
-        if self.back_frame_process_timer == self.frame_process_stride:
-            self.back_frame_process_timer = 0
-        else:
-            self.back_frame_process_timer += 1
+ #       if self.back_frame_process_timer == self.frame_process_stride:
+ #           self.back_frame_process_timer = 0
+ #       else:
+ #           self.back_frame_process_timer += 1
 
         # Grab a single frame of video
-        ret, frame = self.back_camera.read()
+ #       ret, frame = self.back_camera.read()
 
         # Process frames periodically
-        if self.back_frame_process_timer == 1:
-            personBodiesBehindMarionette = self.getPersonBodies(frame)
+ #       if self.back_frame_process_timer == 1:
+ #           personBodiesBehindMarionette = self.getPersonBodies(frame)
 
 
-        for personBody in personBodiesBehindMarionette:
-            cv2.rectangle(frame, (personBody.body_top_left_2d),\
-                (personBody.body_bottom_right_2d), (0, 255, 0), 2)
+ #       for personBody in personBodiesBehindMarionette:
+ #           cv2.rectangle(frame, (personBody.body_top_left_2d),\
+ #               (personBody.body_bottom_right_2d), (0, 255, 0), 2)
 
-        cv2.imshow('Back Video', frame)
+ #       cv2.imshow('Back Video', frame)
 
-        return personBodiesBehindMarionette
+ #       return personBodiesBehindMarionette
 
 
     def _multiply_points(self, p1, p2):

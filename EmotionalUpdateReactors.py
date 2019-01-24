@@ -20,15 +20,16 @@ class MaleShameReactor(EmotionalReactor):
         EmotionalReactor.__init__(self,em, aud)
 
     def detect(self):
-        if not len(self.audience.persons) > 2:
+        if not len(self.audience.persons) > 0:
             return False
-        males = 0.0
-        for person in self.audience.persons:
-            if person.gender == "M":
-                males += 1
-        if males/len(self.audience.persons) > 0.6:
-            return True
-        return False
+        #males = 0.0
+        #for person in self.audience.persons:
+        #    if person.gender == "M":
+        #        males += 1
+        #if males/len(self.audience.persons) > 0.6:
+        #    return True
+        #return False
+	return True
 
     def effect(self):
         return {"shame":0.05}
