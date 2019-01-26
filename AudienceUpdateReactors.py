@@ -11,7 +11,7 @@ class ThreateningPersonDetector(AudienceReactor):
     def detect(self):
         found = False
         for person in self.audience.persons:
-            if person.isAdult() and len(person.faceSizeHistory):
+            if person.getAgeRange()=="adult" and len(person.faceSizeHistory):
                 if person.faceSizeHistory is None or person.faceSizeHistory[0] is None:
                     continue
                 if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.size_ratio_threshold:
@@ -42,4 +42,34 @@ class DefaultInterestReactor(AudienceReactor):
     def effect(self):
         # Append the default level of interest to the closest person
         self.closest.interestingness += self.default_interest
+
+# This reactor detects how many people are in the room and reacts.
+class RoomFullnessReactor(AudienceReactor):
+    def __init__(self, em, aud, default_interest=1):
+        AudienceReactor.__init__(self, em, aud)
+
+    def detect(self):
+        #If the room is empty, add longing
+        #If there are a few people, add fear for males, shame for females and seniors, and longing for children
+        #If the room is full, add shame
+        #If there are a lot of children, add longing and interest to all children
+        return False
+
+    def effect(self):
+        pass
+
+# Update who is moving quickly (or standing still) and then react based on proportions
+class MovementReactor(AudienceReactor):
+    def __init__(self, em, aud, default_interest=1):
+        AudienceReactor.__init__(self, em, aud)
+
+    def detect(self):
+        #Detect anyone who hasn't moved for the last while, add "Still" tag, interest and fear
+        #Detect anyone who has moved a lot for the last while, add "Moving" tag, interest and glance
+        #Anyone who doesn't quality for one of those tags should have both removed
+        return False
+
+
+    def effect(self):
+        pass
 

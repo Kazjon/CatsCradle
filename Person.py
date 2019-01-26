@@ -9,10 +9,17 @@ from collections import deque
 from scipy.spatial import distance
 from threading import Lock
 
+import time
+
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
 INTEREST_DECAY = 0.99
 FACE_HISTORY_LENGTH = 10
+INTEREST_DECAY_INTERVAL = 0.1 #seconds between applying INTEREST_DECAY
+NEW_INTERACTION_TIMEOUT = 3 #seconds someone can go missing before their movement history is thrown out
+
+
+
 
 def face_size(face_top_left, face_bottom_right):
     """
@@ -36,8 +43,9 @@ class Person:
         self.id = personCount
         self.labels = Set()
         self.interestingness = 0
+        self.last_seen = time.time()
         # detector
-        self.bodyDetector = BodyPartDetector()
+        #self.bodyDetector = BodyPartDetector()
         # Person's properties
         self.gender = 'Unkown'
         # As soon as a Person object is created, the age/gender detection thread
@@ -80,6 +88,7 @@ class Person:
         # differences from average face for easy cosine comparisons
 
         self.roi = roi
+        '''
         # TODO: Find the best tracker type
         trackerType = 'KCF'
         if False:
@@ -101,11 +110,15 @@ class Person:
                 print "Invalid tracker type", trackerType
 
         ok = self.tracker.init(frame, self.roi)
+        '''
 
     def updateFace(self, (face_top_left_2d, face_top_right_2d,\
         face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
         face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
         face_bottom_left_3d, face_center_3d)):
+
+        if time.time() - self.last_seen > INTEREST_DECAY_INTERVAL:
+            self.updateInterest()
 
         self.face_top_left_2d = face_top_left_2d
         self.face_top_right_2d = face_top_right_2d
@@ -125,6 +138,14 @@ class Person:
             face_bottom_left_3d, face_center_3d))
         self.faceSizeHistory.appendleft(face_size(face_top_left_2d,\
             face_bottom_right_2d))
+
+        self.last_seen = time.time()
+
+    #Called when a match is found against a previous person, but before updateFace is called on them.
+    def reappear(self):
+        if time.time() - self.last_seen > NEW_INTERACTION_TIMEOUT:
+            self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+            self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
 
     def updateInterest(self):
         self.interestingness *= INTEREST_DECAY
@@ -176,10 +197,6 @@ class Person:
                     2, cv2.LINE_AA)
 
         return frame
-
-    #TODO: Replace this when the age-and-gender stuff is in properly.
-    def isAdult(self):
-        return True
 
 
 if __name__ == '__main__':

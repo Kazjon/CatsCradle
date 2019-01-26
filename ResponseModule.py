@@ -44,20 +44,6 @@ class ResponseModule(object):
         self.responders = []
         self.loadResponders(action_module)
 
-        '''Disabled gesture list stuff -- may or may not end up using this
-        with open(gesture_list) as f:
-            reader = csv.reader(f)
-            for row in reader:
-                g_pos = np.asarray([float(r) for r in row[:4]])
-                if any(g_pos<0):
-                    raise ValueError("Found a response definition with an emotional component below 0.")
-                if any(g_pos>1):
-                    raise ValueError("Found a response definition with an emotional component above 1.")
-                if not sum(g_pos) == 1.:
-                    raise ValueError("Found a response definition with an emotional component that didn't sum to 1.")
-                gestures.append((g_pos,row[4:]))
-        '''
-
     def loadResponders(self, action_module):
         baseResponders = ["Responder"]
         # Load Emotional Responders (respodners that trigger based on the state of the audience and  for other reactors to work with)

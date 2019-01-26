@@ -53,7 +53,7 @@ TARGET_IMG_WIDTH = 231
 
 # the marionette will recoginze up to the last NUM_PEOPLE_TO_REMEMBER people
 # it has seen
-NUM_PEOPLE_TO_REMEMBER = 100
+NUM_PEOPLE_TO_REMEMBER = 1000
 
 # This determines whether a triangulation algorithm is used to determine the
 # 3d coordinates of a person or person's face. It is set to False by default
@@ -69,18 +69,12 @@ class PersonSensor(Sensor):
     Class used to detect faces and bodies in front of the marionette and
     bodies behind the marionette.
     """
-    def __init__(self, camera, tf_sess):
+    def __init__(self, camera, tf_sess, frame_division_factor=4, face_detection_frameskip=8):
         Sensor.__init__(self, camera)
 
         #self.cv_path = cv_path
         self.bodyDetector = BodyPartDetector()
         self.show = False
-
-        # TODO: Get proper standard values (mm)
-        self.standardBodyWidth = 500
-        self.standardBodyHeight = 1700
-        self.standardFaceWidth = 200
-        self.standardFaceHeight = 400
 
         # Create arrays of known face encodings and their names
         self.known_face_encodings = deque(maxlen=NUM_PEOPLE_TO_REMEMBER)
@@ -88,13 +82,13 @@ class PersonSensor(Sensor):
 
         # the image is divided by this number when reducing its size to speed up
         # processing
-        self.scaling_factor = 1.1
+        self.scaling_factor = frame_division_factor
 
         self.front_frame_process_timer = 0
         self.back_frame_process_timer = 0
 
         # 16 corresponds to processing roughly 1 frame every second
-        self.frame_process_stride = 32
+        self.frame_process_stride = face_detection_frameskip
 
         self.face_names = []
         self.face_locations = []
@@ -232,7 +226,7 @@ class PersonSensor(Sensor):
             person.ageRange = final_age_guess
 
     def getPersonsAndPersonBodies(self, previousPersons, previousPersonBodies,\
-        getPersonBodies=True):
+        getPersonBodies=True, cnn_detection=False):
         """
         Returns a list of Person objects and a list of PersonBody objects
         as seen by the front camera of the marionette.
@@ -254,7 +248,7 @@ class PersonSensor(Sensor):
         # Resize frame of video to 1/4 size for faster face recognition
         # processing
         small_frame = cv2.resize(frame, (0, 0),
-                fx=(1/self.scaling_factor), fy=(1/self.scaling_factor))
+                fx=(1./self.scaling_factor), fy=(1./self.scaling_factor))
 
         # Convert the image from BGR color (which OpenCV uses) to RGB color
         # (which face_recognition uses)
@@ -265,10 +259,12 @@ class PersonSensor(Sensor):
         if self.front_frame_process_timer == 1:
             # Find all the faces and face encodings in the current frame of
             # video
-            #self.face_locations = face_recognition.face_locations\
-            #    (rgb_small_frame, number_of_times_to_upsample=3, model="cnn")
-            self.face_locations = face_recognition.face_locations\
-                (rgb_small_frame)
+            if cnn_detection:
+                self.face_locations = face_recognition.face_locations\
+                    (rgb_small_frame, number_of_times_to_upsample=3, model="cnn")
+            else:
+                self.face_locations = face_recognition.face_locations\
+                    (rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings\
                 (rgb_small_frame, self.face_locations)
 
@@ -317,6 +313,7 @@ class PersonSensor(Sensor):
                     person_number = self.known_face_numbers[first_match_index]
                     name = "Person %d"%person_number
                     person = self.known_face_numbers_to_person_objects[person_number]
+                    person.reappear()
                     person.updateFace(self.get2dAnd3dCoordsFromLocation\
                         (top, right, bottom, left))
                     persons.append(person)

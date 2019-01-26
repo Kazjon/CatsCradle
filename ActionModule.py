@@ -26,7 +26,7 @@ from time import sleep
 
 class ActionModule(object):
 
-    def __init__(self, dummy=True):
+    def __init__(self, dummy=False):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """

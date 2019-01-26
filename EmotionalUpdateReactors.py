@@ -1,6 +1,7 @@
 from Reactor import EmotionalReactor
 
 #Induces slowly mounting fear when the room is empty
+#TODO: Roll this into the room fullness thing
 class LonelinessReactor(EmotionalReactor):
     def __init__(self, em, aud):
         EmotionalReactor.__init__(self,em, aud)

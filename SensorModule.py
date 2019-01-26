@@ -18,13 +18,15 @@ from threading import Thread
 
 class SensorModule(object):
 
-    def __init__(self,config,emotion_module):
+    def __init__(self,config,emotion_module, getPersonBodies=False, cnn_detection=False):
         self.config = config
         self.emotion_module = emotion_module
         self.cameras = []
         self.personSensor = None
         self.audience = None
         self.reactors = []
+        self.getPersonBodies = getPersonBodies
+        self.cnn_detection = cnn_detection
 
 
     def loadSensors(self,tf_sess):
@@ -45,7 +47,7 @@ class SensorModule(object):
 
 
     def update(self):
-        self.audience.update(self.config["tf_sess"])
+        self.audience.update(self.config["tf_sess"], getPersonBodies=self.getPersonBodies, cnn_detection=self.cnn_detection)
         for reactor in self.reactors:
             reactor.update()
         self.emotion_module.update(self.audience)
