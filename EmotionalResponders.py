@@ -7,7 +7,7 @@ class IdleResponder(Responder):
     def __init__(self, action_module, p=0.1):
         Responder.__init__(self,action_module, p)
         self.emotional_gestures = {e:[] for e in EMOTION_LABELS}
-        self.emotional_gestures["automatic"] = []
+        self.emotional_gestures["neutral"] = []
         for e,g_list in self.emotional_gestures.iteritems():
             for gesture in action_module.emotionToSeq.keys():
                 if gesture.startswith(e):
@@ -22,11 +22,11 @@ class IdleResponder(Responder):
                         emotion_quantity = max(0,emotion_quantity)
                         emotion_quantity *= 1.33
                         if random() < emotion_quantity:
-			    print "Responding to:", emotion_name
+                            print "Responding to:", emotion_name
                             self.action_module.executeGesture(choice(self.emotional_gestures[emotion_name]))
-                if len(self.emotional_gestures["automatic"]):
-		    print "Automatic Gesture"
-                    self.action_module.executeGesture(choice(self.emotional_gestures["automatic"]))
+                if len(self.emotional_gestures["neutral"]):
+                    print "Neutral Gesture"
+                    self.action_module.executeGesture(choice(self.emotional_gestures["neutral"]))
 
 
 

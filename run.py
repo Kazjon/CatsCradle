@@ -13,11 +13,12 @@ import tensorflow as tf
 
 import cv2
 
+import sys
+
 from multiprocessing import Process
 
 if __name__ == "__main__":
-
-    actionModule = ActionModule()
+    actionModule = ActionModule(dummy="--dummy" in sys.argv)
     config = tf.ConfigProto(allow_soft_placement=True)
 
     print('Loaded Action Module...\n')

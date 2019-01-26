@@ -13,7 +13,7 @@ class ThreateningPersonDetector(AudienceReactor):
         for person in self.audience.persons:
             if person.isAdult() and len(person.faceSizeHistory):
                 if person.faceSizeHistory is None or person.faceSizeHistory[0] is None:
-		    continue
+                    continue
                 if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.size_ratio_threshold:
                     self.targets.append(person)
                     found = True
@@ -25,7 +25,7 @@ class ThreateningPersonDetector(AudienceReactor):
             person.labels.add("Threat")
 
 
-# This reactor detects when an adult has rapidly approached the piece and labels them a threat.
+# This reactor adds a small amount of interest to whoever is closest -- just as a test of the interest system.
 class DefaultInterestReactor(AudienceReactor):
     def __init__(self, em, aud, default_interest=1):
         AudienceReactor.__init__(self, em, aud)

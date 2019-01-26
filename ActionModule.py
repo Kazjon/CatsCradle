@@ -13,6 +13,7 @@ import json
 import os
 import glob
 import csv
+import warnings
 
 import ArduinoCommunicator
 import time
@@ -25,30 +26,29 @@ from time import sleep
 
 class ActionModule(object):
 
-    def __init__(self, movement_list_fn="gestures/Positions.json"):
+    def __init__(self, dummy=True):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """
+
+        self.dummy = dummy
 
         # this variable is True when no gestures are being executed
         self.isIdle = True
 
         # TODO: hardcoded configs?
         gesture_files = {
-            "automatic": "gestures/automatic_gestures.csv",
+            "neutral": "gestures/neutral_gestures.csv",
             "fear": "gestures/fear_gestures.csv",
             "longing": "gestures/longing_gestures.csv",
             "sad": "gestures/sad_gestures.csv",
-            "shame": "gestures/shame_gestures.csv",
-	    "surprise": "gestures/surprise_gestures.csv"
+            "shame": "gestures/shame_gestures.csv"
+	        #"surprise": "gestures/surprise_gestures.csv"
         }
 
         # contains a dictionary of emotions to sequences
         self.emotionToSeq = {}
 
-        # TODO: duplicate read of positions.json file
-        with open(movement_list_fn, "r") as pf:
-            self.movements = sorted(json.load(pf).keys())
 
         # reading gesture files
         for gesture_type, filename in gesture_files.iteritems():
@@ -57,15 +57,6 @@ class ActionModule(object):
                 reader.next()
                 for row in reader:
                     self.emotionToSeq[gesture_type + "_" + row[1]] = row[2:]
-
-        # double checking to see if all sequences contains valid items
-        for name, gesture in self.emotionToSeq.iteritems():
-            for i, movement in enumerate(gesture):
-                try:
-                    gesture[i] = float(movement)
-                except ValueError:
-                    if movement not in self.movements:
-                        raise ValueError("Found a movement within a gesture that was not defined in "+movement_list_fn+": "+movement+" in "+name+".")
 
         # Read the positions from the Positions.json file
         self.positions = {}
@@ -139,85 +130,102 @@ class ActionModule(object):
 
 
     def stop(self):
-        if self.running:
+        if self.dummy:
+            print "Dummy ActionModule stopped."
+        elif self.running:
             self.running = False
             self.arduino_thread.join()
 
 
     def start(self):
-        if not self.running:
+        if self.dummy:
+            print "Dummy ActionModule started."
+            self.running = True
+            self.arduino_thread = threading.Thread()
+        elif not self.running:
             # Starts the thread
             self.running = True
-            self.arduino_thread = threading.Thread(name='Arduino', target=self.threadFunc)
+            self.arduino_thread = threading.Thread(name='Arduino', target=self.threadFunc, args=(self.dummy,))
             self.arduino_thread.setDaemon(True)
             self.arduino_thread.start()
 
 
-    def threadFunc(self):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
-        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
+    def threadFunc(self, dummy):
+        if dummy:
+            while(self.running):
+                if not self.qMotorCmds.empty():
+                    self.isIdle = False
+                    cmds = self.qMotorCmds.get()
+                    for cmd in cmds:
+                        id = self.arduinoID[cmd[0]]
+                        angle = int(cmd[1])
+                        speed = int(cmd[2])
+                        print "id:",id," angle:",angle," speed:",speed
+        else:
+            self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
+            self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
-        while(self.running):
-            if not self.qMotorCmds.empty():
-                self.isIdle = False
-                cmds = self.qMotorCmds.get()
-                eyeMotion = False
-                eyeAngleX = 90 # The eye angles needs an int. If it should be None,
-                eyeAngleY = 90 # speed will be 0 and no motion will be triggered
-                eyeSpeedX = 0
-                eyeSpeedY = 0
-                self.targetReached = False
-                for cmd in cmds:
-                    # print "step = ", step
-                    id = self.arduinoID[cmd[0]]
-                    angle = int(cmd[1])
-                    speed = int(cmd[2])
-                    if angle is None or speed == 0:
-                        # No motion
-                        continue
-                    if id == -1:
-                        # Obsolete motor AR
-                        continue
-                    if id == 'head':
-                        self.ac.rotateHead(angle, speed)
-                    elif id == 'shoulder':
-                        self.ac.rotateShoulder(angle, speed)
-                    elif id == 'eyeX':
-                        eyeMotion = True
-                        eyeAngleX = angle
-                        eyeSpeedX = speed
-                    elif id == 'eyeY':
-                        eyeMotion = True
-                        eyeAngleY = angle
-                        eyeSpeedY = speed
-                    else:
-                        # Other motors
-                        self.ac.rotateStringMotor(id, angle, speed)
+            while(self.running):
+                if not self.qMotorCmds.empty():
+                    self.isIdle = False
+                    cmds = self.qMotorCmds.get()
+                    eyeMotion = False
+                    eyeAngleX = 90 # The eye angles needs an int. If it should be None,
+                    eyeAngleY = 90 # speed will be 0 and no motion will be triggered
+                    eyeSpeedX = 0
+                    eyeSpeedY = 0
+                    self.targetReached = False
+                    for cmd in cmds:
+                        # print "step = ", step
+                        id = self.arduinoID[cmd[0]]
+                        angle = int(cmd[1])
+                        speed = int(cmd[2])
+                        if angle is None or speed == 0:
+                            # No motion
+                            continue
+                        if id == -1:
+                            # Obsolete motor AR
+                            continue
+                        if id == 'head':
+                            self.ac.rotateHead(angle, speed)
+                        elif id == 'shoulder':
+                            self.ac.rotateShoulder(angle, speed)
+                        elif id == 'eyeX':
+                            eyeMotion = True
+                            eyeAngleX = angle
+                            eyeSpeedX = speed
+                        elif id == 'eyeY':
+                            eyeMotion = True
+                            eyeAngleY = angle
+                            eyeSpeedY = speed
+                        else:
+                            # Other motors
+                            self.ac.rotateStringMotor(id, angle, speed)
 
-                if eyeMotion:
-                    self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
+                    if eyeMotion:
+                        self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
 
-            # Read from the arduino
-            receivedData = self.ac.receive()
-            if receivedData != '':
-		#print "received data: ", receivedData
-                self.updateAnglesFromFeedback(receivedData)
+                # Read from the arduino
+                receivedData = self.ac.receive()
+                if receivedData != '':
+                    #print "received data: ", receivedData
+                    self.updateAnglesFromFeedback(receivedData)
 
-            # Check for target reached:
-            if self.checkTargetReached():
-                self.targetReached = True
-                self.isIdle = True
-                #print "Target reached!!!!!"
+                # Check for target reached:
+                if self.checkTargetReached():
+                    self.targetReached = True
+                    self.isIdle = True
+                    #print "Target reached!!!!!"
 
         print "Arduino thread stopped"
 
 
     def checkTargetReached(self):
-	for angleIndex in range(0, len(self.currentAngles)):
-	    # ignoring head rotation motor
+        for angleIndex in range(0, len(self.currentAngles)):
+            # ignoring head rotation motor
             if angleIndex == self.arduinoIDToAngleIndex['h']:
-		continue
-	    if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
+                continue
+            if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
                 return False
         return True
 
