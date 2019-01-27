@@ -11,10 +11,12 @@ SensorModule (Handles all the sensory data with the exception of the in-head IMU
 from Camera import Camera
 from PersonSensor import PersonSensor,DummyPersonSensor
 from Audience import Audience
-import AudienceUpdateReactors
 import EmotionalUpdateReactors
 import inspect
+import time
 from threading import Thread
+
+REACTOR_UPDATE_INTERVAL = 0.1 #Min seconds between reactor updates
 
 class SensorModule(object):
 
@@ -26,6 +28,7 @@ class SensorModule(object):
         self.audience = None
         self.reactors = []
         self.getPersonBodies = False
+        self.last_updated_reactors = 0
         if "getPersonBodies" in config.keys():
             self.getPersonBodies = config["getPersonBodies"]
         if config["perception_mode"] == "full":
@@ -48,11 +51,7 @@ class SensorModule(object):
 
 
     def loadReactors(self):
-        baseReactors = ["Reactor", "AudienceReactor", "EmotionalReactor"]
-        # Load Audience Updaters (reactors that only change the audience state for other reactors to work with)
-        for r in dir(AudienceUpdateReactors):
-            if r not in baseReactors and inspect.isclass(getattr(AudienceUpdateReactors,r)):
-                self.reactors.append(getattr(AudienceUpdateReactors, r)(self.emotion_module,self.audience))
+        baseReactors = ["Reactor", "EmotionalReactor"]
         # Load Emotional Updaters (reactors that only change the audience state for other reactors to work with)
         for r in dir(EmotionalUpdateReactors):
             if r not in baseReactors and inspect.isclass(getattr(EmotionalUpdateReactors,r)):
@@ -61,8 +60,11 @@ class SensorModule(object):
 
     def update(self):
         self.audience.update(self.config["tf_sess"], getPersonBodies=self.getPersonBodies, cnn_detection=self.cnn_detection)
-        for reactor in self.reactors:
-            reactor.update()
+        t = time.time()
+        if t - self.last_updated_reactors > REACTOR_UPDATE_INTERVAL:
+            self.last_updated_reactors = t
+            for reactor in self.reactors:
+                reactor.update()
         self.emotion_module.update(self.audience)
 
 
