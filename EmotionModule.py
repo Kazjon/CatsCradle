@@ -15,25 +15,6 @@ matplotlib.use("QT5Agg")
 import matplotlib.pyplot as plt
 plt.ion()
 
-class DummyEmotionModule(object):
-
-    def __init__(self,config,response_module):
-        self.response_module = response_module
-
-    def update(self, audience):
-        # Temp implementation to link all modules
-        # TODO: Implement Emotion of the marionette (Kaz)
-        numPersons = len(audience.persons)
-        if numPersons < 1:
-            self.response_module.setEmotion('emotion0')
-        elif numPersons == 1:
-            self.response_module.setEmotion('emotion1', audience.persons[0])
-        else:
-            self.response_module.setEmotion('emotion2')
-
-
-
-
 #The points in 3d space on the 3-simplex (i.e. form a tetrahedron) and thus represent the four emotions.
 simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., math.sqrt(8) / 3., 0],

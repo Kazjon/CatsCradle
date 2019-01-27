@@ -47,7 +47,7 @@ class ActionModule(object):
         }
 
         # contains a dictionary of emotions to sequences
-        self.emotionToSeq = {}
+        self.gestureNameToSeq = {}
 
 
         # reading gesture files
@@ -56,10 +56,11 @@ class ActionModule(object):
                 reader = csv.reader(f)
                 reader.next()
                 for row in reader:
-                    self.emotionToSeq[gesture_type + "_" + row[1]] = row[2:]
+                    self.gestureNameToSeq[gesture_type + "_" + row[1]] = row[2:]
 
         # Read the positions from the Positions.json file
         self.positions = {}
+
 
         # Read the positions from the json files
         fileList = ["Positions.json"]
@@ -119,49 +120,55 @@ class ActionModule(object):
         self.arduinoIDToAngleIndex['e,y'] = 13  # "Eye vertical"
 
         # Thread related variables
-        self.qMotorCmds = Queue.Queue()
+        self.movementCount = long(0)
+
+        self.qMotorCmds = Queue.PriorityQueue()
         self.running = False
         self.arduino_thread = None
         self.start()
-
 
     def __del__(self):
         self.stop()
 
 
     def stop(self):
-        if self.dummy:
-            print "Dummy ActionModule stopped."
-        elif self.running:
+        if self.running:
             self.running = False
             self.arduino_thread.join()
 
 
     def start(self):
-        if self.dummy:
-            print "Dummy ActionModule started."
-            self.running = True
-            self.arduino_thread = threading.Thread()
-        elif not self.running:
+        if not self.running:
             # Starts the thread
             self.running = True
             self.arduino_thread = threading.Thread(name='Arduino', target=self.threadFunc, args=(self.dummy,))
             self.arduino_thread.setDaemon(True)
             self.arduino_thread.start()
 
+    def getMovementCount(self):
+        self.movementCount += 1
+        return self.movementCount
 
     def threadFunc(self, dummy):
         if dummy:
+            print "Dummy Arduino thread started."
             while(self.running):
+                self.isIdle = True
                 if not self.qMotorCmds.empty():
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
+                    #This line of code unwraps the actual command from its priority, since we're now using a PriorityQueue
+                    cmds = cmds[1]
                     for cmd in cmds:
                         id = self.arduinoID[cmd[0]]
                         angle = int(cmd[1])
                         speed = int(cmd[2])
-                        print "id:",id," angle:",angle," speed:",speed
+                        #print "id:",id," angle:",angle," speed:",speed
+                    #time.sleep(1)
+            print "Dummy Arduino thread stopped."
         else:
+
+            print "Arduino thread started."
             self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
             self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
@@ -169,6 +176,9 @@ class ActionModule(object):
                 if not self.qMotorCmds.empty():
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
+                    #This line of code unwraps the actual command from its priority, since we're now using a PriorityQueue
+                    cmds = cmds[1]
+
                     eyeMotion = False
                     eyeAngleX = 90 # The eye angles needs an int. If it should be None,
                     eyeAngleY = 90 # speed will be 0 and no motion will be triggered
@@ -217,7 +227,7 @@ class ActionModule(object):
                     self.isIdle = True
                     #print "Target reached!!!!!"
 
-        print "Arduino thread stopped"
+            print "Arduino thread stopped."
 
 
     def checkTargetReached(self):
@@ -270,7 +280,12 @@ class ActionModule(object):
         # print "target = ", target
         # print "newTargetAngles = ", newTargetAngles
         self.currentTargetAngles = newTargetAngles
-        self.qMotorCmds.put(output)
+
+        #This wraps the actual command in a tuple, the first element of which is the priority, which is another tuple of
+        #  the form (1,movementCount). The second element is the actual output. Eye and head movements are instead
+        #  inserted with priority (0,movementCount).  The tuple for priority is required because PriorityQueue does not
+        #  respect insertion order, just priority.  --Kaz.
+        self.qMotorCmds.put(((1,self.getMovementCount()),output))
         return self.currentTargetAngles
 
 
@@ -282,13 +297,11 @@ class ActionModule(object):
         position = self.positions[targetKey]
         return self.moveToAngles(position['angles'], position['speeds'])
 
-
-    def executeGesture(self, gesture):
-        sequenceList = self.emotionToSeq[gesture]
+    def executeGesture(self, sequenceList):
 
         # This function will be executed by a thread to execute a sequence
         def executeSequence(seqList):
-            print(seqList)
+            print "executing:",seqList
             for item in seqList:
                 try:
                     # if int -> sleep
@@ -296,7 +309,13 @@ class ActionModule(object):
                     sleep(delay)
                 except:
                     # if str -> execute
-                    self.moveTo(item)
+                    if type(item) is tuple:
+                        if item[0] == "eyes":
+                            self.moveEyes(item[1:])
+                        if item[0] == "eyes+head":
+                            self.moveEyesAndHead(item[1:])
+                    else:
+                        self.moveTo(item)
 
         seqThread = Thread(target=executeSequence, args=[sequenceList])
         seqThread.start()
@@ -304,6 +323,12 @@ class ActionModule(object):
 
     def isMarionetteIdle(self):
         return self.isIdle
+
+    def moveEyes(self, targetCameraCoords):
+        print "Eye movement not implemented, pretending to move eyes to",targetCameraCoords
+
+    def moveEyesAndHead(self, targetCameraCoords):
+        print "Eye and head movement not implemented, pretending to move eyes and head to", targetCameraCoords
 
 
     def eyeTargetToAngles(self, eyeToWorld, target):

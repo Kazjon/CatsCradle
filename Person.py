@@ -141,6 +141,9 @@ class Person:
 
         self.last_seen = time.time()
 
+    def faceMidpoint(self):
+        return ((self.face_top_left_2d[0] + self.face_bottom_right_2d[0]) / 2., (self.face_top_left_2d[1] + self.face_bottom_right_2d[1]) / 2.)
+
     #Called when a match is found against a previous person, but before updateFace is called on them.
     def reappear(self):
         if time.time() - self.last_seen > NEW_INTERACTION_TIMEOUT:

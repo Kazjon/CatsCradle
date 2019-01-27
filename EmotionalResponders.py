@@ -4,14 +4,16 @@ from EmotionModule import EMOTION_LABELS
 
 class IdleResponder(Responder):
 
-    def __init__(self, action_module, p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module, p=0.01):
+        Responder.__init__(self,action_module, response_module, p)
         self.emotional_gestures = {e:[] for e in EMOTION_LABELS}
         self.emotional_gestures["neutral"] = []
         for e,g_list in self.emotional_gestures.iteritems():
-            for gesture in action_module.emotionToSeq.keys():
-                if gesture.startswith(e):
-                    g_list.append(gesture)
+            #TODO: Implement weights here and turn sequence into some kind of tuple including weight and sequence
+            #TODO: Replace probability system with some kind of interval+probability thing?
+            for name,sequence in action_module.gestureNameToSeq.iteritems():
+                if name.startswith(e):
+                    g_list.append(sequence)
 
     def respond(self, emotional_state, audience, idle):
         if idle:
@@ -22,18 +24,18 @@ class IdleResponder(Responder):
                         emotion_quantity = max(0,emotion_quantity)
                         emotion_quantity *= 1.33
                         if random() < emotion_quantity:
-                            print "Responding to:", emotion_name
-                            self.action_module.executeGesture(choice(self.emotional_gestures[emotion_name]))
+                            print "Expressing", emotion_name
+                            return choice(self.emotional_gestures[emotion_name])
                 if len(self.emotional_gestures["neutral"]):
-                    print "Neutral Gesture"
-                    self.action_module.executeGesture(choice(self.emotional_gestures["neutral"]))
+                    print "Expressing neutrality"
+                    return choice(self.emotional_gestures["neutral"])
 
 
 #Responds to new people.  She's afraid of fast entry, but longs for children.
 class EntryResponder(Responder):
 
-    def __init__(self, action_module,p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module,p=0.1):
+        Responder.__init__(self,action_module, response_module, p)
 
     def respond(self, emotional_state, audience, idle):
         #Check to see if there are any new people in the list of people
@@ -45,8 +47,8 @@ class EntryResponder(Responder):
 # TODO: Figure out how this should interact w/ (or subsume) threat detector
 class ApproachResponder(Responder):
 
-    def __init__(self, action_module,p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module, p=0.1):
+        Responder.__init__(self,action_module, response_module, p)
 
     def respond(self, emotional_state, audience, idle):
         #Check to see if there are any people who are walking towards her
@@ -58,8 +60,8 @@ class ApproachResponder(Responder):
 #Responds to people walking away from her based on how interesting they were.
 class DepartResponder(Responder):
 
-    def __init__(self, action_module,p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module, p=0.1):
+        Responder.__init__(self,action_module, response_module, p)
 
     def respond(self, emotional_state, audience, idle):
         #Check to see if any people with the approached tag have been lost
@@ -72,8 +74,8 @@ class DepartResponder(Responder):
 #Responds to people who are standing right up in her face.
 class TooCloseResponder(Responder):
 
-    def __init__(self, action_module,p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module, p=0.1):
+        Responder.__init__(self,action_module, response_module, p)
 
     def respond(self, emotional_state, audience, idle):
         #Check to see if anyone is standing too close
@@ -84,8 +86,8 @@ class TooCloseResponder(Responder):
 #Responds to families and couples entering her space.
 class FamilyResponder(Responder):
 
-    def __init__(self, action_module,p=0.1):
-        Responder.__init__(self,action_module, p)
+    def __init__(self, action_module, response_module ,p=0.1):
+        Responder.__init__(self,action_module, response_module, p)
 
     def respond(self, emotional_state, audience, idle):
         #Detect if people have been close for a while

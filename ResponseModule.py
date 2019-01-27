@@ -9,32 +9,13 @@ import inspect
 
 from Responder import Responder
 import EmotionalResponders
+import time
 
-class DummyResponseModule(object):
-
-    def __init__(self,action_module):
-        self.action_module = action_module
-
-    def setEmotion(self, emotion, arg=None):
-        # Temporary implementation to get some response based on person detection
-        # TODO: Implement response from marionette's emotion (Kaz + Steph)
-        if emotion == 'emotion0':
-            # Lower arms slowly: 5 sec
-            self.action_module.moveTo('rest', 5, 1, 20)
-
-        if emotion == 'emotion1':
-            # Raise the arm on the side of the detected person slowly : 5 sec
-            if not arg == None:
-                person = arg
-                screenWidth = 1280
-                if person.posCamera[0] < screenWidth/2:
-                    self.action_module.moveTo('leftHandFullRaise', 5, 1, 20)
-                else:
-                    self.action_module.moveTo('rightHandFullRaise', 5, 1, 20)
-
-        if emotion == 'emotion2':
-            # Raise both arms, fast: 2 sec
-            self.action_module.moveTo('bothHandFullRaise', 2, 10, 30)
+ATTENTION_CHANGE_MINIMUM = 1.0 #minimum time before attention will be checked again
+TRACKING_INTERVAL = 0.5 #How frequently to send new locations of the current focus of attention so that eyes+head track them.
+SHAME_LOOKAWAY_INTERVAL = 10. #How frequently to check whether, if she's ashamed, she should look away rather than at someone
+SHAME_MIN_LOOKAWAY = 2.
+SHAME_MAX_LOOKAWAY = 10.
 
 class ResponseModule(object):
 
@@ -43,19 +24,108 @@ class ResponseModule(object):
         self.gesture_queue = deque()
         self.responders = []
         self.loadResponders(action_module)
+        self.last_updated = 0
+        self.last_attention_change = 0
+        self.focus = None
+        self.returnToFocusAt = 0
+        self.last_tracked = 0
+        self.last_shame_lookaway_check = 0
+        self.shame_lookaway = False
+        self.shame_lookaway_timeout = 0
 
     def loadResponders(self, action_module):
         baseResponders = ["Responder"]
         # Load Emotional Responders (respodners that trigger based on the state of the audience and  for other reactors to work with)
         for r in dir(EmotionalResponders):
             if r not in baseResponders and inspect.isclass(getattr(EmotionalResponders,r)):
-                self.responders.append(getattr(EmotionalResponders, r)(action_module))
+                self.responders.append(getattr(EmotionalResponders, r)(action_module, self))
 
     def update(self,emotional_state, audience):
         idle = self.action_module.isMarionetteIdle()
+
+        #Update the focus of attention, pushing any needed changes to the left of the queue
+        self.updateAttentionAndTrack(audience, emotional_state)
+
         #Determine whether anything needs to be added to the queue
+        #Note: Some responders may use the glanceAt and lookAt functions below to push things to the left of the queue
         for responder in self.responders:
-            responder.respond(emotional_state, audience, idle)
+            response = responder.respond(emotional_state, audience, idle)
+            if response is not None:
+                self.gesture_queue.append(response)
 
         if idle and len(self.gesture_queue):
             self.action_module.executeGesture(self.gesture_queue.pop())
+
+        self.last_updated = time.time()
+
+    def updateAttentionAndTrack(self, audience, emotional_state):
+        t = time.time()
+        if self.shame_lookaway and t > self.shame_lookaway_timeout:
+            self.shame_lookaway = False
+            #If we're ending a shame lookaway, always check to see if we should re-start one
+            self.last_shame_lookaway_check = t - (SHAME_LOOKAWAY_INTERVAL+0.1)
+        if not self.shame_lookaway:
+            if t - self.last_attention_change > ATTENTION_CHANGE_MINIMUM:
+                if len(audience.persons):
+                    sorted_emotions = sorted(emotional_state.items(), key=lambda x: x[1], reverse=True)
+                    highest_emotion = sorted_emotions[0]
+                    second_emotion = sorted_emotions[1]
+                    if highest_emotion[0] == "shame":
+                        if t - self.last_shame_lookaway_check > SHAME_LOOKAWAY_INTERVAL:
+                            self.last_shame_lookaway_check = t
+                            shame_proportion = highest_emotion[1] / second_emotion[1]
+                            p = 0.2 * shame_proportion
+                            if np.random.random() < p:
+                                self.shame_lookaway = True
+                                self.shame_lookaway_timeout = t + (np.random.random() * (SHAME_MAX_LOOKAWAY - SHAME_MIN_LOOKAWAY) + SHAME_MIN_LOOKAWAY)
+                                self.lookAway(audience)
+                                return
+                    #Probabilistically select a focus of attention between the current and highest attention person
+                    interests = [p.interestingness for p in audience.persons]
+                    ids = [p.id for p in audience.persons]
+                    most_interesting = np.argmax(interests)
+                    if self.focus is None or self.focus.id not in ids:
+                        self.setFocus(audience.persons[most_interesting])
+                        self.last_attention_change = t
+                        return
+                    elif ids[most_interesting] is not self.focus.id:
+                        interest_proportion = interests[most_interesting] / self.focus.interestingness
+                        p = 0.5 * interest_proportion
+                        if np.random.random() < p:
+                            self.setFocus(audience.persons[most_interesting])
+                            self.last_attention_change = t
+                            return
+                        else:
+                            #Don't check again for at least ATTENTION_CHANGE_MINIMUM even if we didn't change
+                            self.last_attention_change = t
+                else:
+                    #There's no one around, so ditch the focus.
+                    self.focus = None
+            if self.focus is not None and t - self.last_tracked > TRACKING_INTERVAL:
+                if t > self.returnToFocusAt:
+                    self.lookAt(self.focus)
+                    self.last_tracked = t
+        elif len(audience.persons):
+            self.lookAway(audience)
+
+
+    #These attention-directing functions always append left on the gesture_queue so that they are executed ASAP
+
+    #Looks at a person with just eyes. If duration > 0, will return to the focal person after duration seconds.
+    def glanceAt(self,person, duration=0):
+        self.gesture_queue.appendleft([("eyes",)+tuple(person.faceMidpoint())])
+        if duration > 0:
+            self.returnToFocusAt = time.time() + duration
+
+    #Looks at a person with both eyes and head.  If duration > 0, will return to the focal person after duration seconds.
+    def lookAt(self,person,duration=0):
+        self.gesture_queue.appendleft([("eyes+head",)+tuple(person.faceMidpoint())])
+        if duration > 0:
+            self.returnToFocusAt = time.time() + duration
+
+    def setFocus(self,person):
+        self.lookAt(person)
+        self.focus = person
+
+    def lookAway(self,audience):
+        self.gesture_queue.appendleft([("eyes+head",)+tuple(audience.furthestFromFaces())])

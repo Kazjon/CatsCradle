@@ -1,6 +1,7 @@
 import cv2
 import numpy
 import copy
+from scipy.spatial import Voronoi, distance
 
 from PersonSensor import *
 
@@ -47,7 +48,37 @@ class Audience:
     def numNewRecently(self):
         return sum(self.numNewHistory)
 
-
+    #Returns the point in the camera field that is furthest away from any faces
+    def furthestFromFaces(self):
+        width = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        corners = [[0,0],[0,height],[width,0],[width,height]]
+        #If there's no people, return the bottom left corner
+        if len(self.persons) == 0:
+            return corners[1]
+        else:
+            points = corners
+            personlocs = [p.faceMidpoint() for p in self.persons]
+            #If there's one person, return the furthest corner
+            #If there's two or three people, return the furthest out of the corners plus midpoint between them
+            if len(self.persons) > 1 and len(self.persons) < 4:
+                points.append(np.mean(personlocs,axis=0))
+            # If there's four or more people, return the furthest out of the Voronoi points plus the corners
+            elif len(self.persons) >= 4:
+                voronoi = Voronoi(personlocs)
+                #print "voronoi",voronoi.vertices
+                for vp in list(voronoi.vertices):
+                    if all(vp>0) and vp[0] < width and vp[1] < height:
+                        points.append(list(vp))
+            #Choose the point with the highest minimum distance to all people
+            #print "points",points
+            dists = distance.cdist(np.array(personlocs),np.array(points))
+            #print "dists",dists
+            minDists = np.amin(dists,axis=0)
+            #print "minDists",minDists
+            #print "furthestPoint",np.argmax(minDists)
+            furthest = points[np.argmax(minDists)]
+            return furthest
 
 if __name__ == '__main__':
     # Tests
