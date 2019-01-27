@@ -18,7 +18,7 @@ import sys
 from multiprocessing import Process
 
 if __name__ == "__main__":
-    actionModule = ActionModule(dummy="--dummy" in sys.argv)
+    actionModule = ActionModule(dummy="--dummyAction" in sys.argv)
     config = tf.ConfigProto(allow_soft_placement=True)
 
     print('Loaded Action Module...\n')
@@ -33,7 +33,13 @@ if __name__ == "__main__":
 
         print('Loaded Emotion Module...\n')
 
-        sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess}, emotion_module)
+        perceptionMode = "full"
+        if "--dummyPerception" in sys.argv:
+            perceptionMode = "dummy"
+        elif "--fastPerception" in sys.argv:
+            perceptionMode = "fast"
+
+        sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess,"perception_mode":perceptionMode}, emotion_module)
         camera = cv2.VideoCapture(0)
         sensor_module.personSensor = PersonSensor(camera, tf_sess)
         sensor_module.personSensor.video_capture = camera

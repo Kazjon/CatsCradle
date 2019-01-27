@@ -580,3 +580,8 @@ if __name__ == '__main__':
             cv2.destroyAllWindows()
             t._Thread__stop()
             break
+
+class DummyPersonSensor(Sensor):
+
+    def __init__(self):
+        raise NotImplementedError("Dummy perception (with keyboard entries for generating random persons) has not been implemented.")
