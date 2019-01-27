@@ -32,6 +32,7 @@ class ResponseModule(object):
         self.last_shame_lookaway_check = 0
         self.shame_lookaway = False
         self.shame_lookaway_timeout = 0
+        self.currentEyeTarget = (-1,-1)
 
     def loadResponders(self, action_module):
         baseResponders = ["Responder"]
@@ -113,19 +114,31 @@ class ResponseModule(object):
 
     #Looks at a person with just eyes. If duration > 0, will return to the focal person after duration seconds.
     def glanceAt(self,person, duration=0):
-        self.gesture_queue.appendleft([("eyes",)+tuple(person.faceMidpoint())])
-        if duration > 0:
-            self.returnToFocusAt = time.time() + duration
+        target = tuple(person.faceMidpoint())
+        if self.differentToCurrentTarget(target):
+            self.currentEyeTarget = target
+            self.gesture_queue.appendleft([("eyes",)+target])
+            if duration > 0:
+                self.returnToFocusAt = time.time() + duration
 
     #Looks at a person with both eyes and head.  If duration > 0, will return to the focal person after duration seconds.
     def lookAt(self,person,duration=0):
-        self.gesture_queue.appendleft([("eyes+head",)+tuple(person.faceMidpoint())])
-        if duration > 0:
-            self.returnToFocusAt = time.time() + duration
+        target = tuple(person.faceMidpoint())
+        if self.differentToCurrentTarget(target):
+            self.currentEyeTarget = target
+            self.gesture_queue.appendleft([("eyes+head",)+target])
+            if duration > 0:
+                self.returnToFocusAt = time.time() + duration
 
     def setFocus(self,person):
         self.lookAt(person)
         self.focus = person
 
     def lookAway(self,audience):
-        self.gesture_queue.appendleft([("eyes+head",)+tuple(audience.furthestFromFaces())])
+        target = tuple(audience.furthestFromFaces())
+        if self.differentToCurrentTarget(target):
+            self.currentEyeTarget = target
+            self.gesture_queue.appendleft([("eyes+head",)+target])
+
+    def differentToCurrentTarget(self,target):
+        return not [round(p) for p in target] == [round(p) for p in self.currentEyeTarget]

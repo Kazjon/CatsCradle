@@ -3,10 +3,15 @@ from random import random
 import numpy as np
 from EmotionModule import EMOTION_LABELS
 
-class IdleResponder(Responder):
-    # TODO: Replace probability system with some kind of interval+probability thing?
-    def __init__(self, action_module, response_module, p=0.1):
+import time
+
+BASE_RESPONSE_CHANCE = 0.1 #Probability of conducting an idle gesture every response_interval
+EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
+
+class ExpressionResponder(Responder):
+    def __init__(self, action_module, response_module, p=BASE_RESPONSE_CHANCE):
         Responder.__init__(self,action_module, response_module, p)
+        self.last_checked = 0
         self.emotional_gestures = {e:[[],[]] for e in EMOTION_LABELS}
         self.emotional_gestures["neutral"] = [[],[]]
         for e,gestures_and_weights in self.emotional_gestures.iteritems():
@@ -21,19 +26,22 @@ class IdleResponder(Responder):
 
 
     def respond(self, emotional_state, audience, idle):
-        if idle:
-            if random() < self.p:
-                for emotion_name,emotion_quantity in emotional_state.iteritems():
-                    if len(self.emotional_gestures[emotion_name]):
-                        emotion_quantity -= 0.25
-                        emotion_quantity = max(0,emotion_quantity)
-                        emotion_quantity *= 1.33
-                        if random() < emotion_quantity:
-                            print "Expressing", emotion_name
-                            return np.random.choice(self.emotional_gestures[emotion_name][1],p=self.emotional_gestures[emotion_name][0])
-                if len(self.emotional_gestures["neutral"]):
-                    print "Expressing neutrality"
-                    return np.random.choice(self.emotional_gestures["neutral"][1],p=self.emotional_gestures["neutral"][0])
+        t = time.time()
+        if t - self.last_checked > EXPRESSION_INTERVAL:
+            if idle:
+                if random() < self.p:
+                    for emotion_name,emotion_quantity in emotional_state.iteritems():
+                        if len(self.emotional_gestures[emotion_name]):
+                            emotion_quantity -= 0.25
+                            emotion_quantity = max(0,emotion_quantity)
+                            emotion_quantity *= 1.33
+                            if random() < emotion_quantity:
+                                print "Expressing", emotion_name
+                                return np.random.choice(self.emotional_gestures[emotion_name][1],p=self.emotional_gestures[emotion_name][0])
+                    if len(self.emotional_gestures["neutral"]):
+                        print "Expressing neutrality"
+                        return np.random.choice(self.emotional_gestures["neutral"][1],p=self.emotional_gestures["neutral"][0])
+                self.last_checked = t
 
 
 #Responds to new people.  She's afraid of fast entry, but longs for children.
