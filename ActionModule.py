@@ -48,15 +48,13 @@ class ActionModule(object):
 
         # contains a dictionary of emotions to sequences
         self.gestureNameToSeq = {}
-
-
         # reading gesture files
         for gesture_type, filename in gesture_files.iteritems():
             with open(filename, "r") as f:
                 reader = csv.reader(f)
                 reader.next()
                 for row in reader:
-                    self.gestureNameToSeq[gesture_type + "_" + row[1]] = row[2:]
+                    self.gestureNameToSeq[gesture_type + "_" + row[0]] = (float(row[1]),row[2:])
 
         # Read the positions from the Positions.json file
         self.positions = {}

@@ -1,19 +1,24 @@
 from Responder import Responder
-from random import random,choice
+from random import random
+import numpy as np
 from EmotionModule import EMOTION_LABELS
 
 class IdleResponder(Responder):
-
-    def __init__(self, action_module, response_module, p=0.01):
+    # TODO: Replace probability system with some kind of interval+probability thing?
+    def __init__(self, action_module, response_module, p=0.1):
         Responder.__init__(self,action_module, response_module, p)
-        self.emotional_gestures = {e:[] for e in EMOTION_LABELS}
-        self.emotional_gestures["neutral"] = []
-        for e,g_list in self.emotional_gestures.iteritems():
-            #TODO: Implement weights here and turn sequence into some kind of tuple including weight and sequence
-            #TODO: Replace probability system with some kind of interval+probability thing?
-            for name,sequence in action_module.gestureNameToSeq.iteritems():
+        self.emotional_gestures = {e:[[],[]] for e in EMOTION_LABELS}
+        self.emotional_gestures["neutral"] = [[],[]]
+        for e,gestures_and_weights in self.emotional_gestures.iteritems():
+            for name,weight_and_sequence in action_module.gestureNameToSeq.iteritems():
                 if name.startswith(e):
-                    g_list.append(sequence)
+                    weight = weight_and_sequence[0]
+                    sequence = weight_and_sequence[1]
+                    gestures_and_weights[0].append(weight)
+                    gestures_and_weights[1].append(sequence)
+            #Now we know how many gestures are in each category, divide the weight for each by the number to get a probability.
+            gestures_and_weights[0] = [w/sum(gestures_and_weights[0]) for w in gestures_and_weights[0]]
+
 
     def respond(self, emotional_state, audience, idle):
         if idle:
@@ -25,10 +30,10 @@ class IdleResponder(Responder):
                         emotion_quantity *= 1.33
                         if random() < emotion_quantity:
                             print "Expressing", emotion_name
-                            return choice(self.emotional_gestures[emotion_name])
+                            return np.random.choice(self.emotional_gestures[emotion_name][1],p=self.emotional_gestures[emotion_name][0])
                 if len(self.emotional_gestures["neutral"]):
                     print "Expressing neutrality"
-                    return choice(self.emotional_gestures["neutral"])
+                    return np.random.choice(self.emotional_gestures["neutral"][1],p=self.emotional_gestures["neutral"][0])
 
 
 #Responds to new people.  She's afraid of fast entry, but longs for children.
