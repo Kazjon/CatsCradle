@@ -41,9 +41,8 @@ class ActionModule(object):
             "neutral": "gestures/neutral_gestures.csv",
             "fear": "gestures/fear_gestures.csv",
             "longing": "gestures/longing_gestures.csv",
-            "sad": "gestures/sad_gestures.csv",
+            "anger": "gestures/anger_gestures.csv",
             "shame": "gestures/shame_gestures.csv"
-	        #"surprise": "gestures/surprise_gestures.csv"
         }
 
         # contains a dictionary of emotions to sequences
