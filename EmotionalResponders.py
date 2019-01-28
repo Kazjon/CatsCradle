@@ -143,7 +143,7 @@ class DepartResponder(Responder):
                     else:
                         person.interestingness += 10
                         if person.ageRange == "child":
-                            try_add(emotional_effect,"longing", EMOTION_DELTAS["extreme"])
+                                try_add(emotional_effect,"longing", EMOTION_DELTAS["extreme"])
                     if audience.numLostRecently() > 3:
                         if random() < self.p:
                             self.response_module.lookAt(person, duration=1)

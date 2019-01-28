@@ -147,6 +147,9 @@ class Person:
     #Called when a match is found against a previous person, but before updateFace is called on them.
     def reappear(self):
         if time.time() - self.last_seen > NEW_INTERACTION_TIMEOUT:
+            labels_to_remove = ["Approached","Creeping"]
+            for label in labels_to_remove:
+                self.labels.discard(label)
             self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
 
