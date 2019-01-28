@@ -1,41 +1,16 @@
 from Reactor import Reactor
 import numpy as np
 
-#Induces slowly mounting fear when the room is empty
-#TODO: Roll this into the room fullness thing
-class LonelinessReactor(Reactor):
-    def __init__(self, em, aud):
-        Reactor.__init__(self,em, aud)
+from EmotionModule import EMOTION_DELTAS, try_add
 
-    def detect(self):
-        if len(self.audience.persons):
-            return False
-        return True
-
-    def effect(self):
-        return {"fear":0.005}
-
-
-# Induces slowly mounting shame when the audience is > 60% male
-class MaleShameReactor(Reactor):
-    def __init__(self, em, aud):
-        Reactor.__init__(self,em, aud)
-
-    def detect(self):
-        if len(self.audience.persons) > 2:
-            males = 0.0
-            for person in self.audience.persons:
-                if person.gender == "M":
-                    males += 1
-            if males/len(self.audience.persons) > 0.6:
-                return True
-        return False
-
-    def effect(self):
-        return {"shame":0.05}
-
-    from Reactor import Reactor
-    import numpy as np
+def male_fraction(persons):
+    if len(persons) == 0:
+        return float("nan")
+    males = 0.
+    for person in persons:
+        if person.gender == "M":
+            males += 1
+    return males/len(persons)
 
 # This reactor detects when an adult has rapidly approached the piece and labels them a threat.
 class ThreateningPersonReactor(Reactor):
@@ -80,22 +55,48 @@ class DefaultInterestReactor(Reactor):
 
 # This reactor detects how many people are in the room and reacts.
 class RoomFullnessReactor(Reactor):
-    def __init__(self, em, aud, default_interest=1):
+    def __init__(self, em, aud, crowd_threshold = 5):
         Reactor.__init__(self, em, aud)
+        self.crowd_threshold = crowd_threshold
+        self.effect_to_send = {}
 
     def detect(self):
+        self.effect_to_send = {}
         num_p = len(self.audience.persons)
 
         # If the room is empty, add longing
+        if num_p == 0:
+            self.effect_to_send["longing"] = EMOTION_DELTAS["tiny"]
+            self.effect_to_send["fear"] = EMOTION_DELTAS["tiny"]
         # If there are a few people, add fear for males, shame for females and seniors, and longing for children
+        elif num_p < self.crowd_threshold:
+            for p in self.audience.persons:
+                if p.ageRange == "child":
+                    try_add(self.effect_to_send, "longing", EMOTION_DELTAS["small"])
+                elif p.ageRange == "senior":
+                    continue
+                elif p.gender == "M":
+                    try_add(self.effect_to_send, "fear", EMOTION_DELTAS["moderate"])
+                elif p.gender == "F":
+                    try_add(self.effect_to_send, "shame", EMOTION_DELTAS["tiny"])
+        else:
+            if male_fraction(self.audience.persons) > 0.6:
+                self.effect_to_send["shame"] = EMOTION_DELTAS["small"]
+            else:
+                self.effect_to_send["shame"] = EMOTION_DELTAS["tiny"]
+        if len(self.effect_to_send):
+            return True
+        return False
+
         # If the room is full, add shame
         # If there are a lot of children, add longing and interest to all children
         return False
 
     def effect(self):
-        pass
+        return self.effect_to_send
 
 # Update who is moving quickly (or standing still) and then react based on proportions
+#TODO: Should this be integrated into the relevant responder?
 class MovementReactor(Reactor):
     def __init__(self, em, aud, default_interest=1):
         Reactor.__init__(self, em, aud)

@@ -1,12 +1,14 @@
 from Responder import Responder
 from random import random
 import numpy as np
-from EmotionModule import EMOTION_LABELS
+from EmotionModule import EMOTION_LABELS, EMOTION_DELTAS, try_add
 
 import time
 
 BASE_RESPONSE_CHANCE = 0.1 #Probability of conducting an idle gesture every response_interval
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
+
+HIGH_INTEREST_THRESH = 10 #An arbitrary line dividing "low" and "high" interest people
 
 class ExpressionResponder(Responder):
     def __init__(self, action_module, response_module, p=BASE_RESPONSE_CHANCE):
@@ -25,12 +27,12 @@ class ExpressionResponder(Responder):
             gestures_and_weights[0] = [w/sum(gestures_and_weights[0]) for w in gestures_and_weights[0]]
 
 
-    def respond(self, emotional_state, audience, idle):
+    def respond(self, emotion_module, audience, idle):
         t = time.time()
         if t - self.last_checked > EXPRESSION_INTERVAL:
             if idle:
                 if random() < self.p:
-                    for emotion_name,emotion_quantity in emotional_state.iteritems():
+                    for emotion_name,emotion_quantity in emotion_module.emotion_as_dict().iteritems():
                         if len(self.emotional_gestures[emotion_name]):
                             emotion_quantity -= 0.25
                             emotion_quantity = max(0,emotion_quantity)
@@ -57,32 +59,100 @@ class EntryResponder(Responder):
         pass
 
 #Responds to people who walk towards her. Variety of effects.
-# TODO: Figure out how this should interact w/ (or subsume) threat detector
 class ApproachResponder(Responder):
-
-    def __init__(self, action_module, response_module, p=0.1):
+    def __init__(self, action_module, response_module, p=0.5, slow_size_ratio_range = [1.2,1.3], approach_size_ratio = 1.5, threat_size_ratio = 1.75):
         Responder.__init__(self,action_module, response_module, p)
+        self.approach_size_ratio = approach_size_ratio
+        self.threat_size_ratio = threat_size_ratio
+        self.slow_size_ratio_range = slow_size_ratio_range
 
-    def respond(self, emotional_state, audience, idle):
-        #Check to see if there are any people who are walking towards her
-        #Add the "approached" tag to them
-        #If any of them are approaching fast, add fear (more for men, less for children and seniors), interest and probably glance + respond
-        #If any of them are approaching slow, add fear if male, shame if woman or senior, and longing if child, then probably glance
-        pass
+    def respond(self, emotion_module, audience, idle):
+        emotional_effect = {}
+        for person in audience.persons:
+            if person.faceSizeHistory is None or len(person.faceSizeHistory) == 0 or person.faceSizeHistory[0] is None:
+                continue
+
+            # Check to see if there are any people who are walking towards her, add the "approached" tag to them
+            if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.approach_size_ratio:
+                if not "RecentApproach" in person.labels:
+                    print "APPROACHED!"
+                    person.labels.add("Approached")
+                    person.labels.add("RecentApproach")
+                    person.interestingness += 5
+                else:
+                    person.labels.discard("RecentApproach")
+            # If any of them are approaching fast, add fear (more for men, less for children and seniors), interest and probably glance + respond
+            if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.threat_size_ratio:
+                if not "RecentThreat" in person.labels:
+                    person.labels.add("Threat")
+                    person.labels.add("RecentThreat")
+                    person.interestingness += 25
+                    if person.ageRange == "child":
+                        try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
+                        self.response_module.lookAt(person, duration=0.5)
+                    elif person.ageRange == "senior" or person.gender == "F":
+                        try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
+                        if random() < self.p*1.5:
+                            self.response_module.lookAt(person, duration=0.25)
+                    elif person.gender == "M":
+                        try_add(emotional_effect, "fear", EMOTION_DELTAS["instant"])
+                        person.interestingness += 25
+                        self.response_module.lookAt(person, duration=0.5)
+            else:
+                person.labels.discard("RecentThreat")
+            #If any of them are approaching slow, add fear if male, shame if woman or senior, and longing if child, then probably glance
+            max_size_diff = max(person.faceSizeHistory) / min(person.faceSizeHistory)
+            if max_size_diff > self.slow_size_ratio_range[0] and max_size_diff < self.slow_size_ratio_range[1]:
+                if not "RecentCreeping" in person.labels:
+                    person.labels.add("Creeping")
+                    person.labels.add("RecentCreeping")
+                    person.interestingness += 5
+                    if person.ageRange == "child":
+                        try_add(emotional_effect, "longing", EMOTION_DELTAS["extreme"])
+                        person.labels.add("Want")
+                        self.response_module.glanceAt(person, duration=0.25)
+                    elif person.ageRange == "senior" or person.gender == "F":
+                        try_add(emotional_effect, "shame", EMOTION_DELTAS["large"])
+                        if random() < self.p:
+                            self.response_module.glanceAt(person, duration=0.25)
+                    elif person.gender == "M":
+                        try_add(emotional_effect, "fear", EMOTION_DELTAS["large"])
+                        if random() < self.p:
+                            self.response_module.glanceAt(person, duration=0.25)
+                else:
+                    person.labels.discard("RecentCreeping")
+        if len(emotional_effect):
+            emotion_module.affectEmotions(emotional_effect)
+
 
 #Responds to people walking away from her based on how interesting they were.
 class DepartResponder(Responder):
 
-    def __init__(self, action_module, response_module, p=0.1):
+    def __init__(self, action_module, response_module, p=0.5):
         Responder.__init__(self,action_module, response_module, p)
 
-    def respond(self, emotional_state, audience, idle):
-        #Check to see if any people with the approached tag have been lost
-        #If so, and they were low interest and a child, add longing
-        #If so, and they were high interest, add interest to their record
-        #If they were high interest and a child, add longing too
-        #Additional interactions if there have been lots of recent exits
-        pass
+    def respond(self, emotion_module, audience, idle):
+        emotional_effect = {}
+        for person in audience.previousPersons:
+            if person not in audience.persons:
+                if "Approached" in person.labels:
+                    if person.interestingness < HIGH_INTEREST_THRESH:
+                        person.interestingness += 5
+                        if person.ageRange == "child":
+                            try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
+                    else:
+                        person.interestingness += 10
+                        if person.ageRange == "child":
+                            try_add(emotional_effect,"longing", EMOTION_DELTAS["extreme"])
+                    if audience.numLostRecently() > 3:
+                        if random() < self.p:
+                            self.response_module.lookAt(person, duration=1)
+                        if person.ageRange is not "child":
+                            try_add(emotional_effect,"anger", EMOTION_DELTAS["extreme"])
+
+        if len(emotional_effect):
+            print emotional_effect
+            emotion_module.affectEmotions(emotional_effect)
 
 #Responds to people who are standing right up in her face.
 class TooCloseResponder(Responder):
@@ -90,7 +160,7 @@ class TooCloseResponder(Responder):
     def __init__(self, action_module, response_module, p=0.1):
         Responder.__init__(self,action_module, response_module, p)
 
-    def respond(self, emotional_state, audience, idle):
+    def respond(self, emotion_module, audience, idle):
         #Check to see if anyone is standing too close
         #If they were, add fear if adult (more if male), shame if senior, and low fear if child
         #If male, respond, otherwise glance
@@ -102,7 +172,7 @@ class FamilyResponder(Responder):
     def __init__(self, action_module, response_module ,p=0.1):
         Responder.__init__(self,action_module, response_module, p)
 
-    def respond(self, emotional_state, audience, idle):
+    def respond(self, emotion_module, audience, idle):
         #Detect if people have been close for a while
         #If they're two adults, add the "Couple" tag and respond
         #If there's a child with them, add the "Family" tag and respond

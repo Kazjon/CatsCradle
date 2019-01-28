@@ -36,13 +36,14 @@ class SensorModule(object):
         else:
             self.cnn_detection = False
 
-    def loadSensors(self,tf_sess):
+    def loadSensors(self,cameras, tf_sess):
+        self.cameras = cameras
         if self.config["perception_mode"] == "full":
             frame_div = 1
-            frameskip = 4
+            frameskip = 1
         elif self.config["perception_mode"] == "fast":
-            frame_div = 4
-            frameskip = 16
+            frame_div = 2
+            frameskip = 2
         if self.config["perception_mode"] == "dummy":
             self.personSensor = DummyPersonSensor()
         else:

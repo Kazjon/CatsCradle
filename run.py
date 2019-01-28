@@ -40,10 +40,7 @@ if __name__ == "__main__":
             perceptionMode = "fast"
 
         sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess,"perception_mode":perceptionMode}, emotion_module)
-        camera = cv2.VideoCapture(0)
-        sensor_module.personSensor = PersonSensor(camera, tf_sess)
-        sensor_module.personSensor.video_capture = camera
-        sensor_module.audience = Audience(sensor_module.personSensor)
+        sensor_module.loadSensors(cv2.VideoCapture(0),tf_sess)
         sensor_module.loadReactors()
 
         print('Loaded Sensor Module...\n')
@@ -54,6 +51,8 @@ if __name__ == "__main__":
 #        person_detector_process = Process(target=sensor_module.personSensor.detectUndetectedPersons)
 #        person_detector_process.start()
 
+        while not sensor_module.personSensor.initialised:
+            continue
         print('Loaded Person Detector...\n')
 
         while True:

@@ -14,7 +14,7 @@ import time
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
 INTEREST_DECAY = 0.99
-FACE_HISTORY_LENGTH = 10
+FACE_HISTORY_LENGTH = 5
 INTEREST_DECAY_INTERVAL = 0.1 #seconds between applying INTEREST_DECAY
 NEW_INTERACTION_TIMEOUT = 3 #seconds someone can go missing before their movement history is thrown out
 

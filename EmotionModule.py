@@ -22,6 +22,14 @@ simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
 EMOTION_LABELS = ["fear", "anger", "longing", "shame"]#, "surprise", "sad"]
 
+EMOTION_DELTAS = {"tiny": 0.001, "small": 0.005, "moderate": 0.05, "large": 1, "extreme": 2, "instant": 5}
+
+def try_add(emotions,k,v):
+    try:
+        emotions[k] += v
+    except:
+        emotions[k] = v
+
 def softmax(x):
     '''Compute softmax values for each sets of scores in x.  Used to normalise emotion vectors.'''
     return np.exp(x) / np.sum(np.exp(x), axis=0)
@@ -37,14 +45,13 @@ def map_to_euclidean(raw_points):
     return np.asarray([np.sum([simplex_points[i] * p[i] for i in range(4)], axis=0) for p in normalise_emotion_vector(raw_points)])
 
 class EmotionModule(object):
-    def __init__(self,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, happiness_decay = 0.95, visualise=False):
+    def __init__(self,response_module, drag_coefficient = 0.5, decay_coefficient = 0.975, visualise=False):
         self.response_module = response_module
         self.acceleration = np.zeros(4)
         self.velocity = np.zeros(4)
         self.position = np.zeros(4)
         self.drag = np.asarray([drag_coefficient] * 4)
         self.decay = np.asarray([decay_coefficient] * 4)
-        self.decay[2] = happiness_decay
         self.max_position_value = 10.
         self.visualise = visualise
         self.frameskip_count = 0
@@ -78,7 +85,7 @@ class EmotionModule(object):
             self.fig.canvas.draw()
             self.frameskip_count = 0
             #plt.pause(0.01)
-        self.response_module.update(self.emotion_as_dict(), audience)
+        self.response_module.update(self, audience)
 
 
     #This is triggered by Reactor objects, part of the SensorModule that trigger in response to particular sensed states.

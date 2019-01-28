@@ -71,6 +71,7 @@ class PersonSensor(Sensor):
     """
     def __init__(self, camera, tf_sess, frame_division_factor=4, face_detection_frameskip=8):
         Sensor.__init__(self, camera)
+        print "stride",face_detection_frameskip
 
         #self.cv_path = cv_path
         self.bodyDetector = BodyPartDetector()
@@ -104,6 +105,8 @@ class PersonSensor(Sensor):
 
         self.front_camera = camera
         self.back_camera = None
+
+        self.initialised = False
 
 
     def detectUndetectedPersons(self):
@@ -174,6 +177,7 @@ class PersonSensor(Sensor):
                 writer = None
 
                 print "starting the loop for detecting age and gender in each frame"
+                self.initialised = True
 
                 while True:
                     self.undetected_persons_lock.acquire()
@@ -232,7 +236,6 @@ class PersonSensor(Sensor):
         as seen by the front camera of the marionette.
 
         """
-
         if self.front_frame_process_timer == self.frame_process_stride:
             self.front_frame_process_timer = 0
         else:

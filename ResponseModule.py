@@ -41,8 +41,9 @@ class ResponseModule(object):
             if r not in baseResponders and inspect.isclass(getattr(EmotionalResponders,r)):
                 self.responders.append(getattr(EmotionalResponders, r)(action_module, self))
 
-    def update(self,emotional_state, audience):
+    def update(self,emotion_module, audience):
         idle = self.action_module.isMarionetteIdle()
+        emotional_state = emotion_module.emotion_as_dict()
 
         #Update the focus of attention, pushing any needed changes to the left of the queue
         self.updateAttentionAndTrack(audience, emotional_state)
@@ -50,7 +51,7 @@ class ResponseModule(object):
         #Determine whether anything needs to be added to the queue
         #Note: Some responders may use the glanceAt and lookAt functions below to push things to the left of the queue
         for responder in self.responders:
-            response = responder.respond(emotional_state, audience, idle)
+            response = responder.respond(emotion_module, audience, idle)
             if response is not None:
                 self.gesture_queue.append(response)
 

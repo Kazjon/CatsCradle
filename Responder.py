@@ -5,5 +5,5 @@ class Responder(object):
         self.action_module = action_module
         self.response_module = response_module
 
-    def respond(self, emotional_state, audience, idle):
+    def respond(self, emotion_module, audience, idle):
         raise NotImplementedError
