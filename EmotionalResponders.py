@@ -5,10 +5,15 @@ from EmotionModule import EMOTION_LABELS, EMOTION_DELTAS, try_add
 
 import time
 
+import cv2
+
+from scipy.spatial import distance
+
 BASE_RESPONSE_CHANCE = 0.1 #Probability of conducting an idle gesture every response_interval
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
 
 HIGH_INTEREST_THRESH = 10 #An arbitrary line dividing "low" and "high" interest people
+TOO_CLOSE_FRACTION = 8. #Fraction of the screen diagonal that the face diagonal must exceed for that person to be "too close"
 
 class ExpressionResponder(Responder):
     def __init__(self, action_module, response_module, p=BASE_RESPONSE_CHANCE):
@@ -49,14 +54,28 @@ class ExpressionResponder(Responder):
 #Responds to new people.  She's afraid of fast entry, but longs for children.
 class EntryResponder(Responder):
 
-    def __init__(self, action_module, response_module,p=0.1):
+    def __init__(self, action_module, response_module,p=0.5):
         Responder.__init__(self,action_module, response_module, p)
 
-    def respond(self, emotional_state, audience, idle):
-        #Check to see if there are any new people in the list of people
-        #if any of them are a child, if so +longing, +interest and probably glance
-        #If any of them are moving quickly, +fear, +interest and probably glance
-        pass
+    def respond(self, emotion_module, audience, idle):
+        emotional_effect = {}
+        for person in audience.persons:
+            if person not in audience.previousPersons:
+                print "entry!"
+                if person.ageRange == "child":
+                    try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
+                    person.labels.add("Want")
+                    if random() < self.p * 1.5:
+                        self.response_module.lookAt(person, duration=0.5)
+                else:
+                    if random() < self.p:
+                        self.response_module.glanceAt(person, duration=0.1)
+                if audience.numNewRecently() > 3:
+                    print "lots of entries!"
+                    try_add(emotional_effect, "shame", EMOTION_DELTAS["moderate"])
+        if len(emotional_effect):
+            emotion_module.affectEmotions(emotional_effect)
+
 
 #Responds to people who walk towards her. Variety of effects.
 class ApproachResponder(Responder):
@@ -151,7 +170,6 @@ class DepartResponder(Responder):
                             try_add(emotional_effect,"anger", EMOTION_DELTAS["extreme"])
 
         if len(emotional_effect):
-            print emotional_effect
             emotion_module.affectEmotions(emotional_effect)
 
 #Responds to people who are standing right up in her face.
@@ -160,11 +178,29 @@ class TooCloseResponder(Responder):
     def __init__(self, action_module, response_module, p=0.1):
         Responder.__init__(self,action_module, response_module, p)
 
+
     def respond(self, emotion_module, audience, idle):
+        emotional_effect = {}
+        width = audience.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = audience.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        screen_diag = distance.euclidean([0,0],[width,height])
+        too_close_size = screen_diag/TOO_CLOSE_FRACTION
         #Check to see if anyone is standing too close
-        #If they were, add fear if adult (more if male), shame if senior, and low fear if child
-        #If male, respond, otherwise glance
-        pass
+        for person in audience.persons:
+            if person.faceSize() > too_close_size:
+                person.interestingness += 5
+                if person.ageRange == "child":
+                    try_add(emotional_effect, "fear", EMOTION_DELTAS["tiny"])
+                elif person.ageRange == "senior":
+                    try_add(emotional_effect, "shame", EMOTION_DELTAS["small"])
+                elif person.gender == "F":
+                    try_add(emotional_effect, "fear", EMOTION_DELTAS["small"])
+                elif person.gender == "M":
+                    try_add(emotional_effect, "fear", EMOTION_DELTAS["moderate"])
+                if random() < self.p:
+                    self.response_module.glanceAt(person, duration=0.1)
+        if len(emotional_effect):
+            emotion_module.affectEmotions(emotional_effect)
 
 #Responds to families and couples entering her space.
 class FamilyResponder(Responder):

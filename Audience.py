@@ -1,7 +1,7 @@
 import cv2
 import numpy
 import copy
-from scipy.spatial import Voronoi, distance
+from scipy.spatial import Voronoi
 
 from PersonSensor import *
 

@@ -84,6 +84,14 @@ class Person:
         self.faceCloseUp = faceCloseUp #close up image
         self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
         self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+
+        self.faceLocHistory.appendleft((face_top_left_2d, face_top_right_2d,\
+            face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
+            face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
+            face_bottom_left_3d, face_center_3d))
+        self.faceSizeHistory.appendleft(face_size(face_top_left_2d,\
+            face_bottom_right_2d))
+
         self.faceEncoding = faceEncoding # 128-length vector encoding
         # differences from average face for easy cosine comparisons
 
@@ -143,6 +151,9 @@ class Person:
 
     def faceMidpoint(self):
         return ((self.face_top_left_2d[0] + self.face_bottom_right_2d[0]) / 2., (self.face_top_left_2d[1] + self.face_bottom_right_2d[1]) / 2.)
+
+    def faceSize(self):
+        return face_size(self.face_top_left_2d,self.face_bottom_left_2d)
 
     #Called when a match is found against a previous person, but before updateFace is called on them.
     def reappear(self):
