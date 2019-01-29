@@ -82,7 +82,6 @@ class App(QWidget):
 
         # Wait for 45s
         delay = 45
-        delay = 5
         progress = QProgressDialog("Starting Rasberry Pi...", "Abort", 0, delay, self)
         progress.setWindowModality(Qt.WindowModal)
 
