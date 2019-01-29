@@ -94,19 +94,3 @@ class RoomFullnessReactor(Reactor):
 
     def effect(self):
         return self.effect_to_send
-
-# Update who is moving quickly (or standing still) and then react based on proportions
-#TODO: Should this be integrated into the relevant responder?
-class MovementReactor(Reactor):
-    def __init__(self, em, aud, default_interest=1):
-        Reactor.__init__(self, em, aud)
-
-    def detect(self):
-        # Detect anyone who hasn't moved for the last while, add "Still" tag, interest and fear
-        # Detect anyone who has moved a lot for the last while, add "Moving" tag, interest and glance
-        # Anyone who doesn't quality for one of those tags should have both removed
-        return False
-
-    def effect(self):
-        pass
-
