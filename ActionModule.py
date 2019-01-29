@@ -170,8 +170,11 @@ class ActionModule(object):
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
                     eyeMotion = False
-                    eyeAngleX = 90 # The eye angles needs an int. If it should be None,
-                    eyeAngleY = 90 # speed will be 0 and no motion will be triggered
+                    # The eye rotation command needs an int as input. If there is no eye motion (value = None),
+                    # speed will be 0 and no motion will be triggered.
+                    # Use 1000, which is out of normal range for this default value.
+                    eyeAngleX = 1000 
+                    eyeAngleY = 1000
                     eyeSpeedX = 0
                     eyeSpeedY = 0
                     self.targetReached = False
