@@ -1,15 +1,19 @@
 import time
 from threading import Thread
 
-from SensorModule import SensorModule
-from EmotionModule import EmotionModule
-from ResponseModule import ResponseModule
-from ActionModule import ActionModule
+TESTING_UI = False
+#TESTING_UI = True
 
-from PersonSensor import PersonSensor
-from Audience import Audience
+if not TESTING_UI:
+    from SensorModule import SensorModule
+    from EmotionModule import EmotionModule
+    from ResponseModule import ResponseModule
+    from ActionModule import ActionModule
 
-import tensorflow as tf
+    from PersonSensor import PersonSensor
+    from Audience import Audience
+
+    import tensorflow as tf
 
 import cv2
 
@@ -21,7 +25,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-
 class App(QWidget):
 
     def __init__(self):
@@ -32,8 +35,11 @@ class App(QWidget):
         self.width = 1200
         self.height = 680
 
-        label = QLabel('Begin Shutdown Sequence')
-        closeBtn = QPushButton('Close')
+        label = QLabel()
+        pixmap = QPixmap()
+        pixmap.load('./icon_headshot')
+        label.setPixmap(pixmap)
+        closeBtn = QPushButton('Shutdown')
         closeBtn.clicked.connect(self.shutdown)
         closeBtn.setEnabled(True)
         layout = QGridLayout(self)
@@ -46,10 +52,10 @@ class App(QWidget):
         self.app_thread = None
 
         self.setupStep = 0
-        self.show()
 
         if self.setup():
             closeBtn.setEnabled(True)
+            self.showNormal()
 
             self.running = True
             self.app_thread = Thread(name='CatsCraddle', target=self.run, args=())
@@ -62,7 +68,7 @@ class App(QWidget):
     def setup(self):
         # Raise message boxes to make sure the user properly sets the marionette
         # before running the AI
-        setupDialog = QMessageBox(self)
+        setupDialog = QMessageBox()
         setupDialog.setText("Cat's Cradle Setup")
         setupDialog.setInformativeText("Make sure all strings are at their lowest point\n")
         setupDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
@@ -82,7 +88,9 @@ class App(QWidget):
 
         # Wait for 45s
         delay = 45
-        progress = QProgressDialog("Starting Rasberry Pi...", "Abort", 0, delay, self)
+        if TESTING_UI:
+            delay = 5
+        progress = QProgressDialog("Starting Rasberry Pi...", None, 0, delay)
         progress.setWindowModality(Qt.WindowModal)
 
         for i in range(0, delay):
@@ -109,7 +117,7 @@ class App(QWidget):
             self.app_thread.join()
 
         # Raise message boxes to make sure the user properly shuts down the marionette
-        shutdownDialog = QMessageBox(self)
+        shutdownDialog = QMessageBox()
         shutdownDialog.setText("Cat's Cradle Shutdown")
         shutdownDialog.setStandardButtons(QMessageBox.Ok)
         shutdownDialog.setDefaultButton(QMessageBox.Ok)
@@ -129,6 +137,11 @@ class App(QWidget):
 
 
     def run(self):
+        if TESTING_UI:
+            while self.running:
+                print "running"
+            return
+
         actionModule = ActionModule(dummy="--dummy" in sys.argv)
         config = tf.ConfigProto(allow_soft_placement=True)
 
