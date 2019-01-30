@@ -4,6 +4,8 @@ from threading import Thread
 TESTING_UI = False
 #TESTING_UI = True
 
+import ArduinoCommunicator
+
 if not TESTING_UI:
     from SensorModule import SensorModule
     from EmotionModule import EmotionModule
@@ -84,8 +86,6 @@ class App(QWidget):
         if ret == QMessageBox.Close:
             return False
 
-        self.setupStep = 2
-
         # Wait for 45s
         delay = 45
         if TESTING_UI:
@@ -100,6 +100,20 @@ class App(QWidget):
             time.sleep(1)
 
         progress.setValue(delay);
+
+        # Try port connection and warn user if failed
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
+        if self.ac.serial_port is None:
+            errorDialog = QMessageBox()
+            errorDialog.setText("ERROR")
+            errorDialog.setIcon(QMessageBox.Critical)
+            errorDialog.setInformativeText("Port not found.\nMake sure the Rasberry Pi is connected to the right port\n")
+            errorDialog.setStandardButtons(QMessageBox.Ok)
+            errorDialog.setDefaultButton(QMessageBox.Ok)
+            errorDialog.exec_()
+            return False
+
+        self.setupStep = 2
 
         setupDialog.setInformativeText("Power On Motors\n");
         ret = setupDialog.exec_();
