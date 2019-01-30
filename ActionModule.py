@@ -163,18 +163,15 @@ class ActionModule(object):
                         print "id:",id," angle:",angle," speed:",speed
         else:
             self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
-            self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
             while(self.running):
                 if not self.qMotorCmds.empty():
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
                     eyeMotion = False
-                    # The eye rotation command needs an int as input. If there is no eye motion (value = None),
-                    # speed will be 0 and no motion will be triggered.
-                    # Use 1000, which is out of normal range for this default value.
-                    eyeAngleX = 1000 
-                    eyeAngleY = 1000
+                    # Sets teh eye angles to the current value
+                    eyeAngleX = self.currentAngles[12]
+                    eyeAngleY = self.currentAngles[13]
                     eyeSpeedX = 0
                     eyeSpeedY = 0
                     self.targetReached = False
@@ -206,7 +203,7 @@ class ActionModule(object):
                             self.ac.rotateStringMotor(id, angle, speed)
 
                     if eyeMotion:
-                        self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
+                        self.ac.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
 
                 # Read from the arduino
                 receivedData = self.ac.receive()
