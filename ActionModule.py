@@ -101,7 +101,7 @@ class ActionModule(object):
         # Arduino motor id to index of the angle in the angles list
         # motor:       'S' 'SR' 'SL' 'AR' 'AL' 'H' 'HR' 'HL' 'FR' 'FL' 'WR' 'WL' 'EX' 'EY'
         # angle index:  0    1    2    3    4   5    6    7    8    9   10   11   12   13
-        # arduino id:   s  m,9  m,8   -1  m,7   h  m,0  m,1  m,5  m,6  m,2  m,3      e
+        # arduino id:   s  m,9  m,8   -1  m,7   h  m,0  m,1  m,5  m,4  m,2  m,3      e
         self.arduinoIDToAngleIndex = {}
         self.arduinoIDToAngleIndex['h'] = 5
         self.arduinoIDToAngleIndex['s'] = 0
