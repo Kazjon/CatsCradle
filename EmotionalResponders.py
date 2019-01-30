@@ -18,6 +18,8 @@ TOO_CLOSE_FRACTION = 8. #Fraction of the screen diagonal that the face diagonal 
 MAX_STILLNESS_MOVEMENT = 5 #Max number of pixels you can have moved (every frame!) in order to be considered "too still"
 MIN_FAST_MOVEMENT_FRACTION = 15.#Fraction of the screen diagonal that you must have covered quickly in order to be considered "too fast"
 
+from Person import FACE_HISTORY_LENGTH
+
 class ExpressionResponder(Responder):
     def __init__(self, action_module, response_module, p=BASE_RESPONSE_CHANCE):
         Responder.__init__(self,action_module, response_module, p)
@@ -217,29 +219,30 @@ class MovementResponder(Responder):
         screen_diag = distance.euclidean([0,0],[width,height])
         too_fast_size = screen_diag/MIN_FAST_MOVEMENT_FRACTION
         for person in audience.persons:
-            person.labels.discard("Still")
-            person.labels.discard("Moving")
-            pairdists = distance.pdist(np.array(person.faceLocHistory))
-            if np.any(pairdists > too_fast_size):
-                person.labels.add("Moving")
-                person.interestingness += 5
-                if random() < self.p:
-                    self.response_module.glanceAt(person, duration=0.5)
-                if person.ageRange is "child":
-                    try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
-                elif person.ageRange is "adult" and person.gender == "M":
-                    try_add(emotional_effect, "fear", EMOTION_DELTAS["moderate"])
-                else:
-                    try_add(emotional_effect, "shame", EMOTION_DELTAS["moderate"])
-            adjacentdists = np.diagonal(pairdists,offset=1)
-            if np.all(adjacentdists<MAX_STILLNESS_MOVEMENT):
-                person.labels.add("Still")
-                person.interestingness += 2
-                if person.ageRange is not "child":
-                    if person.ageRange is "adult" and person.gender == "M":
+            if len(person.faceLocHistory) == FACE_HISTORY_LENGTH:
+                person.labels.discard("Still")
+                person.labels.discard("Moving")
+                pairdists = distance.squareform(distance.pdist(np.array(person.faceMidpointHistory)))
+                if np.any(pairdists > too_fast_size):
+                    person.labels.add("Moving")
+                    person.interestingness += 5
+                    if random() < self.p:
+                        self.response_module.glanceAt(person, duration=0.5)
+                    if person.ageRange is "child":
+                        try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
+                    elif person.ageRange is "adult" and person.gender == "M":
                         try_add(emotional_effect, "fear", EMOTION_DELTAS["moderate"])
                     else:
                         try_add(emotional_effect, "shame", EMOTION_DELTAS["moderate"])
+                adjacentdists = np.diagonal(pairdists,offset=1)
+                if np.all(adjacentdists<MAX_STILLNESS_MOVEMENT):
+                    person.labels.add("Still")
+                    person.interestingness += 2
+                    if person.ageRange is not "child":
+                        if person.ageRange is "adult" and person.gender == "M":
+                            try_add(emotional_effect, "fear", EMOTION_DELTAS["moderate"])
+                        else:
+                            try_add(emotional_effect, "shame", EMOTION_DELTAS["moderate"])
         if len(emotional_effect):
             emotion_module.affectEmotions(emotional_effect)
             

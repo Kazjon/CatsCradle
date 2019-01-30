@@ -84,6 +84,7 @@ class Person:
         self.faceCloseUp = faceCloseUp #close up image
         self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
         self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+        self.faceMidpointHistory = deque(maxlen=FACE_HISTORY_LENGTH)
 
         self.faceLocHistory.appendleft((face_top_left_2d, face_top_right_2d,\
             face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
@@ -140,6 +141,8 @@ class Person:
         self.face_bottom_left_3d = face_bottom_left_3d
         self.face_center_3d = face_center_3d
 
+        self.faceMidpointHistory.appendleft(self.faceMidpoint())
+
         self.faceLocHistory.appendleft((face_top_left_2d, face_top_right_2d,\
             face_bottom_right_2d, face_bottom_left_2d, face_center_2d,\
             face_top_left_3d, face_top_right_3d, face_bottom_right_3d,\
@@ -163,6 +166,7 @@ class Person:
                 self.labels.discard(label)
             self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
+            self.faceMidpointHistory = deque(maxlen=FACE_HISTORY_LENGTH)
 
     def updateInterest(self):
         self.interestingness *= INTEREST_DECAY
