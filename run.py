@@ -40,6 +40,7 @@ class App(QWidget):
         label = QLabel()
         pixmap = QPixmap()
         pixmap.load('./icon_headshot')
+        pixmap = pixmap.scaledToHeight(600)
         label.setPixmap(pixmap)
         closeBtn = QPushButton('Shutdown')
         closeBtn.clicked.connect(self.shutdown)
