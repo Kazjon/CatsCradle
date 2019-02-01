@@ -171,8 +171,6 @@ class DepartResponder(Responder):
                     if audience.numLostRecently() > 3:
                         if random() < self.p:
                             self.response_module.lookAt(person, duration=1)
-                        if person.ageRange is not "child":
-                            try_add(emotional_effect,"anger", EMOTION_DELTAS["extreme"])
 
         if len(emotional_effect):
             emotion_module.affectEmotions(emotional_effect)

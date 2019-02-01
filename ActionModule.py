@@ -41,7 +41,7 @@ class ActionModule(object):
             "neutral": "gestures/neutral_gestures.csv",
             "fear": "gestures/fear_gestures.csv",
             "longing": "gestures/longing_gestures.csv",
-            "anger": "gestures/anger_gestures.csv",
+            "surprise": "gestures/surprise_gestures.csv",
             "shame": "gestures/shame_gestures.csv"
         }
 

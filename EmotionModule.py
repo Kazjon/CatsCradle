@@ -20,7 +20,7 @@ simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., math.sqrt(8) / 3., 0],
                              [-1. / 3., -math.sqrt(2) / 3., math.sqrt(2. / 3.)],
                              [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
-EMOTION_LABELS = ["fear", "anger", "longing", "shame"]#, "surprise", "sad"]
+EMOTION_LABELS = ["fear", "surprise", "longing", "shame"]
 
 EMOTION_DELTAS = {"tiny": 0.001, "small": 0.005, "moderate": 0.05, "large": 1, "extreme": 2, "instant": 5}
 
