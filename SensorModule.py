@@ -70,5 +70,4 @@ class SensorModule(object):
 
 
     def cleanup(self):
-        for camera in self.cameras:
-            camera.release()
+        self.cameras.release()
