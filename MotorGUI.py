@@ -18,8 +18,7 @@ import time
 
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM0")
-        self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
+        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
 
         self.label_list = []
         self.up_btn_list = []
@@ -195,13 +194,13 @@ class MyFrame(wx.Frame):
     def onEyeMove(self, event):  # wxGlade: MyFrame.<event_handler>
         angle_up_down = -self.slider_up_down.GetValue()
         angle_left_rght = -self.slider_left_right.GetValue()
-        self.ac_head.lookAt(angle_up_down, angle_left_rght, angle_up_down, angle_left_rght)
+        self.ac.lookAt(angle_up_down, angle_left_rght, angle_up_down, angle_left_rght)
 
     def onCloseEye(self, event):  # wxGlade: MyFrame.<event_handler>
-        self.ac_head.eyeClose()
+        self.ac.eyeClose()
 
     def onOpenEye(self, event):  # wxGlade: MyFrame.<event_handler>
-        self.ac_head.eyeOpen()
+        self.ac.eyeOpen()
 
     def onBlink(self, event):  # wxGlade: MyFrame.<event_handler>
         self.onCloseEye(event)

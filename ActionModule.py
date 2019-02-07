@@ -99,7 +99,7 @@ class ActionModule(object):
         # Arduino motor id to index of the angle in the angles list
         # motor:       'S' 'SR' 'SL' 'AR' 'AL' 'H' 'HR' 'HL' 'FR' 'FL' 'WR' 'WL' 'EX' 'EY'
         # angle index:  0    1    2    3    4   5    6    7    8    9   10   11   12   13
-        # arduino id:   s  m,9  m,8   -1  m,7   h  m,0  m,1  m,5  m,6  m,2  m,3      e
+        # arduino id:   s  m,9  m,8   -1  m,7   h  m,0  m,1  m,5  m,4  m,2  m,3      e
         self.arduinoIDToAngleIndex = {}
         self.arduinoIDToAngleIndex['h'] = 5
         self.arduinoIDToAngleIndex['s'] = 0
@@ -167,7 +167,6 @@ class ActionModule(object):
 
             print "Arduino thread started."
             self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
-            self.ac_head = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyACM1")
 
             while(self.running):
                 if not self.qMotorCmds.empty():
@@ -177,8 +176,9 @@ class ActionModule(object):
                     cmds = cmds[1]
 
                     eyeMotion = False
-                    eyeAngleX = 90 # The eye angles needs an int. If it should be None,
-                    eyeAngleY = 90 # speed will be 0 and no motion will be triggered
+                    # Sets teh eye angles to the current value
+                    eyeAngleX = self.currentAngles[12]
+                    eyeAngleY = self.currentAngles[13]
                     eyeSpeedX = 0
                     eyeSpeedY = 0
                     self.targetReached = False
@@ -210,7 +210,7 @@ class ActionModule(object):
                             self.ac.rotateStringMotor(id, angle, speed)
 
                     if eyeMotion:
-                        self.ac_head.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
+                        self.ac.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
 
                 # Read from the arduino
                 receivedData = self.ac.receive()

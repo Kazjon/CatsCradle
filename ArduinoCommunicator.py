@@ -160,6 +160,18 @@ class ArduinoCommunicator(object):
         self.send(cmd)
         # self.send(struct.pack('>cbb', 'e', angleX, angleY, speedX, speedY))
 
+    def engageIMU():
+        cmd = 'r,i,1'
+        self.send(cmd)
+
+    def disengageIMU():
+        cmd = 'r,i,0'
+        self.send(cmd)
+
+    def requestEyePosition():
+        cmd = 'r,p'
+        self.send(cmd)
+
     def receiveLines(self, num_of_times):
         for i in xrange(num_of_times):
             self.receive()

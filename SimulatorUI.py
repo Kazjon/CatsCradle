@@ -12,9 +12,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from ActionModule import ActionModule
-from SensorModule import SensorModule
-from EmotionModule import EmotionModule
-from ResponseModule import ResponseModule
+#from SensorModule import SensorModule
+#from EmotionModule import EmotionModule
+#from ResponseModule import ResponseModule
 
 from Marionette import *
 
