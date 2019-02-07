@@ -70,4 +70,5 @@ class SensorModule(object):
 
 
     def cleanup(self):
-        self.personSensor.video_capture.release()
+        for camera in self.cameras:
+            camera.release()
