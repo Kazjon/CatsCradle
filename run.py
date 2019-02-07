@@ -27,6 +27,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+_running = False
+
 class App(QWidget):
 
     def __init__(self):
@@ -44,28 +46,11 @@ class App(QWidget):
         label.setPixmap(pixmap)
         closeBtn = QPushButton('Shutdown')
         closeBtn.clicked.connect(self.shutdown)
-        closeBtn.setEnabled(True)
         layout = QGridLayout(self)
         layout.addWidget(label, 1, 1)
         layout.addWidget(closeBtn, 2, 1)
 
-        closeBtn.setEnabled(False)
-
-        self.running = False
-        self.app_thread = None
-
         self.setupStep = 0
-
-        if self.setup():
-            closeBtn.setEnabled(True)
-            self.showNormal()
-
-            self.running = True
-            self.app_thread = Thread(name='CatsCraddle', target=self.run, args=())
-            self.app_thread.setDaemon(True)
-            self.app_thread.start()
-        else:
-            self.shutdown()
 
 
     def setup(self):
@@ -112,7 +97,8 @@ class App(QWidget):
             errorDialog.setStandardButtons(QMessageBox.Ok)
             errorDialog.setDefaultButton(QMessageBox.Ok)
             errorDialog.exec_()
-            return False
+            if not TESTING_UI:
+                return False
 
         self.setupStep = 2
 
@@ -127,9 +113,7 @@ class App(QWidget):
 
 
     def shutdown(self):
-        self.running = False
-        if self.app_thread:
-            self.app_thread.join()
+        _running = False
 
         # Raise message boxes to make sure the user properly shuts down the marionette
         shutdownDialog = QMessageBox()
@@ -151,61 +135,73 @@ class App(QWidget):
         exit()
 
 
-    def run(self):
-        if TESTING_UI:
-            while self.running:
-                print "running"
-            return
+def run(app):
+    _running = True
 
-        actionModule = ActionModule(dummy="--dummy" in sys.argv)
-        config = tf.ConfigProto(allow_soft_placement=True)
+    if TESTING_UI:
+        while _running:
+            print "running"
+            app.processEvents()
+        return
 
-        print('Loaded Action Module...\n')
+    actionModule = ActionModule(dummy="--dummy" in sys.argv)
+    config = tf.ConfigProto(allow_soft_placement=True)
 
-        with tf.Session(config=config) as tf_sess:
+    print('Loaded Action Module...\n')
 
-            response_module = ResponseModule(actionModule)
+    with tf.Session(config=config) as tf_sess:
 
-            print('Loaded Response Module...\n')
+        response_module = ResponseModule(actionModule)
 
-            emotion_module = EmotionModule(response_module, visualise=True)
+        print('Loaded Response Module...\n')
 
-            print('Loaded Emotion Module...\n')
+        emotion_module = EmotionModule(response_module, visualise=True)
 
-            sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess}, emotion_module)
-            camera = cv2.VideoCapture(0)
-            sensor_module.personSensor = PersonSensor(camera, tf_sess)
-            sensor_module.personSensor.video_capture = camera
-            sensor_module.audience = Audience(sensor_module.personSensor)
-            sensor_module.loadReactors()
+        print('Loaded Emotion Module...\n')
 
-            print('Loaded Sensor Module...\n')
+        sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess}, emotion_module)
+        camera = cv2.VideoCapture(0)
+        sensor_module.personSensor = PersonSensor(camera, tf_sess)
+        sensor_module.personSensor.video_capture = camera
+        sensor_module.audience = Audience(sensor_module.personSensor)
+        sensor_module.loadReactors()
 
-            person_detector_thread = Thread(target=sensor_module.personSensor.detectUndetectedPersons)
-            person_detector_thread.setDaemon(True)
-            person_detector_thread.start()
-    #        person_detector_process = Process(target=sensor_module.personSensor.detectUndetectedPersons)
-    #        person_detector_process.start()
+        print('Loaded Sensor Module...\n')
 
-            print('Loaded Person Detector...\n')
+        person_detector_thread = Thread(target=sensor_module.personSensor.detectUndetectedPersons)
+        person_detector_thread.setDaemon(True)
+        person_detector_thread.start()
+#        person_detector_process = Process(target=sensor_module.personSensor.detectUndetectedPersons)
+#        person_detector_process.start()
 
-            while self.running:
+        print('Loaded Person Detector...\n')
 
-                sensor_module.update()
+        while _running:
 
-                # Hit 'q' on the keyboard to quit
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    self.running = False
+            sensor_module.update()
 
-            print("stopping...")
+            # Hit 'q' on the keyboard to quit
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     _running = False
+            
+            # Process the app events to catch a click on Shutdown button
+            app.processEvents()
+
+        print("stopping...")
 #                person_detector_process.terminate()
-            sensor_module.cleanup()
-            cv2.destroyAllWindows()
+        sensor_module.cleanup()
+        cv2.destroyAllWindows()
 
-        self.shutdown()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = App()
+    if ex.setup():
+        ex.show()
+        app.processEvents()
+        run(app)
+
+    ex.shutdown()
+
     sys.exit(app.exec_())
