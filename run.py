@@ -1,21 +1,17 @@
 import time
 from threading import Thread
 
-TESTING_UI = False
-#TESTING_UI = True
-
 import ArduinoCommunicator
 
-if not TESTING_UI:
-    from SensorModule import SensorModule
-    from EmotionModule import EmotionModule
-    from ResponseModule import ResponseModule
-    from ActionModule import ActionModule
+from SensorModule import SensorModule
+from EmotionModule import EmotionModule
+from ResponseModule import ResponseModule
+from ActionModule import ActionModule
 
-    from PersonSensor import PersonSensor
-    from Audience import Audience
+from PersonSensor import PersonSensor
+from Audience import Audience
 
-    import tensorflow as tf
+import tensorflow as tf
 
 import cv2
 
@@ -33,11 +29,10 @@ class App(QWidget):
 
     def __init__(self):
         super(App, self).__init__()
-        self.title = 'Cat\'s Cradle'
-        self.left = 10
-        self.top = 10
-        self.width = 1200
-        self.height = 680
+        self.setWindowTitle('Cat\'s Cradle')
+        self.move(0, 0)
+
+        self.loadingDialog = None
 
         label = QLabel()
         pixmap = QPixmap()
@@ -73,7 +68,7 @@ class App(QWidget):
 
         # Wait for 45s
         delay = 45
-        if TESTING_UI:
+        if "--testUI" in sys.argv:
             delay = 5
         progress = QProgressDialog("Starting Rasberry Pi...", None, 0, delay)
         progress.setWindowModality(Qt.WindowModal)
@@ -96,7 +91,7 @@ class App(QWidget):
             errorDialog.setStandardButtons(QMessageBox.Ok)
             errorDialog.setDefaultButton(QMessageBox.Ok)
             errorDialog.exec_()
-            if not TESTING_UI:
+            if not "--testUI" in sys.argv:
                 return False
 
         self.setupStep = 2
@@ -134,14 +129,21 @@ class App(QWidget):
         exit()
 
 
-def run(app):
-    _running = True
+    def loadingPersonDetector(self, value):
+        if value is None:
+            self.loadingDialog.cancel()
+        else:
+            # Raise message boxes to make sure the user knows something is loading
+            if self.loadingDialog is None:
+                self.loadingDialog = QProgressDialog("Loading Person Detector...", None, 0, 100)
+                self.loadingDialog.setWindowModality(Qt.WindowModal)
 
-    if TESTING_UI:
-        while _running:
-            print "running"
-            app.processEvents()
-        return
+            self.loadingDialog.show()
+            self.loadingDialog.setValue(value % 100)
+
+
+def run(app, appWidget):
+    _running = True
 
     actionModule = ActionModule(dummy="--dummyAction" in sys.argv)
     config = tf.ConfigProto(allow_soft_placement=True)
@@ -177,8 +179,17 @@ def run(app):
 #        person_detector_process.start()
 
 
+        appWidget.loadingPersonDetector(0)
+        counter = 0
         while not sensor_module.personSensor.initialised:
+            counter += 1
+            appWidget.loadingPersonDetector(counter / 10)
+            if "--testUI" in sys.argv and counter > 3000:
+                break
+            # Process the app events to avoid a freeze of the UI
+            app.processEvents()
             continue
+        appWidget.loadingPersonDetector(None)
         print('Loaded Person Detector...\n')
 
 
@@ -189,7 +200,7 @@ def run(app):
             # Hit 'q' on the keyboard to quit
             # if cv2.waitKey(1) & 0xFF == ord('q'):
             #     _running = False
-            
+
             # Process the app events to catch a click on Shutdown button
             app.processEvents()
 
@@ -202,12 +213,12 @@ def run(app):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ex = App()
-    if "--dummyAction" in sys.argv or ex.setup():
-        ex.show()
+    appWidget = App()
+    if "--dummyAction" in sys.argv or appWidget.setup():
+        appWidget.show()
         app.processEvents()
-        run(app)
+        run(app, appWidget)
 
-    ex.shutdown()
+    appWidget.shutdown()
 
     sys.exit(app.exec_())

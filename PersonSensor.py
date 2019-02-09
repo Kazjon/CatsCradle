@@ -8,7 +8,15 @@ from collections import deque
 
 #FACE RECOGNITION IMPORTS
 import cv2
-import face_recognition
+
+_FACE_RECOGNITION = False
+
+try:
+    import face_recognition
+    _FACE_RECOGNITION = True
+except ImportError:
+    print "ERROR: Unable to load face_recognition module."
+    print "Run without face recognition..."
 
 #RUDE CARNIE IMPORTS
 sys.path.append("age_and_gender_detection")
@@ -259,7 +267,7 @@ class PersonSensor(Sensor):
         rgb_small_frame = small_frame[:, :, ::-1]
 
         # Only process every one in every few frames of video to save time
-        if self.front_frame_process_timer == 1:
+        if _FACE_RECOGNITION and self.front_frame_process_timer == 1:
             # Find all the faces and face encodings in the current frame of
             # video
             if cnn_detection:
@@ -381,8 +389,10 @@ class PersonSensor(Sensor):
             cv2.rectangle(frame, (personBody.body_top_left_2d),\
                 (personBody.body_bottom_right_2d), (255, 0, 0), 2)
 
-
-        cv2.imshow('Front Video', frame)
+        name = 'Front Video'
+        cv2.moveWindow(name, 800, 0)
+        smallerFrame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+        cv2.imshow(name, smallerFrame)
 
         return persons, personBodies
 
