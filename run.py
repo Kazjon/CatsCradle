@@ -1,29 +1,30 @@
 import time
-from threading import Thread
 
-import ArduinoCommunicator
+import cv2
 
 from SensorModule import SensorModule
 from EmotionModule import EmotionModule
 from ResponseModule import ResponseModule
 from ActionModule import ActionModule
 
-from PersonSensor import PersonSensor
-from Audience import Audience
-
-import tensorflow as tf
-
-import cv2
+import ArduinoCommunicator
 
 import sys
-
-from multiprocessing import Process
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 _running = False
+
+import os
+
+# video
+#VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/morePeople-converted.mp4')
+# camera
+VIDEO_FEED = 0
+
+TEST_WIHOUT_RASP = True
 
 class App(QWidget):
 
@@ -66,33 +67,34 @@ class App(QWidget):
         if ret == QMessageBox.Close:
             return False
 
-        # Wait for 45s
-        delay = 45
-        if "--testUI" in sys.argv:
-            delay = 5
-        progress = QProgressDialog("Starting Rasberry Pi...", None, 0, delay)
-        progress.setWindowModality(Qt.WindowModal)
+        if not TEST_WIHOUT_RASP:
+            # Wait for 45s
+            delay = 45
+            if "--testUI" in sys.argv:
+                delay = 5
+            progress = QProgressDialog("Starting Rasberry Pi...", None, 0, delay)
+            progress.setWindowModality(Qt.WindowModal)
 
-        for i in range(0, delay):
-            progress.setValue(i)
-            if (progress.wasCanceled()):
-                return False
-            time.sleep(1)
+            for i in range(0, delay):
+                progress.setValue(i)
+                if (progress.wasCanceled()):
+                    return False
+                time.sleep(1)
 
-        progress.setValue(delay);
+            progress.setValue(delay);
 
-        # Try port connection and warn user if failed
-        self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
-        if self.ac.serial_port is None:
-            errorDialog = QMessageBox()
-            errorDialog.setText("ERROR")
-            errorDialog.setIcon(QMessageBox.Critical)
-            errorDialog.setInformativeText("Port not found.\nMake sure the Rasberry Pi is connected to the right port\n")
-            errorDialog.setStandardButtons(QMessageBox.Ok)
-            errorDialog.setDefaultButton(QMessageBox.Ok)
-            errorDialog.exec_()
-            if not "--testUI" in sys.argv:
-                return False
+            # Try port connection and warn user if failed
+            self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
+            if self.ac.serial_port is None:
+                errorDialog = QMessageBox()
+                errorDialog.setText("ERROR")
+                errorDialog.setIcon(QMessageBox.Critical)
+                errorDialog.setInformativeText("Port not found.\nMake sure the Rasberry Pi is connected to the right port\n")
+                errorDialog.setStandardButtons(QMessageBox.Ok)
+                errorDialog.setDefaultButton(QMessageBox.Ok)
+                errorDialog.exec_()
+                if not "--testUI" in sys.argv:
+                    return False
 
         self.setupStep = 2
 
@@ -129,85 +131,47 @@ class App(QWidget):
         exit()
 
 
-    def loadingPersonDetector(self, value):
-        if value is None:
-            self.loadingDialog.cancel()
-        else:
-            # Raise message boxes to make sure the user knows something is loading
-            if self.loadingDialog is None:
-                self.loadingDialog = QProgressDialog("Loading Person Detector...", None, 0, 100)
-                self.loadingDialog.setWindowModality(Qt.WindowModal)
-
-            self.loadingDialog.show()
-            self.loadingDialog.setValue(value % 100)
-
-
 def run(app, appWidget):
     _running = True
 
     actionModule = ActionModule(dummy="--dummyAction" in sys.argv)
-    config = tf.ConfigProto(allow_soft_placement=True)
 
     print('Loaded Action Module...\n')
 
-    with tf.Session(config=config) as tf_sess:
-        response_module = ResponseModule(actionModule)
+    response_module = ResponseModule(actionModule)
 
-        print('Loaded Response Module...\n')
+    print('Loaded Response Module...\n')
 
-        emotion_module = EmotionModule(response_module, visualise=True)
+    emotion_module = EmotionModule(response_module, visualise=False)
 
-        print('Loaded Emotion Module...\n')
+    print('Loaded Emotion Module...\n')
 
+    sensor_module = SensorModule(emotion_module)
+    sensor_module.loadReactors()
 
-        perceptionMode = "full"
-        if "--dummyPerception" in sys.argv:
-            perceptionMode = "dummy"
-        elif "--fastPerception" in sys.argv:
-            perceptionMode = "fast"
+    print('Loaded Sensor Module...\n')
 
-        sensor_module = SensorModule({"cv_path": '.', "tf_sess": tf_sess, "perception_mode": perceptionMode}, emotion_module)
-        sensor_module.loadSensors(cv2.VideoCapture(0), tf_sess)
-        sensor_module.loadReactors()
+    # loading the camera should happen after sensor module is initialized but before loading camera for the sensor module
+    camera = cv2.VideoCapture(VIDEO_FEED)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    sensor_module.loadSensors(camera)
 
-        print('Loaded Sensor Module...\n')
+    while _running:
 
-        person_detector_thread = Thread(target=sensor_module.personSensor.detectUndetectedPersons)
-        person_detector_thread.setDaemon(True)
-        person_detector_thread.start()
-#        person_detector_process = Process(target=sensor_module.personSensor.detectUndetectedPersons)
-#        person_detector_process.start()
+        sensor_module.update()
 
+        # Hit 'q' on the keyboard to quit
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #    _running = False
 
-        appWidget.loadingPersonDetector(0)
-        counter = 0
-        while not sensor_module.personSensor.initialised:
-            counter += 1
-            appWidget.loadingPersonDetector(counter / 10)
-            if "--testUI" in sys.argv and counter > 3000:
-                break
-            # Process the app events to avoid a freeze of the UI
-            app.processEvents()
-            continue
-        appWidget.loadingPersonDetector(None)
-        print('Loaded Person Detector...\n')
+        # Process the app events to catch a click on Shutdown button
+        app.processEvents()
 
-
-        while _running:
-
-            sensor_module.update()
-
-            # Hit 'q' on the keyboard to quit
-            # if cv2.waitKey(1) & 0xFF == ord('q'):
-            #     _running = False
-
-            # Process the app events to catch a click on Shutdown button
-            app.processEvents()
-
-        print("stopping...")
-#                person_detector_process.terminate()
-        sensor_module.cleanup()
-        cv2.destroyAllWindows()
+    print("stopping...")
+    sensor_module.cleanup()
+    camera.release()
+    cv2.destroyAllWindows()
 
 
 
