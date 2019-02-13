@@ -1,0 +1,11 @@
+
+The following files should be in this directory:
+
+checkpoint
+model.ckpt-14001.data-00000-of-00001
+model.ckpt-14001.index
+model.ckpt-14001.meta
+
+
+All these files can be downloaded in a package from here (look for pretrained models):
+https://github.com/BoyuanJiang/Age-Gender-Estimate-TF

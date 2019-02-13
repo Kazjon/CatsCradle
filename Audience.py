@@ -2,6 +2,9 @@ import cv2
 import numpy
 import copy
 from scipy.spatial import Voronoi
+from scipy.spatial.distance import cdist
+
+from collections import deque
 
 from PersonSensor import *
 
@@ -20,16 +23,17 @@ class Audience:
         self.numLostHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
         self.numNewHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
 
-    def update(self, tf_sess, getPersonBodies=False, cnn_detection=False):
+    def update(self):
         self.previousPersons = self.persons
         self.previousPersonBodies = self.personBodies
 
         #self.previousPersonBodiesBehindMarionette =\
         #    self.personBodiesBehindMarionette
 
-        self.persons, self.personBodies =\
-            self.personSensor.getPersonsAndPersonBodies\
-            (self.previousPersons, self.previousPersonBodies, getPersonBodies=getPersonBodies, cnn_detection=cnn_detection)
+        self.persons, self.personBodies = self.personSensor.getPersonsAndPersonBodies(
+            self.previousPersons,
+            self.previousPersonBodies
+        )
 
         previousIDs = set([p.id for p in self.previousPersons])
         currentIDs = set([p.id for p in self.persons])
@@ -72,7 +76,7 @@ class Audience:
                         points.append(list(vp))
             #Choose the point with the highest minimum distance to all people
             #print "points",points
-            dists = distance.cdist(np.array(personlocs),np.array(points))
+            dists = cdist(np.array(personlocs), np.array(points))
             #print "dists",dists
             minDists = np.amin(dists,axis=0)
             #print "minDists",minDists

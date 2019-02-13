@@ -1,0 +1,11 @@
+The following files should be in this directory:
+
+1. dlib_face_recognition_resnet_model_v1
+http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2
+
+2. mmod_human_face_detector
+https://github.com/davisking/dlib-models/blob/master/mmod_human_face_detector.dat.bz2
+
+3. shape_predictor_68_face_landmarks
+http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2
+
