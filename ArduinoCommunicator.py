@@ -168,8 +168,8 @@ class ArduinoCommunicator(object):
         cmd = 'r,i,0'
         self.send(cmd)
 
-    def requestEyePosition():
-        cmd = 'r,p'
+    def requestHeadData():
+        cmd = 'r,h'
         self.send(cmd)
 
     def receiveLines(self, num_of_times):

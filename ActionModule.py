@@ -79,6 +79,11 @@ class ActionModule(object):
         self.currentTargetAngles = Marionette().getAngles()
         self.targetReached = False
 
+        # Head IMU angles:
+        self.roll = 0
+        self.pitch = 0
+        self.yawn = 0
+
         # motor name to Arduino motor id
         self.arduinoID = {}
         self.arduinoID['motorH'] = 'head'
@@ -260,6 +265,11 @@ class ActionModule(object):
                 id = self.arduinoIDToAngleIndex['e,y']
                 angle = int(data[2])
                 self.currentAngles[id] = angle
+        elif data[0] == "a":
+            if len(data) == 4:
+                self.roll = int(data[1])
+                self.pitch = int(data[2])
+                self.yaw = int(data[3])
         #print "currentAngles = ", self.currentAngles
 	#print "targetAngles = ", self.currentTargetAngles
 
