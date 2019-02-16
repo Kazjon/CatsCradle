@@ -34,11 +34,6 @@ MESSAGE_EXPIRE_MS = timedelta(milliseconds=100)
 
 GENDER_MAP = {1: 'M', 0: 'F'}
 
-AGE_MAP = {'(0, 2)': "child", '(4, 6)': "child", '(8, 12)': "child",
-           '(15, 20)': "teen",
-           '(25, 32)': "adult", '(38, 43)': "adult", '(48, 53)': "adult",
-           '(60, 100)': "senior"}
-
 
 def load_dlib_module():
     """
@@ -296,7 +291,7 @@ def process_image(frame_queue, prediction_queue):
         batch_gray_image_list = []
 
         # display results on the terminal
-        display_results(n_faces_list, ages, genders, probas)
+#        display_results(n_faces_list, ages, genders, probas)
 
         # update the last_faces_rects and update the frame to display
         last_face_index = sum(n_faces_list) - n_faces_list[-1]

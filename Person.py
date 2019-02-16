@@ -14,8 +14,9 @@ import time
 INTEREST_DECAY = 0.99
 FACE_HISTORY_LENGTH = 5
 INTEREST_DECAY_INTERVAL = 0.1 #seconds between applying INTEREST_DECAY
-NEW_INTERACTION_TIMEOUT = 3 #seconds someone can go missing before their movement history is thrown out
-
+NEW_INTERACTION_TIMEOUT = 15 #seconds someone can go missing before their movement history is thrown out
+# the maximum number of samples that we need to have before we can predict age/gender accurately
+MAX_NUM_SAMPLES = 20
 
 def face_size(face_top_left, face_bottom_right):
     """
@@ -30,31 +31,27 @@ class Person:
     """Class to handle a person parameters"""
 
     def __str__(self):
-        return "Id: %s, Gender: %s, Age: %s"%(self.id,\
-            self.getGender(), self.getAgeRange())
+        return "Person " + str(self.id) + ": " + self.gender + " (" + self.ageRange + ") " + str(self.labels)
 
-    def __init__(self, gender, ageRange, person_id,
+
+    def __init__(self, age_probas, gender_probas, person_id,
                  (face_top_left_2d, face_top_right_2d,
                   face_bottom_right_2d, face_bottom_left_2d, face_center_2d)):
         self.id = person_id
         self.labels = Set()
         self.interestingness = 0
         self.last_seen = time.time()
-        # detector
-        #self.bodyDetector = BodyPartDetector()
+        
         # Person's properties
-        self.gender = 'Unkown'
-        # As soon as a Person object is created, the age/gender detection thread
-        # grabs the gender and ageRange Lock objects. If any other program logic
-        # needs access to age and gender, it must access them through the
-        # getAgeRange and getGender functions which check if the lock has been
-        # released by the age/gender detection thread. If so, these methods
-        # return the detected age and gender. If not, they return None
-        self.genderLock = Lock()
-        self.ageRange = 'Unknown'
-        self.ageRangeLock = Lock()
+        self.gender_probabilities = gender_probas
+        self.gender = max(gender_probas.iterkeys(), key=(lambda key: gender_probas[key]))
+        
+        self.age_probabilities = age_probas
+        self.ageRange = max(age_probas.iterkeys(), key=(lambda key: age_probas[key]))
+        
+        # number of samples (frames) that the age/gender are being predicted based on
+        self.num_samples = 1
 
-        self.smile = False
         self.speed = 0
         # Height is a value proportional to the person's size on screen
         # could be a smaller person close to the camera, or a taller person
@@ -88,11 +85,33 @@ class Person:
         self.faceSizeHistory.appendleft(face_size(face_top_left_2d, face_bottom_right_2d))
 
 
+    def update_age_gender(self, age_probas, gender_probas):
+        if self.num_samples >= MAX_NUM_SAMPLES:
+            return
+        
+        # update the new probas and prediction
+        
+        # 1. update gender probas
+        for key in self.gender_probabilities.keys():
+            self.gender_probabilities[key] = self.update_probability(self.gender_probabilities[key], gender_probas[key])
+        # 2. update gender prediction
+        self.gender = max(self.gender_probabilities.iterkeys(), key=(lambda key: self.gender_probabilities[key]))
+        
+        # 3. update age probas
+        for key in self.age_probabilities.keys():
+            self.age_probabilities[key] = self.update_probability(self.age_probabilities[key], age_probas[key])
+        # 4. update age prediction
+        self.ageRange = max(self.age_probabilities.iterkeys(), key=(lambda key: self.age_probabilities[key]))
+        
+        self.num_samples = self.num_samples + 1
+        
+
+    def update_probability(self, old_value, new_value):
+        return (float(self.num_samples * old_value) + new_value) / (self.num_samples + 1)
+    
+    
     def updateFace(self, (face_top_left_2d, face_top_right_2d,
                           face_bottom_right_2d, face_bottom_left_2d, face_center_2d)):
-
-        if time.time() - self.last_seen > INTEREST_DECAY_INTERVAL:
-            self.updateInterest()
 
         self.face_top_left_2d = face_top_left_2d
         self.face_top_right_2d = face_top_right_2d
@@ -114,119 +133,37 @@ class Person:
         
         self.faceSizeHistory.appendleft(face_size(face_top_left_2d, face_bottom_right_2d))
 
-        self.last_seen = time.time()
 
     def faceMidpoint(self):
         return ((self.face_top_left_2d[0] + self.face_bottom_right_2d[0]) / 2., (self.face_top_left_2d[1] + self.face_bottom_right_2d[1]) / 2.)
 
+
     def faceSize(self):
         return face_size(self.face_top_left_2d,self.face_bottom_left_2d)
 
+
     #Called when a match is found against a previous person, but before updateFace is called on them.
     def reappear(self):
-        if time.time() - self.last_seen > NEW_INTERACTION_TIMEOUT:
-            labels_to_remove = ["Approached","Creeping"]
-            for label in labels_to_remove:
-                self.labels.discard(label)
+        
+        time_diff = time.time() - self.last_seen
+        
+        if time_diff > NEW_INTERACTION_TIMEOUT:
+            self.labels = Set()
             self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceMidpointHistory = deque(maxlen=FACE_HISTORY_LENGTH)
-
-    def updateInterest(self):
-        self.interestingness *= INTEREST_DECAY
-        self.interestingness = max(0,self.interestingness)
-
+        
+        if time_diff > INTEREST_DECAY_INTERVAL:
+            self.interestingness *= INTEREST_DECAY
+            self.interestingness = max(0, self.interestingness)
+        
+        self.last_seen = time.time()
+    
+    
     def getAgeRange(self):
-        """
-        Checks if ageRangeLock has been released. If so, returns ageRange.
-        If not returns None.
-        """
-        return None if self.ageRangeLock.locked() else self.ageRange
+        return self.ageRange
+
 
     def getGender(self):
-        """
-        Checks if genderLock has been released. If so, returns gender. If not
-        returns None.
-        """
-        return None if self.genderLock.locked() else self.gender
+        return self.gender
 
-#    def update(self, frame):
-#        """Track the person in the frame"""
-#        # Watch out: update returns double values
-#        ok, droi = self.tracker.update(frame)
-#        self.roi = (int(droi[0]), int(droi[1]), int(droi[2]), int(droi[3]))
-#        if ok:
-#            self.posCamera = centerROI(self.roi)
-#            # Check for smile
-#            smiles = self.bodyDetector.detectSmiles(frame, self.roi)
-#            if len(smiles) > 0:
-#                self.smile = True
-#            else:
-#                self.smile = False
-#        else:
-#            print "Tracking error"
-#
-#
-#    def draw(self, frame):
-#        """Draw the person's face in frame"""
-#        p1 = (int(self.roi[0]), int(self.roi[1]))
-#        p2 = (int(self.roi[0] + self.roi[2]), int(self.roi[1] + self.roi[3]))
-#        p3 = (int(self.roi[0] + self.roi[2] / 3), int(self.roi[1] + self.roi[3] / 3))
-#        # Display person in blue
-#        cv2.rectangle(frame, p1, p2, (255, 0, 0), 2)
-#        cv2.putText(frame,
-#                    'Person ' + str(self.id),
-#                    p3,
-#                    cv2.FONT_HERSHEY_SIMPLEX,
-#                    1, (255, 0, 0),
-#                    2, cv2.LINE_AA)
-#
-#        return frame
-#
-#
-#if __name__ == '__main__':
-#
-#    camera = Camera(0)
-#    detector = BodyPartDetector()
-#
-#    persons = []
-#
-#    while True:
-#        ret, frame = camera.getFrame()
-#        if not ret:
-#            continue
-#
-#        faces = detector.detectFaces(frame)
-#        #bodies = sensor.detectFullBodies(frame)
-#
-#        for p in persons:
-#            p.update(frame)
-#
-#        if len(faces) != len(persons):
-#            newPersons = []
-#            for face in faces:
-#                found = False
-#                for p in persons:
-#                    if overlapROIs(p.roi, face):
-#                        # Match existing person
-#                        found = True
-#                        newPersons.append(p)
-#                        break
-#                if not found:
-#                    # Create new person
-#                    newPersons.append(Person(frame, face))
-#            persons = newPersons
-#
-#        for p in persons:
-#            frame = p.draw(frame)
-#
-#        # Display detected face in red
-#        detector.draw(frame, faces, (0, 0, 255))
-#
-#        # Display the resulting frame
-#        cv2.imshow('Person tracking', frame)
-#
-#        if cv2.waitKey(1) & 0xFF == ord('q'):
-#            break
-#
-#    cv2.destroyAllWindows()

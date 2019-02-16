@@ -104,27 +104,47 @@ class PersonSensor():
             face_rect = prediction[0]
             face_position = self.get2dAnd3dCoordsFromLocation(face_rect.top(), face_rect.right(),
                                                               face_rect.bottom(), face_rect.left())
+            face_encoding = prediction[3]
+            age_probas = self.get_age_probas(prediction[4])
+            gender_probas = self.get_gender_probas(prediction[5])
+            
             # compare the face encoding to the history of encodings
             distances = np.array([100])
             if len(self._face_encodings) > 0:
-                distances = np.linalg.norm(np.array(self._face_encodings) - np.array(prediction[3]), axis=1, ord=2)
+                distances = np.linalg.norm(np.array(self._face_encodings) - np.array(face_encoding), axis=1, ord=2)
             if True in (distances < 0.6):
                 # found a match in history -- return the person object
                 person = self._person_objects[(distances < 0.6).argmax()]
                 person.reappear()
+                person.update_age_gender(age_probas, gender_probas)
                 person.updateFace(face_position)
                 persons.append(person)
             else:
                 # new person
-                self._face_encodings.append(prediction[3])
-                person = Person.Person(prediction[1], prediction[2], self._last_id, face_position)
+                self._face_encodings.append(face_encoding)
+                person = Person.Person(age_probas, gender_probas, self._last_id, face_position)
                 persons.append(person)
                 self._person_objects.append(person)
                 self._last_id += 1
-                    
+        
         personBodies = previousPersonBodies
-
+        
+        for person in persons:
+            print(person)
+        
         return persons, personBodies
+    
+    
+    def get_age_probas(self, age_probabilities):
+        age_probas = {'child': sum(age_probabilities[0:13]),
+                      'adult': sum(age_probabilities[13:60]),
+                      'senior': sum(age_probabilities[60:])}
+        return age_probas
+    
+    
+    def get_gender_probas(self, gender_probas):
+        gender_probas = {'F': gender_probas[0], 'M': gender_probas[1]}
+        return gender_probas
     
     
     def display_frame(self, frame, prediction_results):
