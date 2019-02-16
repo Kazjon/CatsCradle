@@ -147,6 +147,16 @@ class ActionModule(object):
             self.arduino_thread.setDaemon(True)
             self.arduino_thread.start()
 
+
+    def clearQueue(self):
+        while not self.qMotorCmds.empty():
+            try:
+                self.qMotorCmds.get(False)
+            except Empty:
+                continue
+            self.qMotorCmds.task_done()
+
+
     def getMovementCount(self):
         self.movementCount += 1
         return self.movementCount
@@ -181,7 +191,7 @@ class ActionModule(object):
                     cmds = cmds[1]
 
                     eyeMotion = False
-                    # Sets teh eye angles to the current value
+                    # Sets the eye angles to the current value
                     eyeAngleX = self.currentAngles[12]
                     eyeAngleY = self.currentAngles[13]
                     eyeSpeedX = 0

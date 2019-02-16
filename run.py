@@ -41,7 +41,7 @@ class App(QWidget):
         pixmap = pixmap.scaledToHeight(600)
         label.setPixmap(pixmap)
         closeBtn = QPushButton('Shutdown')
-        closeBtn.clicked.connect(self.shutdown)
+        closeBtn.clicked.connect(self.initShutdown)
         layout = QGridLayout(self)
         layout.addWidget(label, 1, 1)
         layout.addWidget(closeBtn, 2, 1)
@@ -108,9 +108,12 @@ class App(QWidget):
         return True
 
 
-    def shutdown(self):
+    def initShutdown(self):
+        global _running
         _running = False
 
+
+    def shutdown(self):
         # Raise message boxes to make sure the user properly shuts down the marionette
         shutdownDialog = QMessageBox()
         shutdownDialog.setText("Cat's Cradle Shutdown")
@@ -118,9 +121,6 @@ class App(QWidget):
         shutdownDialog.setDefaultButton(QMessageBox.Ok)
 
         if self.setupStep > 2:
-            shutdownDialog.setInformativeText("Return all Motors to zero\n")
-            shutdownDialog.exec_()
-
             shutdownDialog.setInformativeText("Power Off Motors\n")
             shutdownDialog.exec_()
 
@@ -128,10 +128,9 @@ class App(QWidget):
             shutdownDialog.setInformativeText("Power Off Rasberry Pi\n")
             shutdownDialog.exec_()
 
-        exit()
-
 
 def run(app, appWidget):
+    global _running
     _running = True
 
     actionModule = ActionModule(dummy="--dummyAction" in sys.argv)
@@ -173,6 +172,19 @@ def run(app, appWidget):
     camera.release()
     cv2.destroyAllWindows()
 
+    # Clear the current queue
+    actionModule.clearQueue()
+    # Define rest angles for the 12 motors (0)
+    restAngles = [0] * 12
+    # Add angles for the eyes (90)
+    restAngles.extend([90, 90])
+    # Define speed for each motor (25)
+    speeds = [25] * 14
+    actionModule.moveToAngles(restAngles, speeds)
+
+    # Waiting for the move to complete
+    while not actionModule.isMarionetteIdle():
+        pass
 
 
 if __name__ == "__main__":
@@ -185,4 +197,4 @@ if __name__ == "__main__":
 
     appWidget.shutdown()
 
-    sys.exit(app.exec_())
+    exit()
