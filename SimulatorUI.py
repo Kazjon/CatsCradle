@@ -78,6 +78,18 @@ class App(QWidget):
         self.positionsComboBox = QComboBox()
         self.gotoBtn = QPushButton('GoTo Target')
 
+        # Calibration
+        self.upPositionBtn = QPushButton('Capture Max Up')
+        self.downPositionBtn = QPushButton('Capture Max Down')
+        self.leftPositionBtn = QPushButton('Capture Max Left')
+        self.rightPositionBtn = QPushButton('Capture Max Right')
+
+        self.camera = cv2.VideoCapture(0)
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+        self.running = True
+
         self.initUI()
 
 
@@ -92,6 +104,7 @@ class App(QWidget):
         self.createMotorNameLayout()
         self.createCommandsLayout()
         self.createGotoLayout()
+        self.createCalibrationLayout()
 
         windowLayout = QGridLayout()
         # Line 1
@@ -104,6 +117,7 @@ class App(QWidget):
         # Line 2
         windowLayout.addWidget(self.commandsGroupBox, 3, 1, 1, 2)
         windowLayout.addWidget(self.gotoGroupBox, 3, 3, 1, 1)
+        windowLayout.addWidget(self.calibrationGroupBox, 3, 4, 1, 1)
 
         self.setLayout(windowLayout)
 
@@ -196,6 +210,12 @@ class App(QWidget):
         self.gotoBtn.clicked.connect(self.gotoTarget)
         self.gotoBtn.setEnabled(True)
 
+        # Calibration buttons
+        self.upPositionBtn.clicked.connect(lambda: self.saveCalibration("up"))
+        self.downPositionBtn.clicked.connect(lambda: self.saveCalibration("down"))
+        self.leftPositionBtn.clicked.connect(lambda: self.saveCalibration("left"))
+        self.rightPositionBtn.clicked.connect(lambda: self.saveCalibration("right"))
+
         # Sequence Sketch Window
         self.seqSketchWindow = None
 
@@ -229,6 +249,16 @@ class App(QWidget):
                 j += 1
             i += 1
         self.gotoGroupBox.setLayout(layout)
+
+
+    def createCalibrationLayout(self):
+        self.calibrationGroupBox = QGroupBox("Calibration")
+        layout = QGridLayout()
+        layout.addWidget(self.upPositionBtn, 1, 2)
+        layout.addWidget(self.leftPositionBtn, 2, 1)
+        layout.addWidget(self.rightPositionBtn, 2, 3)
+        layout.addWidget(self.downPositionBtn, 3, 2)
+        self.calibrationGroupBox.setLayout(layout)
 
 
     def createSpeedCmdLayout(self):
@@ -287,6 +317,9 @@ class App(QWidget):
 
     def closeEvent(self, event):
         self.actionModule.stop()
+        self.running = False
+        ex.camera.release()
+        cv2.destroyAllWindows()
         event.accept() # let the window close
 
 
@@ -385,6 +418,10 @@ class App(QWidget):
         self.marionette.setAngles(angles)
 
         self.updateSliders()
+
+
+    def saveCalibration(self, name):
+        self.actionModule.saveCalibration(name)
 
 
     @pyqtSlot(str)
@@ -495,4 +532,10 @@ class SequenceSketchWindow(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
-    sys.exit(app.exec_())
+
+    while ex.running:
+        ret, frame = ex.camera.read()
+        cv2.imshow('Camera', frame)
+        app.processEvents()
+
+    exit()

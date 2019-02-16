@@ -83,6 +83,21 @@ class ActionModule(object):
         self.roll = 0
         self.pitch = 0
         self.yawn = 0
+        self.pitchMax = 0
+        self.pitchMin = 0
+        self.yawnMax = 0
+        self.yawnMin = 0
+
+        # Read the calibration file
+        self.calibration = []
+        filename = "IMUCameraCalibration.json"
+        with open(filename, "r") as read_file:
+            self.calibration = json.load(read_file)
+            print self.calibration
+            self.pitchMax = self.calibration["up"][1]
+            self.pitchMin = self.calibration["down"][1]
+            self.yawnMax = self.calibration["left"][2]
+            self.yawnMin = self.calibration["right"][2]
 
         # motor name to Arduino motor id
         self.arduinoID = {}
@@ -424,6 +439,28 @@ class ActionModule(object):
                 self.positions.update(updatedPositions)
         except:
             pass
+
+    def saveCalibration(self, name):
+        self.ac.requestHeadData()
+        receivedData = self.ac.receive()
+        if receivedData != '':
+            #print "received data: ", receivedData
+            self.updateAnglesFromFeedback(receivedData)
+
+        self.calibration[name] = [self.roll, self.pitch, self.yawn]
+
+        if name is "up":
+            self.pitchMax = self.pitch
+        elif name is "down":
+            self.pitchMin = self.pitch
+        elif name is "left":
+            self.yawnMax = self.yawn
+        elif name is "right":
+            self.yawnMin - self.yawn
+
+        # Write new values in json file
+        with open("IMUCameraCalibration.json", "w") as write_file:
+            json.dump(self.calibration, write_file, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':

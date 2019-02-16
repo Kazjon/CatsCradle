@@ -160,15 +160,15 @@ class ArduinoCommunicator(object):
         self.send(cmd)
         # self.send(struct.pack('>cbb', 'e', angleX, angleY, speedX, speedY))
 
-    def engageIMU():
+    def engageIMU(self):
         cmd = 'r,i,1'
         self.send(cmd)
 
-    def disengageIMU():
+    def disengageIMU(self):
         cmd = 'r,i,0'
         self.send(cmd)
 
-    def requestHeadData():
+    def requestHeadData(self):
         cmd = 'r,h'
         self.send(cmd)
 
