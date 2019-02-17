@@ -88,6 +88,10 @@ class ActionModule(object):
         self.yawnMax = 0
         self.yawnMin = 0
 
+        # TODO: Update these values with max x and y in camera coordinates
+        self.cameraMaxX = 1200
+        self.cameraMaxY = 700
+
         # Read the calibration file
         self.calibration = []
         filename = "IMUCameraCalibration.json"
@@ -356,12 +360,47 @@ class ActionModule(object):
     def isMarionetteIdle(self):
         return self.isIdle
 
+    def cameraCoordsToEyeWorld(self, targetCameraCoords):
+        # From a target in camera coordinates, get the eye pitch/yawn in world space
+        # to look at that point
+        # Uses the current angles data (caller should update first if needed)
+        pitchRange = self.pitchMax - self.pitchMin
+        yawnRange = self.yawnMax - self.yawnMin
+        pitchFactor = targetCameraCoords[1] / self.cameraMaxY
+        yawnFactor = targetCameraCoords[0] / self.cameraMaxX
+        eyePitch = self.pitchMax - pitchFactor * pitchRange
+        eyeYawn = self.yawnMin + yawnFactor * yawnRange
+        return eyePitch, eyeYawn
+
+
+    def eyeWorldToCameraCoords(self, eyePitch, eyeYawn):
+        # Inverse from cameraCoordsToEyeWorld
+        pitchRange = self.pitchMax - self.pitchMin
+        yawnRange = self.yawnMax - self.yawnMin
+        pitchFactor = (self.pitchMax - eyePitch) / pitchRange
+        yawnFactor = (eyeYawn - self.yawnMin) / yawnRange
+        x = yawnFactor * self.cameraMaxX
+        y = pitchFactor * self.cameraMaxY
+        return [x, y]
+
+
     def moveEyes(self, targetCameraCoords):
-        print "Eye movement not implemented, pretending to move eyes to",targetCameraCoords
+        print "Move eyes to",targetCameraCoords
+        self.updateHeadData()
+        targetPitch, targetYawn = cameraCoordsToEyeWorld(targetCameraCoords)
+        # Current eye pitch and yawn (includes head orientation)
+        eyePitch = targetPitch - self.pitch
+        eyeYawn = targetYawn - self.yawn
+        eyeAngleX = 90 + eyePitch
+        eyeAngleY = 90 + eyeYawn
+        speed = 25 # arbitrary speed value
+        self.ac.rotateEyes(eyeAngleX, eyeAngleY, speed, speed)
 
     def moveEyesAndHead(self, targetCameraCoords):
         print "Eye and head movement not implemented, pretending to move eyes and head to", targetCameraCoords
-
+        self.updateHeadData()
+        targetPitch, targetYawn = cameraCoordsToEyeWorld(targetCameraCoords)
+        # Not sure how to move head and/or eyes to look at the target
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -440,13 +479,17 @@ class ActionModule(object):
         except:
             pass
 
-    def saveCalibration(self, name):
+
+    def updateHeadData(self):
         self.ac.requestHeadData()
         receivedData = self.ac.receive()
         if receivedData != '':
             #print "received data: ", receivedData
             self.updateAnglesFromFeedback(receivedData)
 
+
+    def saveCalibration(self, name):
+        self.updateHeadData()
         self.calibration[name] = [self.roll, self.pitch, self.yawn]
 
         if name is "up":
