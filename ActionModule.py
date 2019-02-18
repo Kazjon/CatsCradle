@@ -88,9 +88,9 @@ class ActionModule(object):
         self.yawnMax = 0
         self.yawnMin = 0
 
-        # TODO: Update these values with max x and y in camera coordinates
-        self.cameraMaxX = 1200
-        self.cameraMaxY = 700
+        # Max x and y in camera coordinates space
+        self.cameraMaxX = 1920
+        self.cameraMaxY = 1080
 
         # Read the calibration file
         self.calibration = []
