@@ -36,6 +36,8 @@ class ActionModule(object):
         # this variable is True when no gestures are being executed
         self.isIdle = True
 
+        self.headDataUpdated = False
+
         # TODO: hardcoded configs?
         gesture_files = {
             "neutral": "gestures/neutral_gestures.csv",
@@ -218,30 +220,40 @@ class ActionModule(object):
                     self.targetReached = False
                     for cmd in cmds:
                         # print "step = ", step
-                        id = self.arduinoID[cmd[0]]
-                        angle = int(cmd[1])
-                        speed = int(cmd[2])
-                        if angle is None or speed == 0:
-                            # No motion
-                            continue
-                        if id == -1:
-                            # Obsolete motor AR
-                            continue
-                        if id == 'head':
-                            self.ac.rotateHead(angle, speed)
-                        elif id == 'shoulder':
-                            self.ac.rotateShoulder(angle, speed)
-                        elif id == 'eyeX':
-                            eyeMotion = True
-                            eyeAngleX = angle
-                            eyeSpeedX = speed
-                        elif id == 'eyeY':
-                            eyeMotion = True
-                            eyeAngleY = angle
-                            eyeSpeedY = speed
+                        if cmd[0] == 'requestHeadData':
+                            self.ac.requestHeadData()
+                        elif cmd[0] == 'IMU':
+                            on = bool(cmd[1])
+                            if on:
+                                self.ac.engageIMU()
+                            else:
+                                self.ac.disengageIMU()
                         else:
-                            # Other motors
-                            self.ac.rotateStringMotor(id, angle, speed)
+                            # Motor command
+                            id = self.arduinoID[cmd[0]]
+                            angle = int(cmd[1])
+                            speed = int(cmd[2])
+                            if angle is None or speed == 0:
+                                # No motion
+                                continue
+                            if id == -1:
+                                # Obsolete motor AR
+                                continue
+                            if id == 'head':
+                                self.ac.rotateHead(angle, speed)
+                            elif id == 'shoulder':
+                                self.ac.rotateShoulder(angle, speed)
+                            elif id == 'eyeX':
+                                eyeMotion = True
+                                eyeAngleX = angle
+                                eyeSpeedX = speed
+                            elif id == 'eyeY':
+                                eyeMotion = True
+                                eyeAngleY = angle
+                                eyeSpeedY = speed
+                            else:
+                                # Other motors
+                                self.ac.rotateStringMotor(id, angle, speed)
 
                     if eyeMotion:
                         self.ac.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
@@ -299,6 +311,7 @@ class ActionModule(object):
                 self.roll = int(data[1])
                 self.pitch = int(data[2])
                 self.yaw = int(data[3])
+                self.headDataUpdated = True
         #print "currentAngles = ", self.currentAngles
 	#print "targetAngles = ", self.currentTargetAngles
 
@@ -394,13 +407,23 @@ class ActionModule(object):
         eyeAngleX = 90 + eyePitch
         eyeAngleY = 90 + eyeYawn
         speed = 25 # arbitrary speed value
-        self.ac.rotateEyes(eyeAngleX, eyeAngleY, speed, speed)
+        command = [['motorEX', eyeAngleX, speed], ['motorEY', eyeAngleY, speed]]
+        self.qMotorCmds.put(((0,self.getMovementCount()), command))
 
     def moveEyesAndHead(self, targetCameraCoords):
-        print "Eye and head movement not implemented, pretending to move eyes and head to", targetCameraCoords
-        self.updateHeadData()
+        print "Move eyes and head to", targetCameraCoords
+        # First move the eyes to the target
+        moveEyes(targetCameraCoords)
+        # Then engage IMU
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
+        # Then move the head to face the target (data already updated when calling moveEyes)
         targetPitch, targetYawn = cameraCoordsToEyeWorld(targetCameraCoords)
-        # Not sure how to move head and/or eyes to look at the target
+        speed = 25 # arbitrary speed value
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', targetYawn, speed]]))
+        # For now ignore the pitch. Not sure what is the correspondance between head motor
+        # angle and pitch
+        # Disengage IMU
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -481,11 +504,15 @@ class ActionModule(object):
 
 
     def updateHeadData(self):
-        self.ac.requestHeadData()
-        receivedData = self.ac.receive()
-        if receivedData != '':
-            #print "received data: ", receivedData
-            self.updateAnglesFromFeedback(receivedData)
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['requestHeadData']]))
+        self.headDataUpdated = False
+        # Wait until head data is updated (bail if too long)
+        counter = 0
+        while not self.headDataUpdated:
+            counter += 1
+            if counter > 10e6:
+                self.headDataUpdated = True
+                print "WARNING ----- Head data requested were not updated"
 
 
     def saveCalibration(self, name):
