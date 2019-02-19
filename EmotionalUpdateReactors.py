@@ -12,28 +12,6 @@ def male_fraction(persons):
             males += 1
     return males/len(persons)
 
-# This reactor detects when an adult has rapidly approached the piece and labels them a threat.
-class ThreateningPersonReactor(Reactor):
-    def __init__(self, em, aud, size_ratio=2):
-        Reactor.__init__(self, em, aud)
-        self.targets = []
-        self.size_ratio_threshold = size_ratio
-
-    def detect(self):
-        found = False
-        for person in self.audience.persons:
-            if person.getAgeRange() == "adult" and len(person.faceSizeHistory):
-                if person.faceSizeHistory is None or person.faceSizeHistory[0] is None:
-                    continue
-                if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.size_ratio_threshold:
-                    self.targets.append(person)
-                    found = True
-        return found
-
-    def effect(self):
-        # Append the "Threat" label to the audience member
-        for person in self.targets:
-            person.labels.add("Threat")
 
 # This reactor adds a small amount of interest to whoever is closest -- just as a test of the interest system.
 class DefaultInterestReactor(Reactor):

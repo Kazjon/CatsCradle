@@ -112,7 +112,7 @@ class ApproachResponder(Responder):
                     person.labels.add("RecentThreat")
                     person.interestingness += 25
                     if person.ageRange == "child":
-                        try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
+                        try_add(emotional_effect, "surprise", EMOTION_DELTAS["extreme"])
                         self.response_module.lookAt(person, duration=0.5)
                     elif person.ageRange == "senior" or person.gender == "F":
                         try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
@@ -167,7 +167,7 @@ class DepartResponder(Responder):
                     else:
                         person.interestingness += 10
                         if person.ageRange == "child":
-                                try_add(emotional_effect,"longing", EMOTION_DELTAS["extreme"])
+                            try_add(emotional_effect,"longing", EMOTION_DELTAS["extreme"])
                     if audience.numLostRecently() > 3:
                         if random() < self.p:
                             self.response_module.lookAt(person, duration=1)
@@ -244,16 +244,4 @@ class MovementResponder(Responder):
         if len(emotional_effect):
             emotion_module.affectEmotions(emotional_effect)
             
-            
-#Responds to families and couples entering her space.
-class FamilyResponder(Responder):
-
-    def __init__(self, action_module, response_module ,p=0.1):
-        Responder.__init__(self,action_module, response_module, p)
-
-    def respond(self, emotion_module, audience, idle):
-        #Detect if people have been close for a while
-        #If they're two adults, add the "Couple" tag and respond
-        #If there's a child with them, add the "Family" tag and respond
-        pass
 
