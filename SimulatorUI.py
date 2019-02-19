@@ -73,6 +73,7 @@ class App(QWidget):
         self.resetAnglesBtn = QPushButton('Reset angles')
         self.closeBtn = QPushButton('Close')
         self.printBtn = QPushButton('Save Position')
+        self.IMUBtn = QPushButton('Start IMU Compensation')
 
         # Goto controls
         self.positionsComboBox = QComboBox()
@@ -89,6 +90,7 @@ class App(QWidget):
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
         self.running = True
+        self.IMUCompensation = False
 
         self.initUI()
 
@@ -203,6 +205,10 @@ class App(QWidget):
         self.printBtn.setToolTip('Save the current motor angles')
         self.printBtn.clicked.connect(self.savePosition)
         self.printBtn.setEnabled(True)
+        # IMU compensation button
+        self.IMUBtn.setToolTip('Start/stop IMU eye compensation')
+        self.IMUBtn.clicked.connect(self.IMUCompensationCallback)
+        self.IMUBtn.setEnabled(True)
 
         # GoTo controls
         self.updateTargetComboBox()
@@ -226,7 +232,7 @@ class App(QWidget):
         self.commandsGroupBox = QGroupBox("Commands")
         layout = QGridLayout()
         i = 1
-        for btnList in [[self.resetAnglesBtn],
+        for btnList in [[self.resetAnglesBtn, self.IMUBtn],
                         [self.seqWinBtn],
                         [self.closeBtn, self.printBtn]]:
             j = 1
@@ -422,6 +428,19 @@ class App(QWidget):
 
     def saveCalibration(self, name):
         self.actionModule.saveCalibration(name)
+
+
+    def IMUCompensationCallback(self):
+        if self.IMUCompensation:
+            self.IMUCompensation = False
+        else:
+            self.IMUCompensation = True
+        if self.IMUCompensation:
+            self.IMUBtn.setText("Stop IMU Compensation")
+            self.actionModule.ac.engageIMU()
+        else:
+            self.IMUBtn.setText("Start IMU Compensation")
+            self.actionModule.ac.disengageIMU()
 
 
     @pyqtSlot(str)

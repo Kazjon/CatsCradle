@@ -12,7 +12,7 @@ from ReferenceSpace import *
 #      FR/FL = Foot Right and Left
 #      AR/AL = Arm Right and Left
 #      WR/WL = Wrist Right and Left
-#      EX/EY = Eye Horizontal (Pitch = x) and Vertical (Yawn = y)
+#      EX/EY = Eye angle around Horizontal (left/right - Yawn = x) and angle around Vertical (up/down - Pitch = y)
 #
 #        WR  FR     W     FL   WL    -> Fixed on ceiling
 #                   |
