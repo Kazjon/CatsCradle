@@ -23,6 +23,7 @@ class Audience:
         self.numLostHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
         self.numNewHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
 
+
     def update(self):
         self.previousPersons = self.persons
         self.previousPersonBodies = self.personBodies
@@ -37,20 +38,73 @@ class Audience:
 
         previousIDs = set([p.id for p in self.previousPersons])
         currentIDs = set([p.id for p in self.persons])
-        self.numLostHistory.append(len(previousIDs.difference(currentIDs)))
-        self.numNewHistory.append(len(currentIDs.difference(previousIDs)))
+        
+        lost_ids = list(previousIDs.difference(currentIDs))
+        self.numLostHistory.append(len(lost_ids))
+        
+        new_ids = list(currentIDs.difference(previousIDs))
+        self.numNewHistory.append(len(new_ids))
 
+        self.new_persons = [p for p in self.persons if p.id in new_ids]
+        self.lost_persons = [p for p in self.persons if p.id in lost_ids]
+    
         #self.personBodiesBehindMarionette = self.personSensor.\
         #    getPersonBodiesOnly(self.previousPersonBodiesBehindMarionette)
         # print "Num persons =", len(self.persons)
         # for person in self.persons:
         #     print(person)
 
+
     def numLostRecently(self):
         return sum(self.numLostHistory)
 
+
     def numNewRecently(self):
         return sum(self.numNewHistory)
+
+
+    def get_num_people_with_condition(self, having_label, having_age, having_gender, recency):
+        """
+        Get number of persons having some conditions.
+        
+        Args:
+            having_label (str): put None to remove this condition.
+            having_age (str): put None to remove this condition.
+            having_gender (str): put None to remove this condition.
+            recency (str): should be either 'new', 'lost', or 'current'.
+        
+        Returns:
+            int
+        """
+        
+        result_persons = []
+        
+        # picking the population
+        persons = self.persons
+        if recency == 'new':
+            persons = self.new_persons
+        elif recency == 'lost':
+            persons = self.lost_persons
+
+        # checking each person
+        for person in persons:
+            # check label condition
+            if (not having_label is None) and (not person.labels is None):
+                if not having_label in person.labels:
+                    continue
+            # check age condition
+            if not having_age is None:
+                if person.getAgeRange() != having_age:
+                    continue
+            # check gender condition
+            if not having_gender is None:
+                if person.getGender() != having_gender:
+                    continue
+            # if reached here then we add this person
+            result_persons.append(person)
+        
+        return len(result_persons)
+
 
     #Returns the point in the camera field that is furthest away from any faces
     def furthestFromFaces(self):
@@ -83,6 +137,7 @@ class Audience:
             #print "furthestPoint",np.argmax(minDists)
             furthest = points[np.argmax(minDists)]
             return furthest
+
 
 if __name__ == '__main__':
     # Tests
