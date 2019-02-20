@@ -527,7 +527,7 @@ class ActionModule(object):
         elif name is "left":
             self.yawnMax = self.yawn
         elif name is "right":
-            self.yawnMin - self.yawn
+            self.yawnMin = self.yawn
 
         # Write new values in json file
         with open("IMUCameraCalibration.json", "w") as write_file:
