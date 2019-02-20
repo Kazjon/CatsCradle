@@ -147,66 +147,66 @@ class ApproachResponder(Responder):
         # respond based on tags
         
         # rule 2.1
-        if audience.get_num_people_with_condition('Approached', 'adult', 'M', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentApproach', 'adult', 'M', 'current') > 0:
             try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
             print("rule 2.1")
         # rule 2.2
-        elif audience.get_num_people_with_condition('Threat', 'adult', 'F', 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentThreat', 'adult', 'F', 'current') > 0:
             try_add(emotional_effect, "fear", EMOTION_DELTAS["large"])
             print("rule 2.2")
         # rule 2.3
-        elif audience.get_num_people_with_condition('Threat', 'senior', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentThreat', 'senior', None, 'current') > 0:
             try_add(emotional_effect, "fear", EMOTION_DELTAS["large"])
             print("rule 2.3")
         
         # rule 2.4
-        if audience.get_num_people_with_condition('Approached', 'adult', 'F', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentApproach', 'adult', 'F', 'current') > 0:
             try_add(emotional_effect, "shame", EMOTION_DELTAS["medium"])
             print("rule 2.4")
         # rule 2.5
-        elif audience.get_num_people_with_condition('Creeping', 'adult', 'F', 'current') > 2:
+        elif audience.get_num_people_with_condition('RecentCreeping', 'adult', 'F', 'current') > 2:
             try_add(emotional_effect, "shame", EMOTION_DELTAS["large"])
             print("rule 2.5")
         # rule 2.6
-        elif audience.get_num_people_with_condition('Creeping', 'senior', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentCreeping', 'senior', None, 'current') > 0:
             try_add(emotional_effect, "shame", EMOTION_DELTAS["small"])
             print("rule 2.6")
         # rule 2.7
-        elif audience.get_num_people_with_condition('Creeping', None, None, 'current') > 5:
+        elif audience.get_num_people_with_condition('RecentCreeping', None, None, 'current') > 5:
             try_add(emotional_effect, "shame", EMOTION_DELTAS["large"])
             print("rule 2.7")
         
         # rule 2.8
-        if audience.get_num_people_with_condition('Threat', 'adult', 'M', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentThreat', 'adult', 'M', 'current') > 0:
             try_add(emotional_effect, "surprise", EMOTION_DELTAS["instant"])
             print("rule 2.8")
         # rule 2.9
-        elif audience.get_num_people_with_condition('Threat', 'child', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentThreat', 'child', None, 'current') > 0:
             try_add(emotional_effect, "surprise", EMOTION_DELTAS["instant"])
             print("rule 2.9")
 
         # rule 2.10
-        if audience.get_num_people_with_condition('Creeping', 'adult', 'F', 'current') > 0 and audience.get_num_people_with_condition('Creeping', 'adult', 'M', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentCreeping', 'adult', 'F', 'current') > 0 and audience.get_num_people_with_condition('Creeping', 'adult', 'M', 'current') > 0:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["medium"])
             print("rule 2.10")
         # rule 2.11
-        elif audience.get_num_people_with_condition('Approached', 'adult', None, 'current') > 0 and audience.get_num_people_with_condition('Approached', 'child', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentApproach', 'adult', None, 'current') > 0 and audience.get_num_people_with_condition('Approached', 'child', None, 'current') > 0:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
             print("rule 2.11")
         # rule 2.12
-        elif audience.get_num_people_with_condition('Creeping', 'child', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentCreeping', 'child', None, 'current') > 0:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["large"])
             print("rule 2.12")
         # rule 2.13
-        elif audience.get_num_people_with_condition('Creeping', 'senior', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentCreeping', 'senior', None, 'current') > 0:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["small"])
             print("rule 2.13")
         # rule 2.14
-        elif audience.get_num_people_with_condition('Approached', 'adult', 'F', 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentApproach', 'adult', 'F', 'current') > 0:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["medium"])
             print("rule 2.14")
         # rule 2.15
-        elif audience.get_num_people_with_condition('Creeping', 'adult', 'F', 'current') > 2:
+        elif audience.get_num_people_with_condition('RecentCreeping', 'adult', 'F', 'current') > 2:
             try_add(emotional_effect, "longing", EMOTION_DELTAS["medium"])
             print("rule 2.15")
 
@@ -296,16 +296,16 @@ class TooCloseResponder(Responder):
         # respond
         
         # rule 4.1
-        if audience.get_num_people_with_condition('Close', 'adult', 'M', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentClose', 'adult', 'M', 'current') > 0:
             try_add(emotional_effect, "fear", EMOTION_DELTAS["extreme"])
             print("rule 4.1")
         
         # rule 4.2
-        if audience.get_num_people_with_condition('Close', 'adult', 'F', 'current') > 0:
+        if audience.get_num_people_with_condition('RecentClose', 'adult', 'F', 'current') > 0:
             try_add(emotional_effect, "surprise", EMOTION_DELTAS["instant"])
             print("rule 4.2")
         # rule 4.3
-        elif audience.get_num_people_with_condition('Close', 'senior', None, 'current') > 0:
+        elif audience.get_num_people_with_condition('RecentClose', 'senior', None, 'current') > 0:
             try_add(emotional_effect, "surprise", EMOTION_DELTAS["instant"])
             print("rule 4.3")
         
