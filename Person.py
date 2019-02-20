@@ -148,7 +148,8 @@ class Person:
         time_diff = time.time() - self.last_seen
         
         if time_diff > NEW_INTERACTION_TIMEOUT:
-	    # remove approach and ???
+            for label in ["Approached", "Creeping", "Close", "Moving", "Still"]:
+                self.labels.discard(label)
             self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceMidpointHistory = deque(maxlen=FACE_HISTORY_LENGTH)
