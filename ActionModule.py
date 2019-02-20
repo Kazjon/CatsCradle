@@ -504,15 +504,16 @@ class ActionModule(object):
 
 
     def updateHeadData(self):
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['requestHeadData']]))
         self.headDataUpdated = False
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['requestHeadData']]))
         # Wait until head data is updated (bail if too long)
         counter = 0
         while not self.headDataUpdated:
-            counter += 1
-            if counter > 10e6:
-                self.headDataUpdated = True
-                print "WARNING ----- Head data requested were not updated"
+            pass
+            # counter += 1
+            # if counter > 10e6:
+            #     self.headDataUpdated = True
+            #     print "WARNING ----- Head data requested were not updated"
 
 
     def saveCalibration(self, name):

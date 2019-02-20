@@ -86,13 +86,18 @@ class Audience:
 
 if __name__ == '__main__':
     # Tests
-    personSensor = PersonSensor([Camera(0)], None)
+    camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+    personSensor = PersonSensor()
+    personSensor.load_camera(camera)
     personSensor.show = True
 
     audience = Audience(personSensor)
 
     while True:
-        audience.update(None)
+        audience.update()
         for person in audience.persons:
             print(person)
         if cv2.waitKey(1) & 0xFF == ord('q'):
