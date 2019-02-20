@@ -42,32 +42,14 @@ class RoomFullnessReactor(Reactor):
         self.effect_to_send = {}
         num_p = len(self.audience.persons)
 
-        # If the room is empty, add longing
+        # If the room is empty, be neutral
         if num_p == 0:
-            self.effect_to_send["longing"] = EMOTION_DELTAS["tiny"]
-            self.effect_to_send["fear"] = EMOTION_DELTAS["tiny"]
-        # If there are a few people, add fear for males, shame for females and seniors, and longing for children
-        elif num_p < self.crowd_threshold:
-            for p in self.audience.persons:
-                if p.ageRange == "child":
-                    try_add(self.effect_to_send, "longing", EMOTION_DELTAS["small"])
-                elif p.ageRange == "senior":
-                    continue
-                elif p.gender == "M":
-                    try_add(self.effect_to_send, "fear", EMOTION_DELTAS["moderate"])
-                elif p.gender == "F":
-                    try_add(self.effect_to_send, "shame", EMOTION_DELTAS["tiny"])
-        else:
-            if male_fraction(self.audience.persons) > 0.6:
-                self.effect_to_send["shame"] = EMOTION_DELTAS["small"]
-            else:
-                self.effect_to_send["shame"] = EMOTION_DELTAS["tiny"]
+            # rule 6
+            pass
+        
         if len(self.effect_to_send):
             return True
-        return False
-
-        # If the room is full, add shame
-        # If there are a lot of children, add longing and interest to all children
+        
         return False
 
     def effect(self):
