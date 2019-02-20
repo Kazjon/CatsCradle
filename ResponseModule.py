@@ -67,7 +67,7 @@ class ResponseModule(object):
             #If we're ending a shame lookaway, always check to see if we should re-start one
             self.last_shame_lookaway_check = t - (SHAME_LOOKAWAY_INTERVAL+0.1)
         if not self.shame_lookaway:
-            if t - self.last_attention_change > ATTENTION_CHANGE_MINIMUM:
+            if (t > self.returnToFocusAt) and (t - self.last_attention_change > ATTENTION_CHANGE_MINIMUM):
                 if len(audience.persons):
                     sorted_emotions = sorted(emotional_state.items(), key=lambda x: x[1], reverse=True)
                     highest_emotion = sorted_emotions[0]
