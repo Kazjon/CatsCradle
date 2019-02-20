@@ -413,7 +413,7 @@ class ActionModule(object):
     def moveEyesAndHead(self, targetCameraCoords):
         print "Move eyes and head to", targetCameraCoords
         # First move the eyes to the target
-        moveEyes(targetCameraCoords)
+        self.moveEyes(targetCameraCoords)
         # Then engage IMU
         self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         # Then move the head to face the target (data already updated when calling moveEyes)
