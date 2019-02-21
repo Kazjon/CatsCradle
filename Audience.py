@@ -63,19 +63,27 @@ class Audience:
         return sum(self.numNewHistory)
 
 
-    def get_num_people_with_condition(self, having_label, having_age, having_gender, recency):
+    def get_people_with_condition(self, filter_dict):
         """
-        Get number of persons having some conditions.
+        Get persons having some conditions.
         
         Args:
-            having_label (str): put None to remove this condition.
-            having_age (str): put None to remove this condition.
-            having_gender (str): put None to remove this condition.
-            recency (str): should be either 'new', 'lost', or 'current'.
+            filter_dict (dict): should have at least the following keys
+                {
+                    'having_label': (str) put None to remove this condition.
+                    'having_age': (str) put None to remove this condition.
+                    'having_gender': (str) put None to remove this condition.
+                    'recency': (str) should be either 'new', 'lost', or 'current'.
+                }
         
         Returns:
-            int
+            list of Person objects.
         """
+        
+        having_label = filter_dict['having_label']
+        having_age = filter_dict['having_age']
+        having_gender = filter_dict['having_gender']
+        recency = filter_dict['recency']
         
         result_persons = []
         
@@ -103,7 +111,7 @@ class Audience:
             # if reached here then we add this person
             result_persons.append(person)
         
-        return len(result_persons)
+        return result_persons
 
 
     #Returns the point in the camera field that is furthest away from any faces
