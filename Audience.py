@@ -46,8 +46,14 @@ class Audience:
         self.numNewHistory.append(len(new_ids))
 
         self.new_persons = [p for p in self.persons if p.id in new_ids]
-        self.lost_persons = [p for p in self.persons if p.id in lost_ids]
+        self.lost_persons = [p for p in self.previousPersons if p.id in lost_ids]
     
+        if len(self.new_persons) > 0:
+            for person in self.new_persons:
+                print("New person :) " + str(person))
+        if len(self.lost_persons) > 0:
+            for person in self.lost_persons:
+                print("Missed a person :( " + str(person))
         #self.personBodiesBehindMarionette = self.personSensor.\
         #    getPersonBodiesOnly(self.previousPersonBodiesBehindMarionette)
         # print "Num persons =", len(self.persons)

@@ -129,9 +129,9 @@ class PersonSensor():
         
         personBodies = previousPersonBodies
         
-        for person in persons:
-            print(person)
-        
+#        for person in persons:
+#            print(person)
+
         return persons, personBodies
     
     
