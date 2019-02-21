@@ -2,6 +2,7 @@
 * ResponseModule (Handles marionette response choices) [Kaz]
   - Selects responses given the current emotional state and the world state (the output of the sensors).
 """
+import sys
 import csv
 import numpy as np
 from collections import deque
@@ -50,6 +51,9 @@ class ResponseModule(object):
 
         #Determine whether anything needs to be added to the queue
         #Note: Some responders may use the glanceAt and lookAt functions below to push things to the left of the queue
+        
+        Responder.all_rules = set()
+        
         for responder in self.responders:
             response = responder.respond(emotion_module, audience, idle)
             if response is not None:
@@ -59,6 +63,10 @@ class ResponseModule(object):
             self.action_module.executeGesture(self.gesture_queue.pop())
 
         self.last_updated = time.time()
+        
+        if len(Responder.all_rules) > 0:
+            sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
+            sys.stdout.flush()
 
     def updateAttentionAndTrack(self, audience, emotional_state):
         t = time.time()
