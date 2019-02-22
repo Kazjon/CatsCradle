@@ -400,7 +400,7 @@ class ActionModule(object):
     def moveEyes(self, targetCameraCoords):
         print "Move eyes to",targetCameraCoords
         self.updateHeadData()
-        targetPitch, targetYawn = cameraCoordsToEyeWorld(targetCameraCoords)
+        targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
         # Current eye pitch and yawn (includes head orientation)
         eyePitch = targetPitch - self.pitch
         eyeYawn = targetYawn - self.yawn
@@ -417,7 +417,7 @@ class ActionModule(object):
         # Then engage IMU
         self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         # Then move the head to face the target (data already updated when calling moveEyes)
-        targetPitch, targetYawn = cameraCoordsToEyeWorld(targetCameraCoords)
+        targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
         speed = 25 # arbitrary speed value
         self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', targetYawn, speed]]))
         # For now ignore the pitch. Not sure what is the correspondance between head motor
