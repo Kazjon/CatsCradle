@@ -95,7 +95,7 @@ class Person:
         for key in self.gender_probabilities.keys():
             self.gender_probabilities[key] = self.update_probability(self.gender_probabilities[key], gender_probas[key])
         # 2. update gender prediction
-        self.gender = max(self.gender_probabilities.iterkeys(), key=(lambda key: self.gender_probabilities[key]))
+        self.gender = 'F'#max(self.gender_probabilities.iterkeys(), key=(lambda key: self.gender_probabilities[key]))
         
         # 3. update age probas
         for key in self.age_probabilities.keys():

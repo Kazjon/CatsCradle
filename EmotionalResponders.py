@@ -13,7 +13,7 @@ BASE_RESPONSE_CHANCE = 0.1 #Probability of conducting an idle gesture every resp
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
 
 HIGH_INTEREST_THRESH = 10 #An arbitrary line dividing "low" and "high" interest people
-TOO_CLOSE_FRACTION = 8. #Fraction of the screen diagonal that the face diagonal must exceed for that person to be "too close"
+TOO_CLOSE_FRACTION = 45. #Fraction of the screen diagonal that the face diagonal must exceed for that person to be "too close"
 
 MAX_STILLNESS_MOVEMENT = 5 #Max number of pixels you can have moved (every frame!) in order to be considered "too still"
 MIN_FAST_MOVEMENT_FRACTION = 15.#Fraction of the screen diagonal that you must have covered quickly in order to be considered "too fast"
@@ -100,8 +100,8 @@ class EntryResponder(Responder):
 
 #Responds to people who walk towards her. Variety of effects.
 class ApproachResponder(Responder):
-    def __init__(self, action_module, response_module, p=0.5, slow_size_ratio_range = [1.2,1.3],
-                 approach_size_ratio = 1.5, threat_size_ratio = 1.75):
+    def __init__(self, action_module, response_module, p=0.5, slow_size_ratio_range = [1.2, 1.25],
+                 approach_size_ratio = 1.25, threat_size_ratio = 1.52):
         Responder.__init__(self,action_module, response_module, p)
         self.approach_size_ratio = approach_size_ratio
         self.threat_size_ratio = threat_size_ratio
@@ -114,27 +114,29 @@ class ApproachResponder(Responder):
             if person.faceSizeHistory is None or len(person.faceSizeHistory) == 0 or person.faceSizeHistory[0] is None:
                 continue
 
-            # Check to see if there are any people who are walking towards her, add the "approached" tag to them
-            if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.approach_size_ratio:
-                if not "RecentApproach" in person.labels:
-#                    print "APPROACHED!"
-                    person.labels.add("Approached")
-                    person.labels.add("RecentApproach")
-                    person.interestingness += 5
-                else:
-                    person.labels.discard("RecentApproach")
-            # If any of them are approaching fast, add "threat" tag
+	    max_size_diff = max(person.faceSizeHistory) / min(person.faceSizeHistory)
+	    # If any of them are approaching fast, add "threat" tag
             if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.threat_size_ratio:
                 if not "RecentThreat" in person.labels:
+		    print("Fast Approach\n")
                     person.labels.add("Threat")
                     person.labels.add("RecentThreat")
                     person.interestingness += 25
                 else:
                     person.labels.discard("RecentThreat")
+            # Check to see if there are any people who are walking towards her, add the "approached" tag to them
+            elif person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.approach_size_ratio:
+                if not "RecentApproach" in person.labels:
+                    print "Normal Approach\n"
+                    person.labels.add("Approached")
+                    person.labels.add("RecentApproach")
+                    person.interestingness += 5
+                else:
+                    person.labels.discard("RecentApproach")
             # If any of them are approaching slow, add "creeping" tag
-            max_size_diff = max(person.faceSizeHistory) / min(person.faceSizeHistory)
-            if max_size_diff > self.slow_size_ratio_range[0] and max_size_diff < self.slow_size_ratio_range[1]:
+            elif max_size_diff > self.slow_size_ratio_range[0] and max_size_diff < self.slow_size_ratio_range[1]:
                 if not "RecentCreeping" in person.labels:
+		    print("Slow Approach \n")
                     person.labels.add("Creeping")
                     person.labels.add("RecentCreeping")
                     person.interestingness += 5
@@ -150,8 +152,8 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.1 - 2.3
             [
-                ("rule 2.1", [(['RecentApproach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
-                ("rule 2.2", [(['RecentThreat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
+                #("rule 2.1", [(['RecentApproach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
+                #("rule 2.2", [(['RecentThreat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
                 ("rule 2.3", [(['RecentThreat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1)
             ]
         )
@@ -276,6 +278,7 @@ class TooCloseResponder(Responder):
         for person in audience.persons:
             if person.faceSize() > too_close_size:
                 if not "RecentClose" in person.labels:
+		    print("Too Close!\n")
                     person.labels.add("Close")
                     person.labels.add("RecentClose")
                     person.interestingness += 5
@@ -289,13 +292,13 @@ class TooCloseResponder(Responder):
         self.emotional_effect = {}
         self.persons_to_look_list = []
         
-        self.execute_rules(
-            audience,
+        #self.execute_rules(
+        #    audience,
             # rules list 4.1
-            [
-                ("rule 4.1", [(['RecentClose', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
-            ]
-        )
+        #    [
+        #        ("rule 4.1", [(['RecentClose', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
+        #    ]
+        #)
         
         self.execute_rules(
             audience,
@@ -353,7 +356,7 @@ class MovementResponder(Responder):
             # rules list 5.1 - 5.2
             [
                 ("rule 5.1", [(['Moving', None, None, 'current'], 2)], "fear", "large", "", 0),
-                ("rule 5.2", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
+                #("rule 5.2", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
             ]
         )
         
