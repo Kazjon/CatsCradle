@@ -66,8 +66,9 @@ class Responder(object):
         if met_all_conditions:
             Responder.all_rules.add(rule_str)
             try_add(self.emotional_effect, emotion_str, emotion_intensity)
-            for person in persons:
-                self.persons_to_look_list.append((person, attention_str, attention_duration))
+            if attention_str != "":
+                for person in persons:
+                    self.persons_to_look_list.append((person, attention_str, attention_duration))
             return True
         else:
             return False
