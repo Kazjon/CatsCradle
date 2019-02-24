@@ -18,6 +18,8 @@ NEW_INTERACTION_TIMEOUT = 15 #seconds someone can go missing before their moveme
 # the maximum number of samples that we need to have before we can predict age/gender accurately
 MAX_NUM_SAMPLES = 20
 
+TAG_MEMORY_SPAN = 10 # person labels older than this much seconds are not active anymore
+
 def face_size(face_top_left, face_bottom_right):
     """
         Gives the size of a given face bounding box. Typically would use 2d
@@ -31,14 +33,14 @@ class Person:
     """Class to handle a person parameters"""
 
     def __str__(self):
-        return "Person " + str(self.id) + ": " + self.gender + " (" + self.ageRange + ") " + str(self.labels)
+        return "Person " + str(self.id) + ": " + self.gender + " (" + self.ageRange + ") " + str(self.labels.keys())
 
 
     def __init__(self, age_probas, gender_probas, person_id,
                  (face_top_left_2d, face_top_right_2d,
                   face_bottom_right_2d, face_bottom_left_2d, face_center_2d)):
         self.id = person_id
-        self.labels = Set()
+        self.labels = {}
         self.interestingness = 0
         self.last_seen = time.time()
         
@@ -148,8 +150,6 @@ class Person:
         time_diff = time.time() - self.last_seen
         
         if time_diff > NEW_INTERACTION_TIMEOUT:
-            for label in ["Approached", "Creeping", "Close", "Moving", "Still"]:
-                self.labels.discard(label)
             self.faceSizeHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceLocHistory = deque(maxlen=FACE_HISTORY_LENGTH)
             self.faceMidpointHistory = deque(maxlen=FACE_HISTORY_LENGTH)
@@ -160,6 +160,25 @@ class Person:
         
         self.last_seen = time.time()
     
+    
+    def update_label(self, label_str, interestingness_increase):
+        """
+        Try to add or update a person's label
+        
+        Args:
+            label_str (str).
+            interestingness_increase (int). The number to add to this person's interestingness only when adding the label.
+        """
+        
+        time_now = time.time()
+        if not label_str in self.labels:
+            self.labels[label_str] = time_now
+            self.interestingness += interestingness_increase
+        else:
+            if time_now - self.labels[label_str] > TAG_MEMORY_SPAN:
+                # update the label
+                self.labels[label_str] = time_now
+
     
     def getAgeRange(self):
         return self.ageRange

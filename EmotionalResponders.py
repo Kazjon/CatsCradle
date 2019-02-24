@@ -18,7 +18,7 @@ TOO_CLOSE_FRACTION = 45. #Fraction of the screen diagonal that the face diagonal
 MAX_STILLNESS_MOVEMENT = 5 #Max number of pixels you can have moved (every frame!) in order to be considered "too still"
 MIN_FAST_MOVEMENT_FRACTION = 15.#Fraction of the screen diagonal that you must have covered quickly in order to be considered "too fast"
 
-from Person import FACE_HISTORY_LENGTH
+from Person import FACE_HISTORY_LENGTH, TAG_MEMORY_SPAN
 
 class ExpressionResponder(Responder):
     def __init__(self, action_module, response_module, p=BASE_RESPONSE_CHANCE):
@@ -117,31 +117,16 @@ class ApproachResponder(Responder):
 	    max_size_diff = max(person.faceSizeHistory) / min(person.faceSizeHistory)
 	    # If any of them are approaching fast, add "threat" tag
             if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.threat_size_ratio:
-                if not "RecentThreat" in person.labels:
-		    print("Fast Approach\n")
-                    person.labels.add("Threat")
-                    person.labels.add("RecentThreat")
-                    person.interestingness += 25
-                else:
-                    person.labels.discard("RecentThreat")
+                print("Threat\n")
+                person.update_label('Threat', 25)
             # Check to see if there are any people who are walking towards her, add the "approached" tag to them
             elif person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.approach_size_ratio:
-                if not "RecentApproach" in person.labels:
-                    print "Normal Approach\n"
-                    person.labels.add("Approached")
-                    person.labels.add("RecentApproach")
-                    person.interestingness += 5
-                else:
-                    person.labels.discard("RecentApproach")
+                print("Approach\n")
+                person.update_label('Approach', 5)
             # If any of them are approaching slow, add "creeping" tag
             elif max_size_diff > self.slow_size_ratio_range[0] and max_size_diff < self.slow_size_ratio_range[1]:
-                if not "RecentCreeping" in person.labels:
-		    print("Slow Approach \n")
-                    person.labels.add("Creeping")
-                    person.labels.add("RecentCreeping")
-                    person.interestingness += 5
-                else:
-                    person.labels.discard("RecentCreeping")
+                print("Creeping\n")
+                person.update_label('Creeping', 5)
             
         # respond based on tags
         
@@ -152,9 +137,9 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.1 - 2.3
             [
-                #("rule 2.1", [(['RecentApproach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
-                #("rule 2.2", [(['RecentThreat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
-                ("rule 2.3", [(['RecentThreat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1)
+                #("rule 2.1", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
+                #("rule 2.2", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
+                ("rule 2.3", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1)
             ]
         )
         
@@ -162,10 +147,10 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.4 - 2.7
             [
-                ("rule 2.4", [(['RecentApproach', 'adult', 'F', 'current'], 0)], "shame", "medium", "look", 1),
-                ("rule 2.5", [(['RecentCreeping', 'adult', 'F', 'current'], 2)], "shame", "large", "", 0),
-                ("rule 2.6", [(['RecentCreeping', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1),
-                ("rule 2.7", [(['RecentCreeping', None, None, 'current'], 5)], "shame", "large", "", 0)
+                ("rule 2.4", [(['Approach', 'adult', 'F', 'current'], 0)], "shame", "medium", "look", 1),
+                ("rule 2.5", [(['Creeping', 'adult', 'F', 'current'], 2)], "shame", "large", "", 0),
+                ("rule 2.6", [(['Creeping', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1),
+                ("rule 2.7", [(['Creeping', None, None, 'current'], 5)], "shame", "large", "", 0)
             ]
         )
         
@@ -173,9 +158,9 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.8 - 2.10
             [
-                ("rule 2.8", [(['RecentThreat', 'adult', 'M', 'current'], 0)], "surprise", "instant", "look", 0.5),
-                ("rule 2.9", [(['RecentThreat', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5),
-                ("rule 2.10", [(['RecentThreat', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5)
+                ("rule 2.8", [(['Threat', 'adult', 'M', 'current'], 0)], "surprise", "instant", "look", 0.5),
+                ("rule 2.9", [(['Threat', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5),
+                ("rule 2.10", [(['Threat', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5)
             ]
         )
         
@@ -183,14 +168,14 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.11 - 2.16
             [
-                ("rule 2.11", [(['RecentCreeping', 'adult', 'F', 'current'], 0),
-                               (['RecentCreeping', 'adult', 'M', 'current'], 0)], "longing", "medium", "", 0),
-                ("rule 2.12", [(['RecentApproach', 'adult', None, 'current'], 0),
-                               (['RecentApproach', 'child', None, 'current'], 0)], "longing", "large", "", 0),
-                ("rule 2.13", [(['RecentCreeping', 'child', None, 'current'], 0)], "longing", "large", "look", 2),
-                ("rule 2.14", [(['RecentCreeping', 'senior', None, 'current'], 0)], "longing", "small", "look", 1),
-                ("rule 2.15", [(['RecentApproach', 'adult', 'F', 'current'], 0)], "longing", "medium", "look", 1),
-                ("rule 2.16", [(['RecentCreeping', 'adult', 'F', 'current'], 2)], "longing", "medium", "", 0)
+                ("rule 2.11", [(['Creeping', 'adult', 'F', 'current'], 0),
+                               (['Creeping', 'adult', 'M', 'current'], 0)], "longing", "medium", "", 0),
+                ("rule 2.12", [(['Approach', 'adult', None, 'current'], 0),
+                               (['Approach', 'child', None, 'current'], 0)], "longing", "large", "", 0),
+                ("rule 2.13", [(['Creeping', 'child', None, 'current'], 0)], "longing", "large", "look", 2),
+                ("rule 2.14", [(['Creeping', 'senior', None, 'current'], 0)], "longing", "small", "look", 1),
+                ("rule 2.15", [(['Approach', 'adult', 'F', 'current'], 0)], "longing", "medium", "look", 1),
+                ("rule 2.16", [(['Creeping', 'adult', 'F', 'current'], 2)], "longing", "medium", "", 0)
             ]
         )
 
@@ -214,7 +199,7 @@ class DepartResponder(Responder):
         
         for person in audience.previousPersons:
             if person not in audience.persons:
-                if "Approached" in person.labels:
+                if ('Approach' in person.labels) and (time.time() - person.labels['Approach'] < TAG_MEMORY_SPAN):
                     if person.interestingness < HIGH_INTEREST_THRESH:
                         person.interestingness += 5
                     else:
@@ -277,15 +262,8 @@ class TooCloseResponder(Responder):
         #Check to see if anyone is standing too close
         for person in audience.persons:
             if person.faceSize() > too_close_size:
-                if not "RecentClose" in person.labels:
-		    print("Too Close!\n")
-                    person.labels.add("Close")
-                    person.labels.add("RecentClose")
-                    person.interestingness += 5
-                else:
-                    person.labels.discard("RecentClose")
-                if random() < self.p:
-                    self.response_module.glanceAt(person, duration=0.1)
+                print("Too Close\n")
+                person.update_label('Close', 5)
     
         # respond
         
@@ -304,9 +282,9 @@ class TooCloseResponder(Responder):
             audience,
             # rules list 4.2 - 4.4
             [
-                ("rule 4.2", [(['RecentClose', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5),
-                ("rule 4.3", [(['RecentClose', 'senior', None, 'current'], 0)], "surprise", "instant", "look", 0.5),
-                ("rule 4.4", [(['RecentClose', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5)
+                ("rule 4.2", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5),
+                ("rule 4.3", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "look", 0.5),
+                ("rule 4.4", [(['Close', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5)
             ]
         )
         
@@ -333,18 +311,17 @@ class MovementResponder(Responder):
         too_fast_size = screen_diag/MIN_FAST_MOVEMENT_FRACTION
         for person in audience.persons:
             if len(person.faceLocHistory) == FACE_HISTORY_LENGTH:
-                person.labels.discard("Still")
-                person.labels.discard("Moving")
+                # remove moving and still labels
+                person.labels.pop('Moving', None)
+                person.labels.pop('Still', None)
                 pairdists = distance.squareform(distance.pdist(np.array(person.faceMidpointHistory)))
                 if np.any(pairdists > too_fast_size):
-                    person.labels.add("Moving")
-                    person.interestingness += 5
-                    if random() < self.p:
-                        self.response_module.glanceAt(person, duration=0.5)
+                    print("Moving\n")
+                    person.update_label('Moving', 5)
                 adjacentdists = np.diagonal(pairdists,offset=1)
                 if np.all(adjacentdists<MAX_STILLNESS_MOVEMENT):
-                    person.labels.add("Still")
-                    person.interestingness += 2
+                    print("Still\n")
+                    person.update_label('Still', 2)
     
         # respond
         

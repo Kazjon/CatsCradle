@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy
 import copy
@@ -7,6 +8,7 @@ from scipy.spatial.distance import cdist
 from collections import deque
 
 from PersonSensor import *
+from Person import TAG_MEMORY_SPAN
 
 ENTRY_EXIT_HISTORY_LENGTH = 25
 
@@ -103,8 +105,9 @@ class Audience:
         # checking each person
         for person in persons:
             # check label condition
-            if (not having_label is None) and (not person.labels is None):
-                if not having_label in person.labels:
+            if (not having_label is None) and (having_label in person.labels):
+                # tags older than MEMORY_SPAN are not valid
+                if time.time() - person.labels[having_label] > TAG_MEMORY_SPAN:
                     continue
             # check age condition
             if not having_age is None:
