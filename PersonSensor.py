@@ -135,10 +135,10 @@ class PersonSensor():
         return persons, personBodies
     
     
-    def get_age_probas(self, age_probabilities):
-        age_probas = {'child': sum(age_probabilities[0:13]),
-                      'adult': sum(age_probabilities[13:60]),
-                      'senior': sum(age_probabilities[60:])}
+    def get_age_probas(self, age_probas):
+        age_probas = {'child': age_probas[0],
+                      'adult': age_probas[1],
+                      'senior': age_probas[2]}
         return age_probas
     
     

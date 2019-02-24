@@ -10,13 +10,15 @@ import cv2
 import dlib
 import imutils
 from imutils.face_utils import FaceAligner
-import inception_resnet_v1
+
+from sklearn.externals import joblib
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 FACE_DETECTION_MODEL_PATH = MODULE_PATH + '/models/mmod_human_face_detector'
 SHAPE_PREDICTION_MODEL_PATH = MODULE_PATH + '/models/shape_predictor_68_face_landmarks'
 FACE_RECOGNITION_MODEL_PATH = MODULE_PATH + '/models/dlib_face_recognition_resnet_model_v1'
-AGE_AND_GENDER_MODEL_PATH = MODULE_PATH + '/models/age_gender'
+AGE_MODEL_PATH = MODULE_PATH + '/models/model_age'
+GENDER_MODEL_PATH = MODULE_PATH + '/models/model_gender'
 
 # GPU PARAMS
 #PROCESSING_SIZE = 1200
@@ -32,7 +34,7 @@ ENABLE_AGEGENDER_DETECTION = True
 
 MESSAGE_EXPIRE_MS = timedelta(milliseconds=100)
 
-GENDER_MAP = {1: 'M', 0: 'F'}
+GENDER_MAP = {0: 'M', 1: 'F'}
 
 
 def load_dlib_module():
@@ -53,45 +55,19 @@ def load_dlib_module():
 
 def load_age_and_gender_model():
     """
-    Loads the Age and Gender Detection model. This function assumes that the model is in
+    Loads the Age and Gender Detection model. This function assumes that the model is in the
     './models' directory.
 
     Returns:
-        logits (list): two logits -- age and gender
-        feed_dict (dict): two tf.placeholders in a dict for running the model.
+        predictor_age (sklearn.??): the model for predicting age.
+        predictor_gender (sklearn.??): the model for predicting gender.
     """
 
     print("loading age and gender model.")
-    images_pl = tf.placeholder(tf.float32, shape=[None, 160, 160, 3], name='input_image')
-    images = tf.map_fn(lambda frame: tf.reverse_v2(frame, [-1]), images_pl) #BGR TO RGB
-    images_norm = tf.map_fn(lambda frame: tf.image.per_image_standardization(frame), images)
-    age_logits, gender_logits, _ = inception_resnet_v1.inference(images_norm, keep_probability=0.8,
-                                                                 phase_train=False,
-                                                                 weight_decay=1e-5)
-    gender = tf.argmax(tf.nn.softmax(gender_logits), 1)
-    age_ = tf.cast(tf.constant([i for i in range(0, 101)]), tf.float32)
-    age = tf.reduce_sum(tf.multiply(tf.nn.softmax(age_logits), age_), axis=1)
+    predictor_age = joblib.load(AGE_MODEL_PATH)
+    predictor_gender = joblib.load(GENDER_MODEL_PATH)
 
-    logits = [age, gender, tf.nn.softmax(age_logits), tf.nn.softmax(gender_logits)]
-    feed_dict = {"image_placeholder": images_pl}
-
-    print("creating the session.")
-
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth=True
-    sess = tf.Session(config=config)
-
-    saver = tf.train.Saver()
-    ckpt = tf.train.get_checkpoint_state(AGE_AND_GENDER_MODEL_PATH)
-    if ckpt and ckpt.model_checkpoint_path:
-        saver.restore(sess, ckpt.model_checkpoint_path)
-        print("restoring the model...")
-    else:
-        print("Cannot find the age/gender model")
-        sys.exit(0)
-    print("initialized.")
-
-    return sess, logits, feed_dict
+    return predictor_age, predictor_gender
 
 
 def detect_faces(color_image_list, gray_image_list, dlib_models):
@@ -174,7 +150,7 @@ def detect_faces(color_image_list, gray_image_list, dlib_models):
     return np.array(face_images), n_faces_list, flat_face_rects, face_descriptors
 
 
-def process_batch_frames(color_image_list, gray_image_list, sess, logits, feed_dict, dlib_models):
+def process_batch_frames(color_image_list, gray_image_list, predictor_age, predictor_gender, dlib_models):
     """
     Processes a batch of images to detect faces and if ENABLE_AGEGENDER_DETECTION is True it also
     predicts ages and genders of each detected faces.
@@ -183,11 +159,8 @@ def process_batch_frames(color_image_list, gray_image_list, sess, logits, feed_d
         color_image_list (list): list of images. Each item is a frame read by the cv2 package.
         gray_image_list (list): list of images in grayscale. This list should contain the same images
             as the color_image_list, but in grayscale. This list is used by the CNN model.
-        sess (tf.Session): the tensorflow session that has the age/gender detection model already loaded.
-            if ENABLE_AGEGENDER_DETECTION is False, then this argument can be None since the age/gender
-            detection is disabled.
-        logits (list): list of the two logits for age and gender. This is coming from the load_age_and_gender_model.
-        feed_dict (dict): the dictionary of tf.placeholders coming from the load_age_and_gender_model.
+        predictor_age (sklearn.??): the model for predicting age.
+        predictor_gender (sklearn.??): the model for predicting gender.
         dlib_models (dict): a dictionary containing dlib cnn, shape_predictor, and recognition models.
 
     Returns:
@@ -209,20 +182,19 @@ def process_batch_frames(color_image_list, gray_image_list, sess, logits, feed_d
     ages_proba = []
     genders_proba = []
     if ENABLE_AGEGENDER_DETECTION:
-        if len(face_images_array) > 0:
+        # no support for batch yet
+        encodings = np.array(face_descriptors)[0]
+        if len(encodings) > 0:
+            ages = predictor_age.predict(encodings)
+            ages_proba = predictor_age.predict_proba(encodings)
+            genders = predictor_gender.predict(encodings)
+            genders_proba = predictor_gender.predict_proba(encodings)
 
             ## debug: write images to disk for inspection
 #            for img in face_images_array:
 #                fname = "img" + str(frame_number) + ".png"
 #                print("writing to file: " + fname)
 #                cv2.imwrite(fname, img)
-
-            # this init should not happen here
-#            init_op = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-#            sess.run(init_op)
-
-            ages, genders, ages_proba, genders_proba = sess.run(logits,
-                        feed_dict={feed_dict['image_placeholder']: face_images_array})
 
     return n_faces_list, ages, genders, face_rects, face_descriptors, [ages_proba, genders_proba]
 
@@ -234,7 +206,7 @@ def process_image(frame_queue, prediction_queue):
     """
 
     dlib_models = load_dlib_module()
-    sess, logits, feed_dict = load_age_and_gender_model()
+    predictor_age, predictor_gender = load_age_and_gender_model()
 
     print("model initialized.")
 
@@ -279,9 +251,8 @@ def process_image(frame_queue, prediction_queue):
         n_faces_list, ages, genders, face_rects, face_descriptors, probas = process_batch_frames(
             batch_color_image_list,
             batch_gray_image_list,
-            sess,
-            logits,
-            feed_dict,
+            predictor_age,
+            predictor_gender,
             dlib_models
         )
 
