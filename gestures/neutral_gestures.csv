@@ -1,4 +1,4 @@
-ID,Weight,Sequence
+ID,Name,Sequence
 1,1,001c_HeadLRupFullMed,2,001b_HeadLRDownFullSlow
 2,1,002a_HeadLRupHalfSlow,1,002b_HeadLRDownHalfSlow
 3,1,002c_HeadLRupHalfMed,2,002b_HeadLRDownHalfSlow

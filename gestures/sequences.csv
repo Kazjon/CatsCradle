@@ -1,0 +1,574 @@
+SAD
+number 1
+011a_HandRupLowSlow, 002a_HeadLRupHalfSlow,
+number 1 - reverse
+011b_HandRDownLowSlow, 002b_HeadLRDownHalfSlow,
+
+number 2
+003a_HeadRupFullSlow, 014a_HandLupLowSlow, 034c_FootLupHalfMed, 045a_ArmLeftUpHalfSlow,
+number 2 - reverse
+003b_HeadRDownFullSlow, 014b_HandLDownLowSlow, 034b_FootLDownHalfSlow,045b_ArmLeftDownHalfSlow
+
+number 3**
+024c_ShoulderRotRFullMed, 1.5, 003c_HeadRupFullMed,
+number 3 - reverse
+024d_ShoulderRotR(0)FullMed, 1.5, 003b_HeadRDownFullSlow,
+
+number 4
+027e_ShoulderRotLHalfMed, 031a_FootRupHalfSlow,
+number 4 - reverse
+027f_ShoulderRotL(0)HalfMed, 031b_FootRDownHalfSlow,
+
+number 5**
+043a_HeadRotLLowSlow, .5, 006c_HeadRupFullMed, 027e_ShoulderRotLHalfMed, 031c_FootRupHalfMed,
+number 5 - reverse
+043b_HeadRotL(0)LowSlow, 006d_HeadRDownFullMed, 027f_ShoulderRotL(0)HalfMed,
+031d_FootRDownHalfMed,
+
+number 6
+007a_HeadLupHalfSlow, 014a_HandLupLowSlow, 033a_FootLupFullSlow , 045a_ArmLeftUpHalfSlow,
+number 6 - reverse
+007b_HeadLDownHalfSlow, 014b_HandLDownLowSlow, 033b_FootLDownFullSlow, 045b_ArmLeftDownHalfSlow,
+
+number 7**
+042a_HeadRotRLowSlow, 018a_ShoulderRupFullSlow,
+number 7 - reverse
+042b_HeadRotR(0)LowSlow, 018b_ShoulderRDownFullSlow,
+
+number 8
+039c_HeadRotLFullMed, 007c_HeadLupHalfMed, 031c_FootRupHalfMed,
+number 8 - reverse
+039b_HeadRotL(0)FullSlow, 007b_HeadLDownHalfSlow, 031b_FootRDownHalfSlow,
+
+number 9
+007a_HeadLupHalfSlow,
+number 9 - reverse
+007b_HeadLDownHalfSlow,
+
+number 10
+044a_ArmLeftUpFullSlow, 016a_HandLRupHalfSlow,
+number 10 - reverse
+044b_ArmLeftDownFullSlow, 016b_HandLRDownHalfSlow,
+
+number 11
+037a_FootLRupHalfSlow,
+number 11 - reverse
+037b_FootLRDownHalfSlow,
+
+number 12**
+038a_HeadRotRFullSlow,
+number 12 - reverse
+038b_HeadRotR(0)FullSlow,
+
+number 13**
+040a_HeadRotRHalfSlow,
+number 13- reverse
+040b_HeadRotR(0)HalfSlow,
+
+number 14
+041c_HeadRotLHalfMed,
+number 14 - reverse
+041d_HeadRotL(0)HalfMed,
+
+number 15
+042a_HeadRotRLowSlow,
+number 15 - reverse
+042b_HeadRotR(0)LowSlow,
+
+number 16
+043c_HeadRotLLowMed,
+number 16 - reverse
+043d_HeadRotL(0)LowMed,
+
+
+
+SHAME
+number 1
+012c_HandLupFullMed, 004c_HeadRupHalfMed, 011a_HandRupLowSlow, 044e_ArmLeftUpFullFast,
+number 1 - reverse
+012d_HandLDownFullMed, 004b_HeadRDownHalfSlow, 011b_HandRDownLowSlow, 044f_ArmLeftDownFullFast,
+
+number 2**
+015c_HandLRupFullMed, 024c_ShoulderRotRFullMed, 008e_HeadLupLowFast, 044e_ArmLeftUpFullFast
+number 2 - reverse
+015f_HandLRDownFullSlow, 024d_ShoulderRotR(0)FullMed, 008b_HeadLDownLowSlow, 3, 044b_ArmLeftDownFullSlow,
+
+number 3
+015a_HandLRupFullFast, 027e_ShoulderRotLHalfMed, 032c_FootRupLowMed, 044e_ArmLeftUpFullFast
+number 3 - reverse
+015d_HandLRDownFullMed, 027f_ShoulderRotL(0)HalfMed, 032d_FootRDownLowMed, 2, 044d_ArmLeftDownFullMed,
+
+number 4**
+002a_HeadLRupHalfSlow, 016a_HandLRupHalfSlow, 045a_ArmLeftUpHalfSlow
+number 4 - reverse
+002b_HeadLRDownHalfSlow, 016b_HandLRDownHalfSlow, 045b_ArmLeftDownHalfSlow
+
+number 5
+004a_HeadRupHalfSlow, 033a_FootLupFullSlow,
+number 5 - reverse
+004b_HeadRDownHalfSlow, 033b_FootLDownFullSlow,
+
+number 6
+041a_HeadRotLHalfSlow, 013c_HandLupHalfFast, 044e_ArmLeftUpFullFast, 034c_FootLupHalfMed,
+number 6 - reverse
+041b_HeadRotL(0)HalfSlow, 013b_HandLDownHalfMed, 044d_ArmLeftDownFullMed, 034d_FootLDownHalfMed,
+
+number 7
+040c_HeadRotRHalfMed, 012a_HandLupFullFast,  044c_ArmLeftUpFullMed,
+number 7 - reverse
+040d_HeadRotR(0)HalfMed, 012d_HandLDownFullMed, 1.5, 044d_ArmLeftDownFullMed, 
+
+number 8**
+041a_HeadRotLHalfSlow, 015a_HandLRupFullFast, 031a_FootRupHalfSlow, 045a_ArmLeftUpHalfSlow
+number 8 - reverse
+041b_HeadRotL(0)HalfSlow, 015d_HandLRDownFullMed, 031b_FootRDownHalfSlow, 2, 045b_ArmLeftDownHalfSlow
+
+number 9**
+042c_HeadRotRLowMed, 016a_HandLRupHalfSlow, 045a_ArmLeftUpHalfSlow
+number 9 - reverse
+042d_HeadRotR(0)LowMed, 016b_HandLRDownHalfSlow, 045b_ArmLeftDownHalfSlow
+
+number 10
+038c_HeadRotRFullMed,
+number 10 - reverse
+038d_HeadRotR(0)FullMed,
+
+number 11**
+016c_HandLRupHalfMed, 045a_ArmLeftUpHalfSlow,
+number 11 - reverse
+016b_HandLRDownHalfSlow, 045b_ArmLeftDownHalfSlow,
+
+
+FEAR
+number 1
+001c_HeadLRupFullMed, 009a_HandRupFullFast,
+number 1 - reverse
+001b_HeadLRDownFullSlow, 009b_HandRDownFullFast,
+
+number 2**
+002e_HeadLRupHalfFast, 023e_ShoulderLRupHalfFast,
+number 2 - reverse
+002d_HeadLRDownHalfMed, 023d_ShoulderLRDownHalfMed,
+
+number 3
+003e_HeadRupFullFast, 013c_HandLupHalfFast, 044e_ArmLeftUpFullFast,
+number 3 - reverse
+003b_HeadRDownFullSlow, 013b_HandLDownHalfMed, 044f_ArmLeftDownFullFast,
+
+number 4**
+025c_ShoulderRotRHalfMed, 014c_HandLupLowMed, 045a_ArmLeftUpHalfSlow,
+number 4 - reverse
+025d_ShoulderRotR(0)HalfMed, 014b_HandLDownLowSlow, 045b_ArmLeftDownHalfSlow,
+
+number 5**
+005e_HeadRupLowFast, 021e_ShoulderLupHalfFast, 027c_ShoulderRotLHalfMed2,
+number 5 - reverse
+005b_HeadRDownLowSlow, 021b_ShoulderLDownHalfSlow, 025f_ShoulderRotR(0)HalfSlow,
+
+number 6**
+004e_HeadRupHalfFast, 031e_FootRupHalfFast,
+number 6 - reverse
+004c_HeadRupHalfMed, 031d_FootRDownHalfMed,
+
+number 7
+015c_HandLRupFullMed, .5, 041a_HeadRotLHalfSlow, 044c_ArmLeftUpFullMed,
+number 7 - reverse
+015d_HandLRDownFullMed, .5, 041d_HeadRotL(0)HalfMed, 044d_ArmLeftDownFullMed,
+
+number 8**
+041i_HeadRotLHalfFast2, 019e_ShoulderRupHalfFast,
+number 8 - reverse
+041d_HeadRotL(0)HalfMed, 019b_ShoulderRDownHalfSlow,
+
+number 9**
+042e_HeadRotRLowMed2, 018e_ShoulderRupFullFast,
+number 9 - reverse
+042b_HeadRotR(0)LowSlow, 018b_ShoulderRDownFullSlow,
+
+number 10
+043i_HeadRotLLowFast2, 035e_FootLupLowFast,
+number 10 - reverse
+043b_HeadRotL(0)LowSlow, 035b_FootLDownLowSlow,
+
+number 11
+040e_HeadRotRHalfMed2, 010a_HandRupHalfMed,
+number 11 - reverse
+040f_HeadRotR(0)HalfMed2, 010b_HandRDownHalfMed,
+
+number 12**
+040g_HeadRotRHalfFast, 014e_HandLupLowFast,
+number 12 - reverse
+040b_HeadRotR(0)HalfSlow, 014b_HandLDownLowSlow,
+
+number 13**
+003a_HeadRupFullSlow, 014a_HandLupLowSlow, 022a_ShoulderLRupFullSlow, 045a_ArmLeftUpHalfSlow,
+number 13 - reverse
+003b_HeadRDownFullSlow, 014b_HandLDownLowSlow, 022b_ShoulderLRDownFullSlow,045b_ArmLeftDownHalfSlow,
+
+number 14
+022a_ShoulderLRupFullSlow, 017a_HandLRupLowSlow, 045a_ArmLeftUpHalfSlow,
+number 14 - reverse 
+022b_ShoulderLRDownFullSlow, 017b_HandLRDownLowSlow, 045b_ArmLeftDownHalfSlow,
+
+number 15
+001e_HeadLRupFullFast, 
+number 15 - reverse
+001b_HeadLRDownFullSlow, 
+
+number 16
+003e_HeadRupFullFast,
+number 16 - reverse
+003b_HeadRDownFullSlow,
+
+number 17
+007e_HeadLupHalfFast,
+number 17 - reverse
+007f_HeadLDownHalfFast,
+
+number 18
+010a_HandRupHalfMed,
+number 18 - reverse
+010b_HandRDownHalfMed,
+
+number 19
+013c_HandLupHalfFast, 044c_ArmLeftUpFullMed,
+number 19 - reverse
+013b_HandLDownHalfMed, 044d_ArmLeftDownFullMed,
+
+number 20
+023e_ShoulderLRupHalfFast,
+number 20 - reverse
+023b_ShoulderLRDownMedSlow,
+
+number 21
+024a_ShoulderRotRFullFast,
+number 21 - reverse
+024d_ShoulderRotR(0)FullMed,
+
+number 22
+026c_ShoulderRotLFullMed2,
+number 22 - reverse
+026f_ShoulderRotL(0)FullMed,
+
+number 23
+027a_ShoulderRotLHalfFast,
+number 23 - reverse
+027f_ShoulderRotL(0)HalfMed,
+
+number 24
+039g_HeadRotLFullFast,
+number 24 - reverse
+039b_HeadRotL(0)FullSlow,
+
+number 25
+041g_HeadRotLHalfFast,
+number 25 - reverse
+041b_HeadRotL(0)HalfSlow,
+
+
+SURPRISE
+number 1**
+006e_HeadRupFullFast, 032e_FootRupLowFast, 025a_ShoulderRotRHalfFast,
+number 1 - reverse
+006f_HeadRDownFullFast, 032f_FootRDownLowFast, 024d_ShoulderRotR(0)FullMed,
+
+number 2**
+007e_HeadLupHalfFast, 033g_FootLupFullFast, 017e_HandLRupTwitch,
+number 2 - reverse
+007d_HeadLDownHalfMed, 033b_FootLDownFullSlow, 017f_HandLRDownTwitch,
+
+number 3**
+033i_FootLupFullFast2, 016e_HandLRupHalfFast, 044e_ArmLeftUpFullFast,
+number 3 - reverse
+033j_FootLDownFullFast2, 016d_HandLRDownHalfMed, 044f_ArmLeftDownFullFast,
+
+number 4
+034e_FootLupHalfFast, 007e_HeadLupHalfFast, 019e_ShoulderRupHalfFast,
+number 4 - reverse
+034b_FootLDownHalfSlow, 007b_HeadLDownHalfSlow, 019b_ShoulderRDownHalfSlow,
+
+number 5**
+020e_ShoulderLupFullFast, .25, 011c_HandRupTwitch,
+number 5 - reverse 
+020b_ShoulderLDownFullSlow, 011b_HandRDownLowSlow,
+
+number 6
+039c_HeadRotLFullMed, 011c_HandRupTwitch,
+number 6 - reverse
+039d_HeadRotL0FullMed, 011d_HandRDownTwitch,
+
+number 7
+041i_HeadRotLHalfFast2, 014e_HandLupLowFast,
+number 7 - reverse
+041b_HeadRotL(0)HalfSlow, .5, 014b_HandLDownLowSlow,
+
+number 8**
+041g_HeadRotLHalfFast, 017e_HandLRupTwitch,
+number 8 - reverse
+041d_HeadRotL(0)HalfMed, 017f_HandLRDownTwitch,
+
+number 9**
+042g_HeadRotRLowFast, 020e_ShoulderLupFullFast,
+number 9 - reverse
+042b_HeadRotR(0)LowSlow, 020b_ShoulderLDownFullSlow,
+
+number 10
+043g_HeadRotLLowFast, 033g_FootLupFullFast,
+number 10 - reverse
+043b_HeadRotL(0)LowSlow, 033b_FootLDownFullSlow,
+
+number 11**
+001c_HeadLRupFullMed, 022a_ShoulderLRupFullSlow, 037a_FootLRupHalfSlow,
+number 11 - reverse
+001b_HeadLRDownFullSlow, 022b_ShoulderLRDownFullSlow, 037b_FootLRDownHalfSlow,
+
+number 12
+034a_FootLupHalfSlow, 022a_ShoulderLRupFullSlow, 007a_HeadLupHalfSlow,
+number 12 - reverse
+034b_FootLDownHalfSlow, 022b_ShoulderLRDownFullSlow, 007b_HeadLDownHalfSlow,
+
+number 13
+032e_FootRupLowFast,
+number 13 - reverse
+032b_FootRDownLowSlow,
+
+number 14**
+020e_ShoulderLupFullFast,
+number 14 - reverse
+020b_ShoulderLDownFullSlow,
+
+number 15
+002e_HeadLRupHalfFast,
+number 15 - reverse
+002b_HeadLRDownHalfSlow,
+
+number 16
+006e_HeadRupFullFast,
+number 16 - reverse
+006b_HeadRDownFullSlow,
+
+number 17**
+011c_HandRupTwitch,
+number 17 - reverse
+011d_HandRDownTwitch,
+
+number 18
+014e_HandLupLowFast,
+number 18 - reverse
+014b_HandLDownLowSlow,
+
+number 19
+014g_HandLupTwitch,
+number 19 - reverse
+014h_HandLDownTwitch,
+
+number 20
+016e_HandLRupHalfFast, 044e_ArmLeftUpFullFast,
+number 20- reverse
+016b_HandLRDownHalfSlow, 044b_ArmLeftDownFullSlow,
+
+number 21**
+017e_HandLRupTwitch,
+number 21 - reverse
+017f_HandLRDownTwitch,
+
+number 22
+019e_ShoulderRupHalfFast, 005e_HeadRupLowFast,
+number 22 - reverse
+019b_ShoulderRDownHalfSlow, 005b_HeadRDownLowSlow,
+
+number 23
+022c_ShoulderLRupFullMed,
+number 23 - reverse
+022b_ShoulderLRDownFullSlow,
+
+number 24
+031e_FootRupHalfFast,
+number 24 - reverse
+031f_FootRDownHalfFast,
+
+number 25
+040i_HeadRotRHalfFast2,
+number 25 - reverse
+040d_HeadRotR(0)HalfMed,
+
+number 26
+041i_HeadRotLHalfFast2,
+number 26 - reverse
+041d_HeadRotL(0)HalfMed,
+
+number 27
+042i_HeadRotRLowFast2,
+number 27 - reverse
+040d_HeadRotR(0)HalfMed,
+
+number 28
+043i_HeadRotLLowFast2,
+number 28 - reverse
+043d_HeadRotL(0)LowMed,
+
+
+LONGING
+number 1**
+001a_HeadLRupFullSlow,  011a_HandRupLowSlow, 030a_FootRupFullSlow,
+number 1 - reverse
+001b_HeadLRDownFullSlow, 011b_HandRDownLowSlow, 030b_FootRDownFullSlow,
+
+number 2
+022a_ShoulderLRupFullSlow, 014a_HandLupLowSlow,
+number 2 - reverse
+022b_ShoulderLRDownFullSlow, 014b_HandLDownLowSlow,
+
+number 3**
+003a_HeadRupFullSlow, 032a_FootRupLowSlow,
+number 3 - reverse
+003b_HeadRDownFullSlow, 032b_FootRDownLowSlow,
+
+number 4**
+006a_HeadRupFullSlow, 033a_FootLupFullSlow, 024e_ShoulderRotRFullSlow,
+number 4 - reverse
+006b_HeadRDownFullSlow, 033b_FootLDownFullSlow, 024f_ShoulderRotR(0)FullSlow,
+
+number 5**
+026g_ShoulderRotLFullSlow, 002a_HeadLRupHalfSlow,
+number 5 - reverse
+026h_ShoulderRotL(0)FullSlow, 002b_HeadLRDownHalfSlow,
+
+number 6
+027g_ShoulderRotLHalfSlow, .5, 031a_FootRupHalfSlow,
+number 6 - reverse
+027h_ShoulderRotL(0)HalfSlow, .5, 031b_FootRDownHalfSlow,
+
+number 7
+038a_HeadRotRFullSlow, 003a_HeadRupFullSlow,
+number 7 - reverse
+038b_HeadRotR(0)FullSlow, 003b_HeadRDownFullSlow,
+
+number 8
+039a_HeadRotLFullSlow, 006a_HeadRupFullSlow,
+number 8 - reverse
+039b_HeadRotL(0)FullSlow, 006b_HeadRDownFullSlow,
+
+number 9**
+043a_HeadRotLLowSlow, 030a_FootRupFullSlow,
+number 9 - reverse
+043b_HeadRotL(0)LowSlow, 030b_FootRDownFullSlow,
+
+number 10
+040e_HeadRotRHalfMed2,
+number 10 - reverse
+040f_HeadRotR(0)HalfMed2,
+
+number 11
+006c_HeadRupFullMed,
+number 11 - reverse
+006d_HeadRDownFullMed,
+
+number 12
+003a_HeadRupFullSlow,
+number 12 - reverse
+003b_HeadRDownFullSlow,
+
+number 13**
+001a_HeadLRupFullSlow, 
+number 13 - reverse
+001b_HeadLRDownFullSlow,
+
+number 14**
+006a_HeadRupFullSlow,
+number 14 - reverse
+006b_HeadRDownFullSlow,
+
+number 15
+011a_HandRupLowSlow,
+number 15 - reverse
+011b_HandRDownLowSlow,
+
+number 16
+017a_HandLRupLowSlow,
+number 16 - reverse
+017b_HandLRDownLowSlow,
+
+number 17
+024e_ShoulderRotRFullSlow,
+number 17 - reverse
+024f_ShoulderRotR(0)FullSlow,
+
+number 18
+027g_ShoulderRotLHalfSlow,
+number 18 - reverse
+027h_ShoulderRotL(0)HalfSlow,
+
+number 19**
+030a_FootRupFullSlow,
+number 19 - reverse
+030b_FootRDownFullSlow,
+
+number 20
+041e_HeadRotLHalfMed2,
+number 20 - reverse
+041d_HeadRotL(0)HalfMed,
+
+
+AUTOMATIC GESTURES
+number 1-shift weight
+034c_FootLupHalfMed, .5, 031c_FootRupHalfMed, .5, 034d_FootLDownHalfMed, .5, 031d_FootRDownHalfMed,
+
+number 2
+018a_ShoulderRupFullSlow, 3, 018b_ShoulderRDownFullSlow,
+
+number 3
+019c_ShoulderRupHalfMed, 1, 019d_ShoulderRDownHalfMed,
+
+number 4
+021a_ShoulderLupHalfSlow, 3, 021b_ShoulderLDownHalfSlow,
+
+number 5
+023a_ShoulderLRupMedSlow, 4, 023b_ShoulderLRDownMedSlow,
+
+number 6
+032c_FootRupLowMed, 3, 032d_FootRDownLowMed,
+
+number 7
+033c_FootLupFullMed, 3, 033d_FootLDownFullMed,
+
+number 8
+035a_FootLupLowSlow, 2, 035b_FootLDownLowSlow,
+
+number 9
+036a_FootLRupFullSlow, 4, 036b_FootLRDownFullSlow,
+
+number 10
+001c_HeadLRupFullMed, 2, 001b_HeadLRDownFullSlow,
+
+number 11
+002c_HeadLRupHalfMed, 2, 002b_HeadLRDownHalfSlow,
+
+number 12
+007c_HeadLupHalfMed, 1, 007d_HeadLDownHalfMed,
+
+number 13
+020a_ShoulderLupFullSlow, 1, 020b_ShoulderLDownFullSlow,
+
+number 14
+019a_ShoulderRupHalfSlow, 1, 019b_ShoulderRDownHalfSlow,
+
+number 15
+008c_HeadLupLowMed, 2, 008d_HeadLDownLowMed,
+
+number 16
+033a_FootLupFullSlow, 1, 033b_FootLDownFullSlow,
+
+number 17
+034a_FootLupHalfSlow, 2, 034b_FootLDownHalfSlow,
+
+number 18
+042e_HeadRotRLowMed2, 2, 042f_HeadRotR(0)LowMed2,
+
+number 19
+043g_HeadRotLLowFast, 2, 043d_HeadRotL(0)LowMed,
+
+number 20
+002a_HeadLRupHalfSlow, 1, 002b_HeadLRDownHalfSlow,
+
+

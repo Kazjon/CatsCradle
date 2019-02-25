@@ -1,4 +1,6 @@
-ID,Name,Sequence
-1,hand_up_slow,002a_HeadLRupHalfSlow,0.1,012c_HandLupFullMed
-2,weight_shift_and_hand,035a_FootLupLowSlow,041a_HeadRotLHalfSlow,0.2,016a_HandLRupHalfSlow,1,033b_FootLDownFullSlow
-3,hand_up_shoulders_down,009a_HandRupFullFast,023d_ShoulderLRDownHalfMed
+ID,Weight,Sequence
+1,5,015d_HandLRDownFullMed,036d_FootLRDownFullMed,0.3,022b_ShoulderLRDownFullSlow,0.5,002b_HeadLRDownHalfSlow
+2,1,011a_HandRupLowSlow,002a_HeadLRupHalfSlow,,1.0,011b_HandRDownLowSlow,001b_HeadLRDownFullSlow
+3,2,014a_HandLupLowSlow,002a_HeadLRupHalfSlow,,1.0,014b_HandLDownLowSlow,001b_HeadLRDownFullSlow
+4,2,015d_HandLRDownFullMed,0.1,011a_HandRupLowSlow,0.1,010a_HandRupHalfMed,1.5,011b_HandRDownLowSlow,008b_HeadLDownLowSlow,005b_HeadRDownLowSlow
+5,1,015d_HandLRDownFullMed,0.1,014a_HandLupLowSlow,0.1,013a_HandLupHalfMed,1.5,014b_HandLDownLowSlow,008b_HeadLDownLowSlow,005b_HeadRDownLowSlow

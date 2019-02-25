@@ -1,4 +1,8 @@
-ID,Name,Sequence
-1,Up_fast_slow_down,001e_HeadLRupFullFast,0.1,002b_HeadLRDownHalfSlow,0.7,001b_HeadLRDownFullSlow
-2,Twitch,014g_HandLupTwitch
-3,Double_twitch,014g_HandLupTwitch,0.1,014g_HandLupTwitch
+ID,Weight,Sequence
+1,5,025a_ShoulderRotRHalfFast,002e_HeadLRupHalfFast
+2,1,025a_ShoulderRotRHalfFast
+3,1,027a_ShoulderRotLHalfFast
+4,1,023e_ShoulderLRupHalfFast,1.0,023d_ShoulderLRDownHalfMed
+5,1,023e_ShoulderLRupHalfFast,002e_HeadLRupHalfFast,1.0,023d_ShoulderLRDownHalfMed,001b_HeadLRDownFullSlow
+6,1,006f_HeadLDownFullFast,035e_FootLupLowFast,027a_ShoulderRotLHalfFast,021e_ShoulderLupHalfFast
+7,1,003f_HeadRDownFullFast,032e_FootRupLowFast,025a_ShoulderRotRHalfFast,019e_ShoulderRupHalfFast
