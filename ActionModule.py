@@ -268,18 +268,24 @@ class ActionModule(object):
                 if self.checkTargetReached():
                     self.targetReached = True
                     self.isIdle = True
-                    #print "Target reached!!!!!"
+                    #print "Target reached!!!!! \n"
 
             print "Arduino thread stopped."
 
 
     def checkTargetReached(self):
+	reached_target = True
+	motors_to_ignore = [self.arduinoIDToAngleIndex['h'], self.arduinoIDToAngleIndex['e,x'], self.arduinoIDToAngleIndex['e,y']]
         for angleIndex in range(0, len(self.currentAngles)):
-            # ignoring head rotation motor
-            if angleIndex == self.arduinoIDToAngleIndex['h']:
+            # ignoring some motors
+            if angleIndex in motors_to_ignore:
                 continue
             if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
-                return False
+	        reached_target = False
+	#if not reached_target:
+	#    print "currentAngles = ", self.currentAngles
+	#    print "targetAngles = ", self.currentTargetAngles
+ 	#    return False
         return True
 
 
@@ -350,7 +356,7 @@ class ActionModule(object):
 
         # This function will be executed by a thread to execute a sequence
         def executeSequence(seqList):
-            print "executing:",seqList
+            print("executing: " + str(seqList) + "\n")
             for item in seqList:
                 try:
                     # if int -> sleep
@@ -361,8 +367,10 @@ class ActionModule(object):
                     if type(item) is tuple:
                         if item[0] == "eyes":
                             self.moveEyes(item[1:])
+			    #pass
                         if item[0] == "eyes+head":
                             self.moveEyesAndHead(item[1:])
+			    #pass
                     else:
                         self.moveTo(item)
 
