@@ -20,6 +20,7 @@ _running = False
 import os
 
 # video
+#VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/people gesturing-converted.mp4')
 #VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/morePeople-converted.mp4')
 # camera
 VIDEO_FEED = 0
@@ -141,7 +142,7 @@ def run(app, appWidget):
 
     print('Loaded Response Module...\n')
 
-    emotion_module = EmotionModule(response_module, visualise=False)
+    emotion_module = EmotionModule(response_module, visualise=True)
 
     print('Loaded Emotion Module...\n')
 
