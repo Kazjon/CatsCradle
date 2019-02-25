@@ -26,10 +26,10 @@ class Responder(object):
             person = person_to_look_at[0]
             look_function_str = person_to_look_at[1]
             look_duration = person_to_look_at[2]
-            if look_function_str == 'glance':
-                self.response_module.glanceAt(person, duration=look_duration)
-            if look_function_str == 'look':
-                self.response_module.lookAt(person, duration=look_duration)
+            #if look_function_str == 'glance':
+            #    self.response_module.glanceAt(person, duration=look_duration)
+            #if look_function_str == 'look':
+            #    self.response_module.lookAt(person, duration=look_duration)
             # reseting the list
             self.persons_to_look_list = []
     

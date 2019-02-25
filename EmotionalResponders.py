@@ -9,7 +9,7 @@ import cv2
 
 from scipy.spatial import distance
 
-BASE_RESPONSE_CHANCE = 0.1 #Probability of conducting an idle gesture every response_interval
+BASE_RESPONSE_CHANCE = 0.375 #Probability of conducting an idle gesture every response_interval
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
 
 HIGH_INTEREST_THRESH = 10 #An arbitrary line dividing "low" and "high" interest people
@@ -117,15 +117,15 @@ class ApproachResponder(Responder):
 	    max_size_diff = max(person.faceSizeHistory) / min(person.faceSizeHistory)
 	    # If any of them are approaching fast, add "threat" tag
             if person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.threat_size_ratio:
-                print("Threat\n")
+                #print("Threat\n")
                 person.update_label('Threat', 25)
             # Check to see if there are any people who are walking towards her, add the "approached" tag to them
             elif person.faceSizeHistory[0] / min(person.faceSizeHistory) > self.approach_size_ratio:
-                print("Approach\n")
+                #print("Approach\n")
                 person.update_label('Approach', 5)
             # If any of them are approaching slow, add "creeping" tag
             elif max_size_diff > self.slow_size_ratio_range[0] and max_size_diff < self.slow_size_ratio_range[1]:
-                print("Creeping\n")
+                #print("Creeping\n")
                 person.update_label('Creeping', 5)
             
         # respond based on tags
@@ -137,8 +137,8 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.1 - 2.3
             [
-                #("rule 2.1", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
-                #("rule 2.2", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
+                ("rule 2.1", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2),
+                ("rule 2.2", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1),
                 ("rule 2.3", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1)
             ]
         )
@@ -204,9 +204,6 @@ class DepartResponder(Responder):
                         person.interestingness += 5
                     else:
                         person.interestingness += 10
-                    if audience.numLostRecently() > 3:
-                        if random() < self.p:
-                            self.response_module.lookAt(person, duration=1)
 
         # respond
         
@@ -262,7 +259,7 @@ class TooCloseResponder(Responder):
         #Check to see if anyone is standing too close
         for person in audience.persons:
             if person.faceSize() > too_close_size:
-                print("Too Close\n")
+                #print("Too Close\n")
                 person.update_label('Close', 5)
     
         # respond
@@ -316,11 +313,11 @@ class MovementResponder(Responder):
                 person.labels.pop('Still', None)
                 pairdists = distance.squareform(distance.pdist(np.array(person.faceMidpointHistory)))
                 if np.any(pairdists > too_fast_size):
-                    print("Moving\n")
+                    #print("Moving\n")
                     person.update_label('Moving', 5)
                 adjacentdists = np.diagonal(pairdists,offset=1)
                 if np.all(adjacentdists<MAX_STILLNESS_MOVEMENT):
-                    print("Still\n")
+                    #print("Still\n")
                     person.update_label('Still', 2)
     
         # respond
@@ -333,7 +330,7 @@ class MovementResponder(Responder):
             # rules list 5.1 - 5.2
             [
                 ("rule 5.1", [(['Moving', None, None, 'current'], 2)], "fear", "large", "", 0),
-                #("rule 5.2", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
+                ("rule 5.2", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2)
             ]
         )
         

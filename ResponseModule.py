@@ -59,14 +59,15 @@ class ResponseModule(object):
             if response is not None:
                 self.gesture_queue.append(response)
 
-        if idle and len(self.gesture_queue):
+        if len(self.gesture_queue):
             self.action_module.executeGesture(self.gesture_queue.pop())
 
         self.last_updated = time.time()
         
-        if len(Responder.all_rules) > 0:
-            sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
-            sys.stdout.flush()
+        #if len(Responder.all_rules) > 0:
+	#     print(','.join(Responder.all_rules))
+        #    sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
+        #    sys.stdout.flush()
 
     def updateAttentionAndTrack(self, audience, emotional_state):
         t = time.time()
