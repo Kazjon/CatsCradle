@@ -2,6 +2,8 @@
 from EmotionModule import EMOTION_DELTAS, try_add
 import random
 
+RULE_EXECUTION_PROBAS = {'tiny': 0.125, 'small': 0.25, 'medium': 0.5, 'large': 0.75}
+
 class Responder(object):
 
     # static class variable
@@ -34,7 +36,7 @@ class Responder(object):
             self.persons_to_look_list = []
     
 
-    def execute_rule(self, audience, rule_str, filters_list, emotion_str, emotion_intensity, attention_str, attention_duration):
+    def execute_rule(self, audience, rule_str, filters_list, emotion_str, emotion_intensity, attention_str, attention_duration, proba):
         """
         Executes a rule.
         
@@ -46,6 +48,7 @@ class Responder(object):
             emotion_intensity (???).
             attention_str (str).
             attention_duration (float).
+            proba (string). should be present in RULE_EXECUTION_PROBAS.keys()
         
         Returns:
             bool. If could execute the rule True otherwise False.
@@ -63,6 +66,10 @@ class Responder(object):
                 met_all_conditions = False
                 break
     
+        # check the probability of execution
+        if random.random() >= RULE_EXECUTION_PROBAS[proba]:
+            return False
+        
         if met_all_conditions:
             Responder.all_rules.add(rule_str)
             try_add(self.emotional_effect, emotion_str, emotion_intensity)
@@ -87,7 +94,8 @@ class Responder(object):
             emotion_intensity = EMOTION_DELTAS[rule[3]]
             attention_str = rule[4]
             attention_duration = rule[5]
+            proba = rule[6]
             
-            if self.execute_rule(audience, rule_str, filters_list, emotion_str, emotion_intensity, attention_str, attention_duration):
+            if self.execute_rule(audience, rule_str, filters_list, emotion_str, emotion_intensity, attention_str, attention_duration, proba):
                 break
 
