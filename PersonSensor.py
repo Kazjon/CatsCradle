@@ -184,7 +184,7 @@ class PersonSensor():
                 cv2.rectangle(frame, (x, y+h - 35), (x+w, y+h), (212, 211, 212), cv2.FILLED)
                 # write age and gender if provided
                 if not age is None and not gender is None:
-                    text = predictor.GENDER_MAP[gender] + "(" + str(int(age)) + ")"
+                    text = predictor.GENDER_MAP[gender] + "(" + predictor.AGE_MAP[int(age)] + ")"
                     cv2.putText(frame, text, (x+2, y+h-6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
         # display the frame

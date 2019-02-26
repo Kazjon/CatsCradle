@@ -356,7 +356,7 @@ class ActionModule(object):
 
         # This function will be executed by a thread to execute a sequence
         def executeSequence(seqList):
-            print("executing: " + str(seqList) + "\n")
+            print("executing: " + str(seqList))
             for item in seqList:
                 try:
                     # if int -> sleep
@@ -406,7 +406,7 @@ class ActionModule(object):
 
 
     def moveEyes(self, targetCameraCoords):
-        print "Move eyes to",targetCameraCoords
+#        print "Move eyes to",targetCameraCoords
         self.updateHeadData()
         targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
         # Current eye pitch and yawn (includes head orientation)
@@ -419,7 +419,7 @@ class ActionModule(object):
         self.qMotorCmds.put(((0,self.getMovementCount()), command))
 
     def moveEyesAndHead(self, targetCameraCoords):
-        print "Move eyes and head to", targetCameraCoords
+#        print "Move eyes and head to", targetCameraCoords
         # First move the eyes to the target
         self.moveEyes(targetCameraCoords)
         # Then engage IMU

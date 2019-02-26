@@ -35,6 +35,7 @@ ENABLE_AGEGENDER_DETECTION = True
 MESSAGE_EXPIRE_MS = timedelta(milliseconds=100)
 
 GENDER_MAP = {0: 'M', 1: 'F'}
+AGE_MAP = {0: 'child', 1: 'adult', 2: 'senior'}
 
 
 def load_dlib_module():
@@ -304,5 +305,5 @@ def display_results(n_faces_list, ages, genders, probas):
         print("\nFound " + str(n_faces) + " faces.")
         if ENABLE_AGEGENDER_DETECTION:
             for i in range(n_faces):
-                print("Age: " + str(int(ages[flat_counter])) + " (" + str(max(probas[0][flat_counter])) + "), gender: " + GENDER_MAP[genders[flat_counter]] + " (" + str(max(probas[1][flat_counter])) + ")")
+                print("Age: " + AGE_MAP[int(ages[flat_counter])] + " (" + str(max(probas[0][flat_counter])) + "), gender: " + GENDER_MAP[genders[flat_counter]] + " (" + str(max(probas[1][flat_counter])) + ")")
                 flat_counter = flat_counter + 1

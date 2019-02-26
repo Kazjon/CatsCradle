@@ -48,10 +48,10 @@ class ExpressionResponder(Responder):
                             emotion_quantity = max(0,emotion_quantity)
                             emotion_quantity *= 1.33
                             if random() < emotion_quantity:
-#                                print "Expressing", emotion_name
+                                print "Expressing", str(emotion_name).upper()
                                 return np.random.choice(self.emotional_gestures[emotion_name][1],p=self.emotional_gestures[emotion_name][0])
                     if len(self.emotional_gestures["neutral"]):
-#                        print "Expressing neutrality"
+                        print "Expressing NEUTRALITY"
                         return np.random.choice(self.emotional_gestures["neutral"][1],p=self.emotional_gestures["neutral"][0])
                 self.last_checked = t
 
