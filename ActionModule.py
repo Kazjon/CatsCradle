@@ -427,7 +427,7 @@ class ActionModule(object):
         # Then move the head to face the target (data already updated when calling moveEyes)
         targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
         speed = 20 # arbitrary speed value
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', targetYawn, speed]]))
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', -targetYawn, speed]]))
         # For now ignore the pitch. Not sure what is the correspondance between head motor
         # angle and pitch
         # Disengage IMU
