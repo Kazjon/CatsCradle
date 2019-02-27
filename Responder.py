@@ -2,7 +2,7 @@
 from EmotionModule import EMOTION_DELTAS, try_add
 import random
 
-RULE_EXECUTION_PROBAS = {'tiny': 0.125, 'small': 0.25, 'medium': 0.5, 'large': 0.75}
+RULE_EXECUTION_PROBAS = {'tiny': 0.05, 'small': 0.2, 'medium': 0.4, 'large': 0.6}
 
 class Responder(object):
 
@@ -73,6 +73,7 @@ class Responder(object):
         if met_all_conditions:
             Responder.all_rules.add(rule_str)
             try_add(self.emotional_effect, emotion_str, emotion_intensity)
+	    print(self.emotional_effect)
             if attention_str != "":
                 for person in persons:
                     self.persons_to_look_list.append((person, attention_str, attention_duration))

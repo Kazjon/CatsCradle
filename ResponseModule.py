@@ -64,8 +64,8 @@ class ResponseModule(object):
 
         self.last_updated = time.time()
         
-        #if len(Responder.all_rules) > 0:
-	#     print(','.join(Responder.all_rules))
+        if len(Responder.all_rules) > 0:
+	     print(','.join(Responder.all_rules))
         #    sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
         #    sys.stdout.flush()
 

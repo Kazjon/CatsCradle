@@ -22,7 +22,7 @@ simplex_points = np.asarray([[1, 0, 0],
                              [-1. / 3., -math.sqrt(2) / 3., -math.sqrt(2. / 3.)]                             ])
 EMOTION_LABELS = ["fear", "surprise", "longing", "shame"]
 
-EMOTION_DELTAS = {"small": 0.01, "medium": 0.1, "large": 1, "extreme": 5, "instant": 10}
+EMOTION_DELTAS = {"small": 0.1, "medium": 0.2, "large": 0.3, "extreme": 0.4, "instant": 1}
 
 def try_add(emotions,k,v):
     try:

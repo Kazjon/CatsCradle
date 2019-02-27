@@ -70,9 +70,9 @@ class EntryResponder(Responder):
             audience,
             # rules list 1.1 - 1.3
             [
-                ("rule 1.1", [([None, 'adult', 'F', 'new'], 2)], "shame", "large", "", 0, "small"),
-                ("rule 1.2", [([None, 'adult', 'F', 'new'], 0)], "shame", "medium", "look", 2, "large"),
-                ("rule 1.3", [([None, 'senior', None, 'new'], 0)], "shame", "small", "look", 2, "medium")
+                ("shame entry F+2", [([None, 'adult', 'F', 'new'], 2)], "shame", "small", "", 0, "small"),
+                ("shame entry F", [([None, 'adult', 'F', 'new'], 0)], "shame", "medium", "look", 2, "large"),
+                ("shame entry S", [([None, 'senior', None, 'new'], 0)], "shame", "small", "look", 2, "medium")
             ]
         )
         
@@ -80,10 +80,10 @@ class EntryResponder(Responder):
             audience,
             # rules list 1.4 - 1.6
             [
-                ("rule 1.4", [([None, 'child', None, 'new'], 0),
+                ("longing entry C+A", [([None, 'child', None, 'new'], 0),
                               ([None, 'adult', None, 'new'], 0)], "longing", "large", "", 0, "large"),
-                ("rule 1.5", [([None, 'child', None, 'new'], 0)], "longing", "large", "look", 2, "large"),
-                ("rule 1.6", [([None, 'adult', 'F', 'new'], 0),
+                ("longing entry C", [([None, 'child', None, 'new'], 0)], "longing", "large", "look", 2, "large"),
+                ("longing entry F+M", [([None, 'adult', 'F', 'new'], 0),
                               ([None, 'adult', 'M', 'new'], 0)], "longing", "medium", "", 0, "small")
             ]
         )
@@ -137,9 +137,9 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.1 - 2.3
             [
-                ("rule 2.1", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2, "small"),
-                ("rule 2.2", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1, "small"),
-                ("rule 2.3", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1, "small")
+                ("fear approach M", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2, "small"),
+                ("fear fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "look", 1, "small"),
+                ("fear fast approach S", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "look", 1, "small")
             ]
         )
         
@@ -147,10 +147,10 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.4 - 2.7
             [
-                ("rule 2.4", [(['Approach', 'adult', 'F', 'current'], 0)], "shame", "medium", "look", 1, "large"),
-                ("rule 2.5", [(['Creeping', 'adult', 'F', 'current'], 2)], "shame", "large", "", 0, "small"),
-                ("rule 2.6", [(['Creeping', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
-                ("rule 2.7", [(['Creeping', None, None, 'current'], 5)], "shame", "large", "", 0, "small")
+                ("sad/shame approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "shame", "medium", "look", 1, "large"),
+                ("sad/shame slow approach F", [(['Creeping', 'adult', 'F', 'current'], 2)], "shame", "small", "", 0, "small"),
+                ("sad/shame slow approach S", [(['Creeping', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
+                ("sad/shame slow approach +5", [(['Creeping', None, None, 'current'], 5)], "shame", "large", "", 0, "small")
             ]
         )
         
@@ -158,9 +158,9 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.8 - 2.10
             [
-                ("rule 2.8", [(['Threat', 'adult', 'M', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
-                ("rule 2.9", [(['Threat', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
-                ("rule 2.10", [(['Threat', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny")
+                ("surprise fast approach M", [(['Threat', 'adult', 'M', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
+                ("surprise fast approach C", [(['Threat', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
+                ("surprise fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny")
             ]
         )
         
@@ -168,14 +168,14 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.11 - 2.16
             [
-                ("rule 2.11", [(['Creeping', 'adult', 'F', 'current'], 0),
+                ("longing slow approach F+M", [(['Creeping', 'adult', 'F', 'current'], 0),
                                (['Creeping', 'adult', 'M', 'current'], 0)], "longing", "medium", "", 0, "medium"),
-                ("rule 2.12", [(['Approach', 'adult', None, 'current'], 0),
+                ("longing approach C+A", [(['Approach', 'adult', None, 'current'], 0),
                                (['Approach', 'child', None, 'current'], 0)], "longing", "large", "", 0, "large"),
-                ("rule 2.13", [(['Creeping', 'child', None, 'current'], 0)], "longing", "large", "look", 2, "large"),
-                ("rule 2.14", [(['Creeping', 'senior', None, 'current'], 0)], "longing", "small", "look", 1, "medium"),
-                ("rule 2.15", [(['Approach', 'adult', 'F', 'current'], 0)], "longing", "medium", "look", 1, "large"),
-                ("rule 2.16", [(['Creeping', 'adult', 'F', 'current'], 2)], "longing", "medium", "", 0, "small")
+                ("longing slow approach C", [(['Creeping', 'child', None, 'current'], 0)], "longing", "large", "look", 2, "large"),
+                ("longing slow approach S", [(['Creeping', 'senior', None, 'current'], 0)], "longing", "medium", "look", 1, "medium"),
+                ("longing approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "longing", "medium", "look", 1, "large"),
+                ("longing slow approach F+2", [(['Creeping', 'adult', 'F', 'current'], 2)], "longing", "medium", "", 0, "small")
             ]
         )
 
@@ -214,10 +214,10 @@ class DepartResponder(Responder):
             audience,
             # rules list 3.1 - 3.3
             [
-                ("rule 3.1", [([None, 'child', None, 'lost'], 0)], "shame", "large", "look", 2, "large"),
-                ("rule 3.2", [([None, 'adult', 'F', 'lost'], 0),
-                              ([None, 'adult', 'M', 'lost'], 0)], "shame", "large", "", 0, "small"),
-                ("rule 3.3", [([None, 'senior', None, 'lost'], 0)], "shame", "medium", "look", 0.5, "medium")
+                ("sad/shame depart C", [([None, 'child', None, 'lost'], 0)], "shame", "large", "look", 2, "large"),
+                ("sad/shame depart F+M", [([None, 'adult', 'F', 'lost'], 0),
+                              ([None, 'adult', 'M', 'lost'], 0)], "shame", "medium", "", 0, "small"),
+                ("sad/shame depart S", [([None, 'senior', None, 'lost'], 0)], "shame", "small", "look", 0.5, "medium")
             ]
         )
         
@@ -225,11 +225,11 @@ class DepartResponder(Responder):
             audience,
             # rules list 3.4 - 3.7
             [
-                ("rule 3.4", [([None, 'adult', 'F', 'lost'], 2)], "longing", "small", "", 0, "small"),
-                ("rule 3.5", [([None, 'senior', None, 'lost'], 0)], "longing", "small", "look", 1, "medium"),
-                ("rule 3.6", [([None, 'adult', None, 'lost'], 0),
+                ("longing depart F+2", [([None, 'adult', 'F', 'lost'], 2)], "longing", "small", "", 0, "small"),
+                ("longing depart S", [([None, 'senior', None, 'lost'], 0)], "longing", "small", "look", 1, "medium"),
+                ("longing depart C+A", [([None, 'adult', None, 'lost'], 0),
                               ([None, 'child', None, 'lost'], 0)], "longing", "medium", "", 0, "large"),
-                ("rule 3.7", [([None, 'adult', 'F', 'lost'], 0)], "longing", "medium", "look", 2, "large")
+                ("longing depart F", [([None, 'adult', 'F', 'lost'], 0)], "longing", "medium", "look", 2, "large")
             ]
         )
 
@@ -269,19 +269,11 @@ class TooCloseResponder(Responder):
         
         self.execute_rules(
             audience,
-            # rules list 4.1
-            [
-                ("rule 4.1", [(['RecentClose', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2, "medium")
-            ]
-        )
-        
-        self.execute_rules(
-            audience,
             # rules list 4.2 - 4.4
             [
-                ("rule 4.2", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
-                ("rule 4.3", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
-                ("rule 4.4", [(['Close', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny")
+                ("surprise close F", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
+                ("surprise close S", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
+                ("surprise close C", [(['Close', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny")
             ]
         )
         
@@ -325,42 +317,42 @@ class MovementResponder(Responder):
         self.emotional_effect = {}
         self.persons_to_look_list = []
         
-        self.execute_rules(
-            audience,
-            # rules list 5.1 - 5.2
-            [
-                ("rule 5.1", [(['Moving', None, None, 'current'], 2)], "fear", "large", "", 0, "small"),
-                ("rule 5.2", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2, "small")
-            ]
-        )
+        #self.execute_rules(
+        #    audience,
+        #    # rules list 5.1 - 5.2
+        #    [
+        #        ("fear movement +2", [(['Moving', None, None, 'current'], 2)], "fear", "large", "", 0, "small"),
+        #        ("fear movement M", [(['Moving', 'adult', 'M', 'current'], 0)], "fear", "extreme", "look", 2, "small")
+        #    ]
+        #)
         
-        self.execute_rules(
-            audience,
-            # rules list 5.3 - 5.7
-            [
-                ("rule 5.3", [(['Moving', 'adult', 'F', 'current'], 0)], "shame", "medium", "glance", 2, "large"),
-                ("rule 5.4", [(['Moving', None, None, 'current'], 5)], "shame", "large", "", 0, "small"),
-                ("rule 5.5", [(['Moving', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
-             
-                ("rule 5.6", [(['Still', 'adult', 'F', 'current'], 2)], "shame", "small", "", 0, "small"),
-                ("rule 5.7", [(['Still', 'senior', None, 'current'], 0)], "shame", "small", "", 0, "medium")
-            ]
-        )
+        #self.execute_rules(
+        #    audience,
+        #    # rules list 5.3 - 5.7
+        #    [
+        #        ("sad/shame movement F", [(['Moving', 'adult', 'F', 'current'], 0)], "shame", "small", "glance", 2, "large"),
+        #        ("sad/shame movement +5", [(['Moving', None, None, 'current'], 5)], "shame", "medium", "", 0, "small"),
+        #        ("sad/shame movement S", [(['Moving', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
+        #     
+        #        ("sad/shame still F+2", [(['Still', 'adult', 'F', 'current'], 2)], "shame", "small", "", 0, "small"),
+        #        #("sad/shame still S", [(['Still', 'senior', None, 'current'], 0)], "shame", "small", "", 0, "medium")
+        #    ]
+        #)
         
-        self.execute_rules(
-            audience,
-            # rules list 5.8 - 5.12
-            [
-                ("rule 5.8", [(['Moving', 'child', None, 'current'], 0)], "longing", "large", "glance", 2, "large"),
-                ("rule 5.9", [(['Moving', 'adult', 'F', 'current'], 0)], "longing", "medium", "glance", 1, "medium"),
-                ("rule 5.10", [(['Moving', 'adult', 'F', 'current'], 0),
-                              (['Moving', 'adult', 'M', 'current'], 0)], "longing", "medium", "", 0, "medium"),
-             
-                ("rule 5.11", [(['Still', 'adult', 'F', 'current'], 2)], "longing", "small", "", 0, "small"),
-                ("rule 5.12", [(['Still', 'adult', None, 'current'], 0),
-                               (['Still', 'child', None, 'current'], 0)], "longing", "small", "", 0, "large")
-            ]
-        )
+        #self.execute_rules(
+        #    audience,
+        #    # rules list 5.8 - 5.12
+        #    [
+        #        ("longing movement C", [(['Moving', 'child', None, 'current'], 0)], "longing", "large", "glance", 2, "large"),
+        #        ("longing movement F", [(['Moving', 'adult', 'F', 'current'], 0)], "longing", "medium", "glance", 1, "medium"),
+        #        ("longing movement F+M", [(['Moving', 'adult', 'F', 'current'], 0),
+        #                      (['Moving', 'adult', 'M', 'current'], 0)], "longing", "medium", "", 0, "medium"),
+        #     
+        #        ("longing still F+2", [(['Still', 'adult', 'F', 'current'], 2)], "longing", "small", "", 0, "small"),
+        #        ("longing still C+A", [(['Still', 'adult', None, 'current'], 0),
+        #                       (['Still', 'child', None, 'current'], 0)], "longing", "small", "", 0, "large")
+        #    ]
+        #)
 
         # glance / look rule
         # get a random person from self.persons_to_look_list and based on the item picked execute some response.
