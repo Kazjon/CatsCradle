@@ -77,9 +77,14 @@ class ActionModule(object):
         self.timeInterval = 0.25 # (1/4 second)
 
         # Initialize the angles to the marionette's default (0 everywhere)
-        self.currentAngles = Marionette().getAngles()
-        self.currentTargetAngles = Marionette().getAngles()
+        marionette = Marionette()
+        self.currentAngles = marionette.getAngles()
+        self.currentTargetAngles = marionette.getAngles()
         self.targetReached = False
+
+        # Get min/max head angle values
+        headMinAngle = marionette.motor['H'].minAngle
+        headMaxAngle = marionette.motor['H'].maxAngle
 
         # Head IMU angles:
         self.roll = 0
@@ -427,7 +432,14 @@ class ActionModule(object):
         # Then move the head to face the target (data already updated when calling moveEyes)
         targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
         speed = 20 # arbitrary speed value
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', -targetYaw, speed]]))
+        # Head motor mounted so that positive yaw = negative angle
+        headAngle = -targetYaw
+        # Check limits
+        if headAngle < self.headMinAngle:
+            headAngle = self.headMinAngle
+        if headAngle > self.headMaxAngle:
+            headAngle = self.headMaxAngle
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
         # For now ignore the pitch. Not sure what is the correspondance between head motor
         # angle and pitch
         # Disengage IMU
