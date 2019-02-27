@@ -316,7 +316,7 @@ class ActionModule(object):
             if len(data) == 4:
                 self.roll = int(data[1])
                 self.pitch = int(data[2])
-                self.yaw = int(data[3])
+                self.yawn = int(data[3])
                 self.headDataUpdated = True
         #print "currentAngles = ", self.currentAngles
 	#print "targetAngles = ", self.currentTargetAngles
@@ -426,7 +426,7 @@ class ActionModule(object):
         self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         # Then move the head to face the target (data already updated when calling moveEyes)
         targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
-        speed = 25 # arbitrary speed value
+        speed = 20 # arbitrary speed value
         self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', targetYawn, speed]]))
         # For now ignore the pitch. Not sure what is the correspondance between head motor
         # angle and pitch
