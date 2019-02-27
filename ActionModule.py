@@ -84,11 +84,11 @@ class ActionModule(object):
         # Head IMU angles:
         self.roll = 0
         self.pitch = 0
-        self.yawn = 0
+        self.yaw = 0
         self.pitchMax = 0
         self.pitchMin = 0
-        self.yawnMax = 0
-        self.yawnMin = 0
+        self.yawMax = 0
+        self.yawMin = 0
 
         # Max x and y in camera coordinates space
         self.cameraMaxX = 1920
@@ -102,8 +102,8 @@ class ActionModule(object):
             print self.calibration
             self.pitchMax = self.calibration["up"][1]
             self.pitchMin = self.calibration["down"][1]
-            self.yawnMax = self.calibration["left"][2]
-            self.yawnMin = self.calibration["right"][2]
+            self.yawMax = self.calibration["left"][2]
+            self.yawMin = self.calibration["right"][2]
 
         # motor name to Arduino motor id
         self.arduinoID = {}
@@ -316,7 +316,7 @@ class ActionModule(object):
             if len(data) == 4:
                 self.roll = int(data[1])
                 self.pitch = int(data[2])
-                self.yawn = int(data[3])
+                self.yaw = int(data[3])
                 self.headDataUpdated = True
         #print "currentAngles = ", self.currentAngles
 	#print "targetAngles = ", self.currentTargetAngles
@@ -382,25 +382,25 @@ class ActionModule(object):
         return self.isIdle
 
     def cameraCoordsToEyeWorld(self, targetCameraCoords):
-        # From a target in camera coordinates, get the eye pitch/yawn in world space
+        # From a target in camera coordinates, get the eye pitch/yaw in world space
         # to look at that point
         # Uses the current angles data (caller should update first if needed)
         pitchRange = self.pitchMax - self.pitchMin
-        yawnRange = self.yawnMax - self.yawnMin
+        yawRange = self.yawMax - self.yawMin
         pitchFactor = targetCameraCoords[1] / self.cameraMaxY
-        yawnFactor = targetCameraCoords[0] / self.cameraMaxX
+        yawFactor = targetCameraCoords[0] / self.cameraMaxX
         eyePitch = self.pitchMax - pitchFactor * pitchRange
-        eyeYawn = self.yawnMax - yawnFactor * yawnRange
-        return eyePitch, eyeYawn
+        eyeYaw = self.yawMax - yawFactor * yawRange
+        return eyePitch, eyeYaw
 
 
-    def eyeWorldToCameraCoords(self, eyePitch, eyeYawn):
+    def eyeWorldToCameraCoords(self, eyePitch, eyeYaw):
         # Inverse from cameraCoordsToEyeWorld
         pitchRange = self.pitchMax - self.pitchMin
-        yawnRange = self.yawnMax - self.yawnMin
+        yawRange = self.yawMax - self.yawMin
         pitchFactor = (self.pitchMax - eyePitch) / pitchRange
-        yawnFactor = (self.yawnMax - eyeYawn) / yawnRange
-        x = yawnFactor * self.cameraMaxX
+        yawFactor = (self.yawMax - eyeYaw) / yawRange
+        x = yawFactor * self.cameraMaxX
         y = pitchFactor * self.cameraMaxY
         return [x, y]
 
@@ -408,12 +408,12 @@ class ActionModule(object):
     def moveEyes(self, targetCameraCoords):
 #        print "Move eyes to",targetCameraCoords
         self.updateHeadData()
-        targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
-        # Current eye pitch and yawn (includes head orientation)
+        targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
+        # Current eye pitch and yaw (includes head orientation)
         eyePitch = targetPitch - self.pitch
-        eyeYawn = targetYawn - self.yawn
+        eyeYaw = targetYaw - self.yaw
         eyeAngleX = 90 + eyePitch
-        eyeAngleY = 90 + eyeYawn
+        eyeAngleY = 90 + eyeYaw
         speed = 25 # arbitrary speed value
         command = [['motorEX', eyeAngleX, speed], ['motorEY', eyeAngleY, speed]]
         self.qMotorCmds.put(((0,self.getMovementCount()), command))
@@ -425,9 +425,9 @@ class ActionModule(object):
         # Then engage IMU
         self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         # Then move the head to face the target (data already updated when calling moveEyes)
-        targetPitch, targetYawn = self.cameraCoordsToEyeWorld(targetCameraCoords)
+        targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
         speed = 20 # arbitrary speed value
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', -targetYawn, speed]]))
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', -targetYaw, speed]]))
         # For now ignore the pitch. Not sure what is the correspondance between head motor
         # angle and pitch
         # Disengage IMU
@@ -526,16 +526,16 @@ class ActionModule(object):
 
     def saveCalibration(self, name):
         self.updateHeadData()
-        self.calibration[name] = [self.roll, self.pitch, self.yawn]
+        self.calibration[name] = [self.roll, self.pitch, self.yaw]
 
         if name is "up":
             self.pitchMax = self.pitch
         elif name is "down":
             self.pitchMin = self.pitch
         elif name is "left":
-            self.yawnMax = self.yawn
+            self.yawMax = self.yaw
         elif name is "right":
-            self.yawnMin = self.yawn
+            self.yawMin = self.yaw
 
         # Write new values in json file
         with open("IMUCameraCalibration.json", "w") as write_file:
