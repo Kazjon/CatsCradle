@@ -390,7 +390,7 @@ class ActionModule(object):
         pitchFactor = targetCameraCoords[1] / self.cameraMaxY
         yawnFactor = targetCameraCoords[0] / self.cameraMaxX
         eyePitch = self.pitchMax - pitchFactor * pitchRange
-        eyeYawn = self.yawnMin + yawnFactor * yawnRange
+        eyeYawn = self.yawnMax - yawnFactor * yawnRange
         return eyePitch, eyeYawn
 
 
@@ -399,7 +399,7 @@ class ActionModule(object):
         pitchRange = self.pitchMax - self.pitchMin
         yawnRange = self.yawnMax - self.yawnMin
         pitchFactor = (self.pitchMax - eyePitch) / pitchRange
-        yawnFactor = (eyeYawn - self.yawnMin) / yawnRange
+        yawnFactor = (self.yawnMax - eyeYawn) / yawnRange
         x = yawnFactor * self.cameraMaxX
         y = pitchFactor * self.cameraMaxY
         return [x, y]
