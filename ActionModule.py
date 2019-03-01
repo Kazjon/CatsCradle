@@ -24,6 +24,9 @@ from Marionette import *
 from threading import Thread
 from time import sleep
 
+# To get the PROCESSING_SIZE variable from predictor
+from image_processing import predictor
+
 class ActionModule(object):
 
     def __init__(self, dummy=False):
@@ -96,8 +99,10 @@ class ActionModule(object):
         self.yawMin = 0
 
         # Max x and y in camera coordinates space
-        self.cameraMaxX = 1920
-        self.cameraMaxY = 1080
+        cameraMaxX = 1920
+        cameraMaxY = 1080
+        self.cameraCoordMaxX = predictor.PROCESSING_SIZE
+        self.cameraCoordMaxY = self.cameraCoordMaxX * cameraMaxY / cameraMaxX
 
         # Read the calibration file
         self.calibration = []
@@ -392,8 +397,8 @@ class ActionModule(object):
         # Uses the current angles data (caller should update first if needed)
         pitchRange = self.pitchMax - self.pitchMin
         yawRange = self.yawMax - self.yawMin
-        pitchFactor = targetCameraCoords[1] / self.cameraMaxY
-        yawFactor = targetCameraCoords[0] / self.cameraMaxX
+        pitchFactor = targetCameraCoords[1] / self.cameraCoordMaxY
+        yawFactor = targetCameraCoords[0] / self.cameraCoordMaxX
         eyePitch = self.pitchMax - pitchFactor * pitchRange
         eyeYaw = self.yawMax - yawFactor * yawRange
         return eyePitch, eyeYaw
@@ -405,8 +410,8 @@ class ActionModule(object):
         yawRange = self.yawMax - self.yawMin
         pitchFactor = (self.pitchMax - eyePitch) / pitchRange
         yawFactor = (self.yawMax - eyeYaw) / yawRange
-        x = yawFactor * self.cameraMaxX
-        y = pitchFactor * self.cameraMaxY
+        x = yawFactor * self.cameraCoordMaxX
+        y = pitchFactor * self.cameraCoordMaxY
         return [x, y]
 
 
