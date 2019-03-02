@@ -7,7 +7,7 @@ INCLUDE_REVERSE = False
 with open('sequences.csv', 'r') as f:
     contents = f.read()
 
-emotions = ['SAD', 'SHAME', 'FEAR', 'SURPRISE', 'LONGING', 'AUTOMATIC GESTURES']
+emotions = ['SAD', 'SHAME', 'FEAR', 'SURPRISE', 'LONGING', 'NEUTRAL GESTURES']
 parts_pattern = re.compile('|'.join(emotions))
 parts = re.split(parts_pattern, contents)
 
