@@ -60,7 +60,7 @@ class ResponseModule(object):
                 self.gesture_queue.append(response)
 
         if len(self.gesture_queue):
-            self.action_module.executeGesture(self.gesture_queue.pop())
+            self.action_module.executeGesture(self.gesture_queue.pop(), useThread=False)
 
         self.last_updated = time.time()
         
