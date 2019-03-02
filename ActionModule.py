@@ -14,6 +14,7 @@ import os
 import glob
 import csv
 import warnings
+import cv2
 
 import ArduinoCommunicator
 import time
@@ -26,6 +27,10 @@ from time import sleep
 
 # To get the PROCESSING_SIZE variable from predictor
 from image_processing import predictor
+
+import time
+
+TIME_TO_RESET = 30 # in seconds, how often the marionette should go to zero
 
 class ActionModule(object):
 
@@ -86,8 +91,8 @@ class ActionModule(object):
         self.targetReached = False
 
         # Get min/max head angle values
-        headMinAngle = marionette.motor['H'].minAngle
-        headMaxAngle = marionette.motor['H'].maxAngle
+        self.headMinAngle = marionette.motor['H'].minAngle
+        self.headMaxAngle = marionette.motor['H'].maxAngle
 
         # Head IMU angles:
         self.roll = 0
@@ -99,8 +104,8 @@ class ActionModule(object):
         self.yawMin = 0
 
         # Max x and y in camera coordinates space
-        cameraMaxX = 1920
-        cameraMaxY = 1080
+	cameraMaxX = cv2.CAP_PROP_FRAME_WIDTH
+        cameraMaxY = cv2.CAP_PROP_FRAME_HEIGHT
         self.cameraCoordMaxX = predictor.PROCESSING_SIZE
         self.cameraCoordMaxY = self.cameraCoordMaxX * cameraMaxY / cameraMaxX
 
@@ -213,9 +218,17 @@ class ActionModule(object):
 
             print "Arduino thread started."
             self.ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
+            self.last_time_target_reached = time.time()
+            
+	    # initialize the timer to now
+	    self.last_time_going_to_zero = time.time()
 
             while(self.running):
-                if not self.qMotorCmds.empty():
+		# check if the marionette should go to zero
+		if time.time() - self.last_time_going_to_zero > TIME_TO_RESET:
+		    self.goBackToZero()
+		    self.last_time_going_to_zero = time.time()
+                elif not self.qMotorCmds.empty():
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
                     #This line of code unwraps the actual command from its priority, since we're now using a PriorityQueue
@@ -267,6 +280,8 @@ class ActionModule(object):
 
                     if eyeMotion:
                         self.ac.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
+		else:
+		    pass
 
                 # Read from the arduino
                 receivedData = self.ac.receive()
@@ -274,8 +289,15 @@ class ActionModule(object):
                     #print "received data: ", receivedData
                     self.updateAnglesFromFeedback(receivedData)
 
+		# print info when the marionette did not reached target for a long time
+		if time.time() - self.last_time_target_reached > 10:
+		    print "currentAngles = ", self.currentAngles
+		    print "targetAngles = ", self.currentTargetAngles
+		    self.last_time_target_reached = time.time()
+		
                 # Check for target reached:
                 if self.checkTargetReached():
+		    self.last_time_target_reached = time.time()
                     self.targetReached = True
                     self.isIdle = True
                     #print "Target reached!!!!! \n"
@@ -284,18 +306,20 @@ class ActionModule(object):
 
 
     def checkTargetReached(self):
-	reached_target = True
-	motors_to_ignore = [self.arduinoIDToAngleIndex['h'], self.arduinoIDToAngleIndex['e,x'], self.arduinoIDToAngleIndex['e,y']]
+        reached_target = True
+        motors_to_ignore = [self.arduinoIDToAngleIndex['h'],
+			    self.arduinoIDToAngleIndex['e,x'],
+			    self.arduinoIDToAngleIndex['e,y']]
         for angleIndex in range(0, len(self.currentAngles)):
             # ignoring some motors
             if angleIndex in motors_to_ignore:
                 continue
             if abs(self.currentAngles[angleIndex] - self.currentTargetAngles[angleIndex]) > 1:
 	        reached_target = False
-	#if not reached_target:
-	#    print "currentAngles = ", self.currentAngles
-	#    print "targetAngles = ", self.currentTargetAngles
- 	#    return False
+	if not reached_target:
+	    #print "currentAngles = ", self.currentAngles
+	    #print "targetAngles = ", self.currentTargetAngles
+ 	    return False
         return True
 
 
@@ -335,6 +359,7 @@ class ActionModule(object):
     def moveToAngles(self, target, speeds):
         action = Action(target, self.timeInterval)
         output = action.getCmdsToTarget(self.currentAngles, speeds)
+        #print(output)
         newTargetAngles = []
         for oldAngle, newAngle in zip(self.currentTargetAngles, target):
             if newAngle is None:
@@ -362,7 +387,7 @@ class ActionModule(object):
         position = self.positions[targetKey]
         return self.moveToAngles(position['angles'], position['speeds'])
 
-    def executeGesture(self, sequenceList):
+    def executeGesture(self, sequenceList, useThread=True):
 
         # This function will be executed by a thread to execute a sequence
         def executeSequence(seqList):
@@ -384,8 +409,11 @@ class ActionModule(object):
                     else:
                         self.moveTo(item)
 
-        seqThread = Thread(target=executeSequence, args=[sequenceList])
-        seqThread.start()
+	if useThread:
+            seqThread = Thread(target=executeSequence, args=[sequenceList])
+            seqThread.start()
+        else:
+            executeSequence(sequenceList)
 
 
     def isMarionetteIdle(self):
@@ -557,6 +585,16 @@ class ActionModule(object):
         # Write new values in json file
         with open("IMUCameraCalibration.json", "w") as write_file:
             json.dump(self.calibration, write_file, indent=4, sort_keys=True)
+
+
+    def goBackToZero(self):
+        # Define rest angles for the 12 motors (0)
+        restAngles = [0] * 12
+        # Add angles for the eyes (90)
+        restAngles.extend([90, 90])
+        # Define speed for each motor (25)
+        speeds = [25] * 14
+        self.moveToAngles(restAngles, speeds)
 
 
 if __name__ == '__main__':
