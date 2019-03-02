@@ -10,6 +10,9 @@ from collections import deque
 from PersonSensor import *
 from Person import TAG_MEMORY_SPAN
 
+# To get the PROCESSING_SIZE variable from predictor
+from image_processing import predictor
+
 ENTRY_EXIT_HISTORY_LENGTH = 25
 
 class Audience:
@@ -125,8 +128,10 @@ class Audience:
 
     #Returns the point in the camera field that is furthest away from any faces
     def furthestFromFaces(self):
-        width = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+	cameraMaxX = cv2.CAP_PROP_FRAME_WIDTH
+        cameraMaxY = cv2.CAP_PROP_FRAME_HEIGHT
+        width = predictor.PROCESSING_SIZE
+        height = width * cameraMaxY / cameraMaxX
         corners = [[0,0],[0,height],[width,0],[width,height]]
         #If there's no people, return the bottom left corner
         if len(self.persons) == 0:
