@@ -70,9 +70,9 @@ class EntryResponder(Responder):
             audience,
             # rules list 1.1 - 1.3
             [
-                ("shame entry F+2", [([None, 'adult', 'F', 'new'], 2)], "shame", "small", "", 0, "small"),
-                ("shame entry F", [([None, 'adult', 'F', 'new'], 0)], "shame", "medium", "look", 2, "large"),
-                ("shame entry S", [([None, 'senior', None, 'new'], 0)], "shame", "small", "look", 2, "medium")
+                ("sad/shame entry F+2", [([None, 'adult', 'F', 'new'], 2)], "shame", "small", "", 0, "small"),
+                ("sad/shame entry F", [([None, 'adult', 'F', 'new'], 0)], "shame", "medium", "look", 2, "large"),
+                ("sad/shame entry S", [([None, 'senior', None, 'new'], 0)], "shame", "small", "look", 2, "medium")
             ]
         )
         
@@ -173,8 +173,8 @@ class ApproachResponder(Responder):
                 ("longing approach C+A", [(['Approach', 'adult', None, 'current'], 0),
                                (['Approach', 'child', None, 'current'], 0)], "longing", "large", "", 0, "large"),
                 ("longing slow approach C", [(['Creeping', 'child', None, 'current'], 0)], "longing", "large", "look", 2, "large"),
-                ("longing slow approach S", [(['Creeping', 'senior', None, 'current'], 0)], "longing", "medium", "look", 1, "medium"),
-                ("longing approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "longing", "medium", "look", 1, "large"),
+                ("longing slow approach S", [(['Creeping', 'senior', None, 'current'], 0)], "longing", "medium", "", 0, "medium"),
+                ("longing approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "longing", "medium", "", 0, "large"),
                 ("longing slow approach F+2", [(['Creeping', 'adult', 'F', 'current'], 2)], "longing", "medium", "", 0, "small")
             ]
         )
@@ -214,10 +214,10 @@ class DepartResponder(Responder):
             audience,
             # rules list 3.1 - 3.3
             [
-                ("sad/shame depart C", [([None, 'child', None, 'lost'], 0)], "shame", "large", "look", 2, "large"),
+                ("sad/shame depart C", [([None, 'child', None, 'lost'], 0)], "shame", "large", "", 0, "large"),
                 ("sad/shame depart F+M", [([None, 'adult', 'F', 'lost'], 0),
                               ([None, 'adult', 'M', 'lost'], 0)], "shame", "medium", "", 0, "small"),
-                ("sad/shame depart S", [([None, 'senior', None, 'lost'], 0)], "shame", "small", "look", 0.5, "medium")
+                ("sad/shame depart S", [([None, 'senior', None, 'lost'], 0)], "shame", "small", "", 0, "medium")
             ]
         )
         
@@ -226,10 +226,10 @@ class DepartResponder(Responder):
             # rules list 3.4 - 3.7
             [
                 ("longing depart F+2", [([None, 'adult', 'F', 'lost'], 2)], "longing", "small", "", 0, "small"),
-                ("longing depart S", [([None, 'senior', None, 'lost'], 0)], "longing", "small", "look", 1, "medium"),
+                ("longing depart S", [([None, 'senior', None, 'lost'], 0)], "longing", "small", "", 0, "medium"),
                 ("longing depart C+A", [([None, 'adult', None, 'lost'], 0),
                               ([None, 'child', None, 'lost'], 0)], "longing", "medium", "", 0, "large"),
-                ("longing depart F", [([None, 'adult', 'F', 'lost'], 0)], "longing", "medium", "look", 2, "large")
+                ("longing depart F", [([None, 'adult', 'F', 'lost'], 0)], "longing", "medium", "", 0, "large")
             ]
         )
 
@@ -271,8 +271,8 @@ class TooCloseResponder(Responder):
             audience,
             # rules list 4.2 - 4.4
             [
-                ("surprise close F", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
-                ("surprise close S", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny"),
+                ("surprise close F", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "", 0, "tiny"),
+                ("surprise close S", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "", 0, "tiny"),
                 ("surprise close C", [(['Close', 'child', None, 'current'], 0)], "surprise", "instant", "look", 0.5, "tiny")
             ]
         )
