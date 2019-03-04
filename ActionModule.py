@@ -32,9 +32,11 @@ import time
 
 TIME_TO_RESET = 30 # in seconds, how often the marionette should go to zero
 
+TIME_TO_RESET_HEAD_DATA = 10 # in seconds, reset the head data if nothing comes from the raspberry pi
+
 class ActionModule(object):
 
-    def __init__(self, dummy=False):
+    def __init__(self, cameraMaxX, cameraMaxY, dummy=False):
         """ port = usb port of the arduino controling the motors
             set to "" on a computer without arduino
         """
@@ -104,11 +106,9 @@ class ActionModule(object):
         self.yawMin = 0
 
         # Angle delta above which a head motion will be triggered
-        self.headMotionThreshold = 5
+        self.headMotionThreshold = 0.0
 
         # Max x and y in camera coordinates space
-	cameraMaxX = cv2.CAP_PROP_FRAME_WIDTH
-        cameraMaxY = cv2.CAP_PROP_FRAME_HEIGHT
         self.cameraCoordMaxX = predictor.PROCESSING_SIZE
         self.cameraCoordMaxY = self.cameraCoordMaxX * cameraMaxY / cameraMaxX
 
@@ -162,7 +162,7 @@ class ActionModule(object):
 
         # Thread related variables
         self.movementCount = long(0)
-
+        self.busy_executing = False
         self.qMotorCmds = Queue.PriorityQueue()
         self.running = False
         self.arduino_thread = None
@@ -227,11 +227,12 @@ class ActionModule(object):
 	    self.last_time_going_to_zero = time.time()
 
             while(self.running):
-		# check if the marionette should go to zero
-		if time.time() - self.last_time_going_to_zero > TIME_TO_RESET:
-		    self.goBackToZero()
-		    self.last_time_going_to_zero = time.time()
-                elif not self.qMotorCmds.empty():
+                if self.qMotorCmds.empty():
+                    # check if the marionette should go to zero
+                    if time.time() - self.last_time_going_to_zero > TIME_TO_RESET:
+                        #self.goBackToZero()
+                        self.last_time_going_to_zero = time.time()
+                else:
                     self.isIdle = False
                     cmds = self.qMotorCmds.get()
                     #This line of code unwraps the actual command from its priority, since we're now using a PriorityQueue
@@ -244,6 +245,7 @@ class ActionModule(object):
                     eyeSpeedX = 0
                     eyeSpeedY = 0
                     self.targetReached = False
+                    print(str(time.time()) + " sending command: " + str(cmds))
                     for cmd in cmds:
                         # print "step = ", step
                         if cmd[0] == 'requestHeadData':
@@ -283,8 +285,6 @@ class ActionModule(object):
 
                     if eyeMotion:
                         self.ac.rotateEyes(eyeAngleX, eyeAngleY, eyeSpeedX, eyeSpeedY)
-		else:
-		    pass
 
                 # Read from the arduino
                 receivedData = self.ac.receive()
@@ -391,10 +391,14 @@ class ActionModule(object):
         return self.moveToAngles(position['angles'], position['speeds'])
 
     def executeGesture(self, sequenceList, useThread=True):
-
+        # check if we are currently executing a gesture
+        if self.busy_executing:
+            return
+        
+        self.busy_executing = True
         # This function will be executed by a thread to execute a sequence
         def executeSequence(seqList):
-            print("executing: " + str(seqList))
+            #print("executing: " + str(seqList))
             for item in seqList:
                 try:
                     # if int -> sleep
@@ -403,20 +407,17 @@ class ActionModule(object):
                 except:
                     # if str -> execute
                     if type(item) is tuple:
-                        if item[0] == "eyes":
-                            self.moveEyes(item[1:])
-			    #pass
-                        if item[0] == "eyes+head":
-                            self.moveEyesAndHead(item[1:])
-			    #pass
+                        raise ValueError('executeGesture should only execute gestures not tracking stuff')
                     else:
                         self.moveTo(item)
+            self.busy_executing = False
 
-	if useThread:
+        if useThread:
             seqThread = Thread(target=executeSequence, args=[sequenceList])
             seqThread.start()
         else:
             executeSequence(sequenceList)
+            self.busy_executing = False
 
 
     def isMarionetteIdle(self):
@@ -426,11 +427,11 @@ class ActionModule(object):
         # From a target in camera coordinates, get the eye pitch/yaw in world space
         # to look at that point
         # Uses the current angles data (caller should update first if needed)
-        pitchRange = self.pitchMax - self.pitchMin
-        yawRange = self.yawMax - self.yawMin
+        pitchRange = abs(self.pitchMax - self.pitchMin)
+        yawRange = abs(self.yawMax - self.yawMin)
         pitchFactor = targetCameraCoords[1] / self.cameraCoordMaxY
         yawFactor = targetCameraCoords[0] / self.cameraCoordMaxX
-        eyePitch = self.pitchMax - pitchFactor * pitchRange
+        eyePitch = pitchFactor * 40
         eyeYaw = self.yawMax - yawFactor * yawRange
         return eyePitch, eyeYaw
 
@@ -447,20 +448,32 @@ class ActionModule(object):
 
 
     def moveEyes(self, targetCameraCoords):
-#        print "Move eyes to",targetCameraCoords
-        self.updateHeadData()
+        # check for valid coords
+        if (targetCameraCoords[0] > self.cameraCoordMaxX) or (targetCameraCoords[0] < 1):
+            return
+        if (targetCameraCoords[1] > self.cameraCoordMaxY) or (targetCameraCoords[1] < 1):
+            return
+        
+        #self.updateHeadData()
         targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
+        #print("TARGET CAMERA COORDS (E): " + str(targetCameraCoords) + " yaw: " + str(targetYaw) + " pitch: " + str(targetPitch))
         # Current eye pitch and yaw (includes head orientation)
-        eyePitch = targetPitch - self.pitch
+        eyePitch = targetPitch - (3 * self.pitch)
         eyeYaw = targetYaw - self.yaw
-        eyeAngleX = 90 + eyePitch
-        eyeAngleY = 90 + eyeYaw
-        speed = 25 # arbitrary speed value
+        eyeAngleX = 95 + eyeYaw
+        eyeAngleY = 58 + eyePitch
+        speed = 90 # arbitrary speed value
         command = [['motorEX', eyeAngleX, speed], ['motorEY', eyeAngleY, speed]]
+        #print(str(time.time()) + " putting the eye command in the queue")
         self.qMotorCmds.put(((0,self.getMovementCount()), command))
 
     def moveEyesAndHead(self, targetCameraCoords):
-#        print "Move eyes and head to", targetCameraCoords
+        # check for valid coords
+        if (targetCameraCoords[0] > self.cameraCoordMaxX) or (targetCameraCoords[0] < 1):
+            return
+        if (targetCameraCoords[1] > self.cameraCoordMaxY) or (targetCameraCoords[1] < 1):
+            return
+        #print("TARGET CAMERA COORDS (E+H): " + str(targetCameraCoords))
         # Compute the angles
         targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
         # Head motor mounted so that positive yaw = negative angle
@@ -470,21 +483,38 @@ class ActionModule(object):
             headAngle = self.headMinAngle
         if headAngle > self.headMaxAngle:
             headAngle = self.headMaxAngle
+        
+        # determine the speed of the motor based on the amount of head rotation
+        head_diff = abs(headAngle - self.currentAngles[5])
+        if head_diff < 5:
+            # small difference -> no movement for head but move the eyes
+            #print("moving the eyes instead")
+            #self.moveEyes(targetCameraCoords)
+            return
+        #elif head_diff < 5:
+        #    speed = 5
+        elif head_diff < 9:
+            speed = 10
+        else:
+            speed = 20
+        #print("head angle: " + str(headAngle) + " diff: " + str(head_diff) + " speed: " + str(speed))
 
-        # Check that the new angle is far enough from the current one (index 5)
-        # if so send the new position
-        if abs(headAngle - self.currentTargetAngles[5]) < self.headMotionThreshold:
-            # First move the eyes to the target
-            self.moveEyes(targetCameraCoords)
-            # Then engage IMU
-            self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
-            # Then move the head to face the target (data already updated when calling moveEyes)
-            speed = 20 # arbitrary speed value
-            self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
-            # For now ignore the pitch. Not sure what is the correspondance between head motor
-            # angle and pitch
-            # Disengage IMU
-            self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
+        # First move the eyes to the target
+        self.moveEyes(targetCameraCoords)
+        # Then engage IMU
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
+        # Then move the head to face the target (data already updated when calling moveEyes)
+        # put the head rotation message in the priority queue
+        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
+        # For now ignore the pitch. Not sure what is the correspondance between head motor
+        # angle and pitch
+        # Disengage IMU
+        #self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
+        # move eyes to zero
+        #command = [['motorEX', 90, 90], ['motorEY', 90, 90]]
+        #print(str(time.time()) + " putting the eye command in the queue")
+        #self.qMotorCmds.put(((0,self.getMovementCount()), command))
+	
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -566,15 +596,15 @@ class ActionModule(object):
 
     def updateHeadData(self):
         self.headDataUpdated = False
+        #print(str(time.time()) + " putting a request for the head data in the queue")
         self.qMotorCmds.put(((0,self.getMovementCount()), [['requestHeadData']]))
+	    #self.ac.requestHeadData()
         # Wait until head data is updated (bail if too long)
-        counter = 0
+        update_head_data_timer = time.time()
         while not self.headDataUpdated:
-            pass
-            # counter += 1
-            # if counter > 10e6:
-            #     self.headDataUpdated = True
-            #     print "WARNING ----- Head data requested were not updated"
+            if time.time() - update_head_data_timer > TIME_TO_RESET_HEAD_DATA:
+		self.headDataUpdated = True
+		print "WARNING ----- Head data requested were not updated"
 
 
     def saveCalibration(self, name):
@@ -601,7 +631,7 @@ class ActionModule(object):
         # Add angles for the eyes (90)
         restAngles.extend([90, 90])
         # Define speed for each motor (25)
-        speeds = [25] * 14
+        speeds = [30] * 14
         self.moveToAngles(restAngles, speeds)
 
 

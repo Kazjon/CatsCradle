@@ -134,7 +134,10 @@ def run(app, appWidget):
     global _running
     _running = True
 
-    actionModule = ActionModule(dummy="--dummyAction" in sys.argv)
+    cameraMaxX = 1920
+    cameraMaxY = 1080
+
+    actionModule = ActionModule(cameraMaxX, cameraMaxY, dummy="--dummyAction" in sys.argv)
 
     print('Loaded Action Module...\n')
 
@@ -153,8 +156,8 @@ def run(app, appWidget):
 
     # loading the camera should happen after sensor module is initialized but before loading camera for the sensor module
     camera = cv2.VideoCapture(VIDEO_FEED)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
     sensor_module.loadSensors(camera)
 
     while _running:

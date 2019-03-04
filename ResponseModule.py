@@ -12,8 +12,8 @@ from Responder import Responder
 import EmotionalResponders
 import time
 
-ATTENTION_CHANGE_MINIMUM = 1.0 #minimum time before attention will be checked again
-TRACKING_INTERVAL = 0.5 #How frequently to send new locations of the current focus of attention so that eyes+head track them.
+ATTENTION_CHANGE_MINIMUM = 8.0 #minimum time before attention will be checked again
+TRACKING_INTERVAL = 0.05 #How frequently to send new locations of the current focus of attention so that eyes+head track them.
 SHAME_LOOKAWAY_INTERVAL = 10. #How frequently to check whether, if she's ashamed, she should look away rather than at someone
 SHAME_MIN_LOOKAWAY = 2.
 SHAME_MAX_LOOKAWAY = 10.
@@ -59,13 +59,19 @@ class ResponseModule(object):
             if response is not None:
                 self.gesture_queue.append(response)
 
-        if len(self.gesture_queue):
-            self.action_module.executeGesture(self.gesture_queue.pop(), useThread=False)
+        #if len(self.gesture_queue):
+            # [:] is for copying the list since we clear the queue afterwards
+            #gesture = self.gesture_queue.pop()[:]
+            #if gesture[0] == '046a_Reset':
+            #    print("Going back to zero.")
+            #self.action_module.executeGesture(gesture, useThread=True)
+        # discard the queue since the contents might not be relavant in the next update cycle
+        self.gesture_queue.clear()
 
         self.last_updated = time.time()
         
-        if len(Responder.all_rules) > 0:
-	     print(','.join(Responder.all_rules))
+        #if len(Responder.all_rules) > 0:
+	#     print(','.join(Responder.all_rules))
         #    sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
         #    sys.stdout.flush()
 
@@ -87,7 +93,7 @@ class ResponseModule(object):
                             shame_proportion = highest_emotion[1] / second_emotion[1]
                             p = 0.2 * shame_proportion
                             if np.random.random() < p:
-                                self.shame_lookaway = True
+                                #self.shame_lookaway = True
                                 self.shame_lookaway_timeout = t + (np.random.random() * (SHAME_MAX_LOOKAWAY - SHAME_MIN_LOOKAWAY) + SHAME_MIN_LOOKAWAY)
                                 self.lookAway(audience)
                                 return
@@ -112,7 +118,7 @@ class ResponseModule(object):
                 else:
                     #There's no one around, so ditch the focus.
                     self.focus = None
-            if self.focus is not None and t - self.last_tracked > TRACKING_INTERVAL:
+            if (self.focus is not None) and (t - self.last_tracked > TRACKING_INTERVAL):
                 if t > self.returnToFocusAt:
                     self.lookAt(self.focus)
                     self.last_tracked = t
@@ -120,14 +126,14 @@ class ResponseModule(object):
             self.lookAway(audience)
 
 
-    #These attention-directing functions always append left on the gesture_queue so that they are executed ASAP
+    #These attention-directing functions are putting eyes/head movements directly into the action module's priority queue
 
     #Looks at a person with just eyes. If duration > 0, will return to the focal person after duration seconds.
     def glanceAt(self,person, duration=0):
         target = tuple(person.faceMidpoint())
         if self.differentToCurrentTarget(target):
             self.currentEyeTarget = target
-            self.gesture_queue.appendleft([("eyes",)+target])
+            self.action_module.moveEyes(target)
             if duration > 0:
                 self.returnToFocusAt = time.time() + duration
 
@@ -136,7 +142,7 @@ class ResponseModule(object):
         target = tuple(person.faceMidpoint())
         if self.differentToCurrentTarget(target):
             self.currentEyeTarget = target
-            self.gesture_queue.appendleft([("eyes+head",)+target])
+            self.action_module.moveEyesAndHead(target)
             if duration > 0:
                 self.returnToFocusAt = time.time() + duration
 
@@ -148,7 +154,7 @@ class ResponseModule(object):
         target = tuple(audience.furthestFromFaces())
         if self.differentToCurrentTarget(target):
             self.currentEyeTarget = target
-            self.gesture_queue.appendleft([("eyes+head",)+target])
+            self.action_module.moveEyesAndHead(target)
 
     def differentToCurrentTarget(self,target):
         return not [round(p) for p in target] == [round(p) for p in self.currentEyeTarget]

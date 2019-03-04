@@ -40,8 +40,10 @@ class App(QWidget):
         self.marionette = Marionette()
         self.lastSentAngles = self.marionette.getAngles()
 
+        cameraMaxX = 1920
+        cameraMaxY = 1080
         # ActionModule
-        self.actionModule = ActionModule()
+        self.actionModule = ActionModule(cameraMaxX, cameraMaxY)
 
         # View control widgets
         self.zoomLabel = QLabel('Zoom')
@@ -86,8 +88,8 @@ class App(QWidget):
         self.rightPositionBtn = QPushButton('Capture Max Right')
 
         self.camera = cv2.VideoCapture(0)
-        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
 
         self.running = True
         self.IMUCompensation = False

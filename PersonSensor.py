@@ -13,7 +13,7 @@ import copy
 import Person
 
 QUEUE_MAX_MESSAGES = 10
-FRAME_PROCESSING_STRIDE = 4
+FRAME_PROCESSING_STRIDE = 1
 
 class PersonSensor():
     """
