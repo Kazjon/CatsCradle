@@ -103,6 +103,9 @@ class ActionModule(object):
         self.yawMax = 0
         self.yawMin = 0
 
+        # Angle delta above which a head motion will be triggered
+        self.headMotionThreshold = 5
+
         # Max x and y in camera coordinates space
 	cameraMaxX = cv2.CAP_PROP_FRAME_WIDTH
         cameraMaxY = cv2.CAP_PROP_FRAME_HEIGHT
@@ -458,13 +461,8 @@ class ActionModule(object):
 
     def moveEyesAndHead(self, targetCameraCoords):
 #        print "Move eyes and head to", targetCameraCoords
-        # First move the eyes to the target
-        self.moveEyes(targetCameraCoords)
-        # Then engage IMU
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
-        # Then move the head to face the target (data already updated when calling moveEyes)
+        # Compute the angles
         targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
-        speed = 20 # arbitrary speed value
         # Head motor mounted so that positive yaw = negative angle
         headAngle = -targetYaw
         # Check limits
@@ -472,11 +470,21 @@ class ActionModule(object):
             headAngle = self.headMinAngle
         if headAngle > self.headMaxAngle:
             headAngle = self.headMaxAngle
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
-        # For now ignore the pitch. Not sure what is the correspondance between head motor
-        # angle and pitch
-        # Disengage IMU
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
+
+        # Check that the new angle is far enough from the current one (index 5)
+        # if so send the new position
+        if abs(headAngle - self.currentTargetAngles[5]) < self.headMotionThreshold:
+            # First move the eyes to the target
+            self.moveEyes(targetCameraCoords)
+            # Then engage IMU
+            self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
+            # Then move the head to face the target (data already updated when calling moveEyes)
+            speed = 20 # arbitrary speed value
+            self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
+            # For now ignore the pitch. Not sure what is the correspondance between head motor
+            # angle and pitch
+            # Disengage IMU
+            self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
