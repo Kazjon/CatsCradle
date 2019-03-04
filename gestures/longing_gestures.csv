@@ -1,9 +1,10 @@
 ID,Name,Sequence
 1,1,001a_HeadLRupFullSlow
-2,2,030a_FootRupFullSlow
-3,2,033a_FootLupFullSlow,024e_ShoulderRotRFullSlow
+2,1,030a_FootRupFullSlow
+3,1,033a_FootLupFullSlow,024e_ShoulderRotRFullSlow
 4,1,017a_HandLRupLowSlow
 5,1,022a_ShoulderLRupFullSlow
 6,1,027g_ShoulderRotLHalfSlow,.5,031a_FootRupHalfSlow
 8,1,003a_HeadRupFullSlow
-9,2,026g_ShoulderRotLFullSlow,002a_HeadLRupHalfSlow
+9,1,026g_ShoulderRotLFullSlow,002a_HeadLRupHalfSlow
+12,0.1,046a_Reset

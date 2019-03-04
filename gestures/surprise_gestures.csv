@@ -1,6 +1,6 @@
 ID,Name,Sequence
 1,1,002e_HeadLRupHalfFast
-2,2,006e_HeadRupFullFast,032e_FootRupLowFast,025a_ShoulderRotRHalfFast
+2,1,006e_HeadRupFullFast,032e_FootRupLowFast,025a_ShoulderRotRHalfFast
 3,1,014e_HandLupLowFast
 5,1,019e_ShoulderRupHalfFast
 6,1,022c_ShoulderLRupFullMed,014g_HandLupTwitch
@@ -9,4 +9,5 @@ ID,Name,Sequence
 9,1,011c_HandRupTwitch
 10,1,014e_HandLupLowFast
 11,1,033g_FootLupFullFast
-12,2,017e_HandLRupTwitch
+12,1,017e_HandLRupTwitch
+13,0.1,046a_Reset
