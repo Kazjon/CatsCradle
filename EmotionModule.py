@@ -71,6 +71,9 @@ class EmotionModule(object):
 
             plt.show()
 
+    def __del__(self):
+        plt.close()
+
     def update(self,audience, plot_frameskip = 3):
         self.velocity += self.acceleration
         self.position += self.velocity
