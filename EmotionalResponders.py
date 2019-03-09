@@ -1,9 +1,10 @@
 from Responder import Responder
 from random import random
 import numpy as np
-from EmotionModule import EMOTION_LABELS, EMOTION_DELTAS, try_add
+from EmotionModule import EMOTION_LABELS, EMOTION_DELTAS, try_add, normalise_emotion_vector
 
 import time
+import logging
 
 import cv2
 
@@ -42,17 +43,34 @@ class ExpressionResponder(Responder):
         if t - self.last_checked > EXPRESSION_INTERVAL:
             if idle:
                 if random() < self.p:
-                    for emotion_name,emotion_quantity in emotion_module.emotion_as_dict().iteritems():
+                    # check to see if we should be neutral (when nobody is in the room and we got no focus of attention)
+                    if self.response_module.focus is None and len(audience.persons) == 0:
+                        logging.info(str(time.time()) + ' EMOTION:NEUTRAL')
+                        g = np.random.choice(self.emotional_gestures["neutral"][1], p=self.emotional_gestures["neutral"][0])
+                        logging.info(str(time.time()) + ' GESTURE:' + str(g))
+                        return
+                    
+                    # we have someone to respond to
+                    emotion_names = []
+                    emotion_quantities = []
+                    for emotion_name, emotion_quantity in emotion_module.emotion_as_dict().iteritems():
                         if len(self.emotional_gestures[emotion_name]):
                             emotion_quantity -= 0.25
-                            emotion_quantity = max(0,emotion_quantity)
+                            emotion_quantity = max(0, emotion_quantity)
                             emotion_quantity *= 1.33
-                            if random() < emotion_quantity:
-                                #print "Expressing", str(emotion_name).upper()
-                                return np.random.choice(self.emotional_gestures[emotion_name][1],p=self.emotional_gestures[emotion_name][0])
-                    if len(self.emotional_gestures["neutral"]):
-                        #print "Expressing NEUTRALITY"
-                        return np.random.choice(self.emotional_gestures["neutral"][1],p=self.emotional_gestures["neutral"][0])
+                        emotion_names.append(emotion_name)
+                        emotion_quantities.append(emotion_quantity)
+                    # here we select one emotion given the emotion_quantities as their probability of being selected
+                    emotion_quantities = normalise_emotion_vector(emotion_quantities)[0]
+                    logging.info(str(time.time()) + ' PROBAS:' + str(dict(zip(emotion_names, emotion_quantities))))
+                    selected_emotion = np.random.choice(emotion_names, p=emotion_quantities)
+                    #print "Expressing", str(emotion_name).upper()
+                    logging.info(str(time.time()) + ' EMOTION:' + str(selected_emotion))
+                    g = np.random.choice(self.emotional_gestures[selected_emotion][1], p=self.emotional_gestures[selected_emotion][0])
+                    logging.info(str(time.time()) + ' GESTURE:' + str(g))
+                    return g
+                
+                # the program hits this if there was no chance of executing any gesture (random < base_response_chance)
                 self.last_checked = t
 
 

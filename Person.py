@@ -33,7 +33,7 @@ class Person:
     """Class to handle a person parameters"""
 
     def __str__(self):
-        return "Person " + str(self.id) + ": " + self.gender + " (" + self.ageRange + ") " + str(self.labels.keys())
+        return "Person " + str(self.id) + ": " + self.gender + " (" + self.ageRange + ") Interestingness: " + str(self.interestingness) + " labels: " + str(self.labels.keys())
 
 
     def __init__(self, age_probas, gender_probas, person_id,

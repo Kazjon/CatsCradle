@@ -11,6 +11,7 @@ import inspect
 from Responder import Responder
 import EmotionalResponders
 import time
+import logging
 
 ATTENTION_CHANGE_MINIMUM = 8.0 #minimum time before attention will be checked again
 TRACKING_INTERVAL = 0.05 #How frequently to send new locations of the current focus of attention so that eyes+head track them.
@@ -34,6 +35,7 @@ class ResponseModule(object):
         self.shame_lookaway = False
         self.shame_lookaway_timeout = 0
         self.currentEyeTarget = (-1,-1)
+        self.last_focus_id = -1
 
     def loadResponders(self, action_module):
         baseResponders = ["Responder"]
@@ -49,6 +51,11 @@ class ResponseModule(object):
         #Update the focus of attention, pushing any needed changes to the left of the queue
         self.updateAttentionAndTrack(audience, emotional_state)
 
+        if not self.focus is None and self.focus.id != self.last_focus_id:
+            print("current focus: " + str(self.focus))
+            logging.info(str(time.time()) + ' FOCUS:' + str(self.focus))
+            self.last_focus_id = self.focus.id
+
         #Determine whether anything needs to be added to the queue
         #Note: Some responders may use the glanceAt and lookAt functions below to push things to the left of the queue
         
@@ -59,18 +66,19 @@ class ResponseModule(object):
             if response is not None:
                 self.gesture_queue.append(response)
 
-        #if len(self.gesture_queue):
+        if len(self.gesture_queue):
             # [:] is for copying the list since we clear the queue afterwards
-            #gesture = self.gesture_queue.pop()[:]
-            #if gesture[0] == '046a_Reset':
-            #    print("Going back to zero.")
-            #self.action_module.executeGesture(gesture, useThread=True)
+            gesture = self.gesture_queue.pop()[:]
+            if gesture[0] == '046a_Reset':
+                print("Going back to zero.")
+            self.action_module.executeGesture(gesture, useThread=True)
         # discard the queue since the contents might not be relavant in the next update cycle
         self.gesture_queue.clear()
 
         self.last_updated = time.time()
         
-        #if len(Responder.all_rules) > 0:
+        if len(Responder.all_rules) > 0:
+            logging.info(str(time.time()) + ' RULES:' + str(','.join(Responder.all_rules)))
 	#     print(','.join(Responder.all_rules))
         #    sys.stdout.write(','.join(Responder.all_rules) + ' '*50 + '\r')
         #    sys.stdout.flush()
