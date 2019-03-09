@@ -25,10 +25,10 @@ import datetime
 import cv2
 import tensorflow as tf
 
-class App(QWidget):
+class AppSimulator(QWidget):
 
     def __init__(self):
-        super(App, self).__init__()
+        super(AppSimulator, self).__init__()
         self.title = 'Cat\'s Cradle - Simulator window'
         self.left = 10
         self.top = 10
@@ -326,7 +326,7 @@ class App(QWidget):
     def closeEvent(self, event):
         self.actionModule.stop()
         self.running = False
-        ex.camera.release()
+        self.camera.release()
         cv2.destroyAllWindows()
         event.accept() # let the window close
 
@@ -552,7 +552,7 @@ class SequenceSketchWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
+    ex = AppSimulator()
 
     while ex.running:
         ret, frame = ex.camera.read()
