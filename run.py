@@ -27,7 +27,7 @@ import logging
 # camera
 VIDEO_FEED = 0
 
-TEST_WIHOUT_RASP = True
+TEST_WIHOUT_RASP = False
 
 class App(QWidget):
 
@@ -56,26 +56,20 @@ class App(QWidget):
         # before running the AI
         setupDialog = QMessageBox()
         setupDialog.setText("Cat's Cradle Setup")
-        setupDialog.setInformativeText("Make sure all strings are at their lowest point\n")
         setupDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
         setupDialog.setDefaultButton(QMessageBox.Ok)
-        ret = setupDialog.exec_()
-        if ret == QMessageBox.Close:
-            return False
 
-        self.setupStep = 1
-
-        setupDialog.setInformativeText("Power On Rasberry Pi\n");
+        setupDialog.setInformativeText("Power on Raspberry Pi, \nwait 1 minute\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
 
         if not TEST_WIHOUT_RASP:
-            # Wait for 45s
-            delay = 45
+            # Wait for 60
+            delay = 60
             if "--testUI" in sys.argv:
                 delay = 5
-            progress = QProgressDialog("Starting Rasberry Pi...", None, 0, delay)
+            progress = QProgressDialog("Starting Raspberry Pi...", None, 0, delay)
             progress.setWindowModality(Qt.WindowModal)
 
             for i in range(0, delay):
@@ -92,16 +86,23 @@ class App(QWidget):
                 errorDialog = QMessageBox()
                 errorDialog.setText("ERROR")
                 errorDialog.setIcon(QMessageBox.Critical)
-                errorDialog.setInformativeText("Port not found.\nMake sure the Rasberry Pi is connected to the right port\n")
+                errorDialog.setInformativeText("Port not found.\nMake sure the Raspberry Pi is connected to the right port\n")
                 errorDialog.setStandardButtons(QMessageBox.Ok)
                 errorDialog.setDefaultButton(QMessageBox.Ok)
                 errorDialog.exec_()
                 if not "--testUI" in sys.argv:
                     return False
 
+        self.setupStep = 1
+
+        setupDialog.setInformativeText("If necessary, plug main camera into battery\n");
+        ret = setupDialog.exec_();
+        if ret == QMessageBox.Close:
+            return False
+
         self.setupStep = 2
 
-        setupDialog.setInformativeText("Power On Motors\n");
+        setupDialog.setInformativeText("Power on motors and rear camera\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
@@ -124,11 +125,11 @@ class App(QWidget):
         shutdownDialog.setDefaultButton(QMessageBox.Ok)
 
         if self.setupStep > 2:
-            shutdownDialog.setInformativeText("Power Off Motors\n")
+            shutdownDialog.setInformativeText("Turn Off Motors\n")
             shutdownDialog.exec_()
 
-        if self.setupStep > 1:
-            shutdownDialog.setInformativeText("Power Off Rasberry Pi\n")
+        if self.setupStep > 0:
+            shutdownDialog.setInformativeText("Turn Off Rasberry Pi\n")
             shutdownDialog.exec_()
 
 
