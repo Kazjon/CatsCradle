@@ -19,6 +19,8 @@ _running = False
 
 import os
 
+import logging
+
 # video
 #VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/people gesturing-converted.mp4')
 #VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/morePeople-converted.mp4')
@@ -134,6 +136,9 @@ def run(app, appWidget):
     global _running
     _running = True
 
+    logging.basicConfig(filename='interactions.log', level=logging.INFO)
+    logging.info(str(time.time()) + ' started.')
+    
     cameraMaxX = 1920
     cameraMaxY = 1080
 
@@ -186,6 +191,7 @@ def run(app, appWidget):
     speeds = [25] * 14
     actionModule.moveToAngles(restAngles, speeds)
 
+    logging.info(str(time.time()) + ' ended.')
     # Waiting for the move to complete
     while not actionModule.isMarionetteIdle():
         pass
