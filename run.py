@@ -133,13 +133,13 @@ class App(QWidget):
             shutdownDialog.exec_()
 
 
-def run(app, appWidget):
+def run(app=None):
     global _running
     _running = True
 
     logging.basicConfig(filename='interactions.log', level=logging.INFO)
     logging.info(str(time.time()) + ' started.')
-    
+
     cameraMaxX = 1920
     cameraMaxY = 1080
 
@@ -170,12 +170,14 @@ def run(app, appWidget):
 
         sensor_module.update()
 
-        # Hit 'q' on the keyboard to quit
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-        #    _running = False
+        if app is not None:
+            # Process the app events to catch a click on Shutdown button
+            app.processEvents()
+        else:
+            # Hit 'q' on the keyboard to quit
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+               _running = False
 
-        # Process the app events to catch a click on Shutdown button
-        app.processEvents()
 
     print("stopping...")
     sensor_module.cleanup()
@@ -184,18 +186,10 @@ def run(app, appWidget):
 
     # Clear the current queue
     actionModule.clearQueue()
-    # Define rest angles for the 12 motors (0)
-    restAngles = [0] * 12
-    # Add angles for the eyes (90)
-    restAngles.extend([90, 90])
-    # Define speed for each motor (25)
-    speeds = [25] * 14
-    actionModule.moveToAngles(restAngles, speeds)
+    # Go to resting pose
+    actionModule.goBackToZero()
 
     logging.info(str(time.time()) + ' ended.')
-    # Waiting for the move to complete
-    while not actionModule.isMarionetteIdle():
-        pass
 
 
 if __name__ == "__main__":
@@ -204,7 +198,7 @@ if __name__ == "__main__":
     if "--dummyAction" in sys.argv or appWidget.setup():
         appWidget.show()
         app.processEvents()
-        run(app, appWidget)
+        run(app)
 
     appWidget.shutdown()
 
