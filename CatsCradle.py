@@ -6,7 +6,7 @@ from ActionModule import ActionModule
 from Marionette import *
 
 from SimulatorUI import *
-from run import *
+from run import RunCatsCradle
 
 import ArduinoCommunicator
 
@@ -15,15 +15,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 
-class App(QWidget):
+class MainApp(QWidget):
 
-    def __init__(self):
-        super(App, self).__init__()
+    def __init__(self, app):
+        super(MainApp, self).__init__()
         self.setWindowTitle('Cat\'s Cradle')
         self.move(0, 0)
 
         self.appBtn = QPushButton('Start CatsCradle')
-        self.appBtn.clicked.connect(self.start)
+        self.appBtn.clicked.connect(self.startStop)
         self.simBtn = QPushButton('Start Simulator')
         self.simBtn.clicked.connect(self.simulator)
         self.closeBtn = QPushButton('Shutdown')
@@ -35,6 +35,7 @@ class App(QWidget):
         layout.addWidget(self.closeBtn, 1, 3)
 
         self.setupStep = 0
+        self.runCatsCradle = RunCatsCradle(False, app)
 
     def setup(self):
         # Raise message boxes to make sure the user properly sets the marionette
@@ -95,20 +96,26 @@ class App(QWidget):
 
         return True
 
-    def start(self):
-        # Disable buttons
-        self.simBtn.setEnabled(False)
-        self.appBtn.setEnabled(False)
-        self.closeBtn.setEnabled(False)
+    def startStop(self):
+        if not self.runCatsCradle.running:
+            # Disable buttons
+            self.simBtn.setEnabled(False)
+            # self.appBtn.setEnabled(False)
+            self.closeBtn.setEnabled(False)
 
-        run()
+            self.appBtn.setText("Stop CatsCradle")
+            self.runCatsCradle.run()
+            self.appBtn.setText("Start CatsCradle")
 
-        self.resetMotors()
+            self.resetMotors()
 
-        # Enable buttons
-        self.simBtn.setEnabled(True)
-        self.appBtn.setEnabled(True)
-        self.closeBtn.setEnabled(True)
+            # Enable buttons
+            self.simBtn.setEnabled(True)
+            self.appBtn.setEnabled(True)
+            self.closeBtn.setEnabled(True)
+        else:
+            self.runCatsCradle.stop()
+
 
     def simulator(self):
         # Disable buttons
@@ -171,8 +178,6 @@ class App(QWidget):
         label.hide()
 
     def shutdown(self):
-        self.resetMotors()
-
         # Raise message boxes to make sure the user properly shuts down the marionette
         shutdownDialog = QMessageBox()
         shutdownDialog.setText("Cat's Cradle Shutdown")
@@ -193,12 +198,10 @@ if __name__ == "__main__":
     global _running
     _running = True
     app = QApplication(sys.argv)
-    appWidget = App()
-    if appWidget.setup():
-        appWidget.show()
+    mainAppWidget = MainApp(app)
+    if mainAppWidget.setup():
+        mainAppWidget.show()
         while _running:
             app.processEvents()
 
-    appWidget.shutdown()
-
-    exit()
+    mainAppWidget.shutdown()

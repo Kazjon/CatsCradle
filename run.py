@@ -15,8 +15,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-_running = False
-
 import os
 
 import logging
@@ -29,12 +27,13 @@ VIDEO_FEED = 0
 
 TEST_WIHOUT_RASP = False
 
-class App(QWidget):
+class AppRun(QWidget):
 
-    def __init__(self):
-        super(App, self).__init__()
+    def __init__(self, realRun=None):
+        super(AppRun, self).__init__()
         self.setWindowTitle('Cat\'s Cradle')
         self.move(0, 0)
+        self.realRun = realRun
 
         self.loadingDialog = None
 
@@ -113,8 +112,8 @@ class App(QWidget):
 
 
     def initShutdown(self):
-        global _running
-        _running = False
+        if self.realRun:
+            self.realRun.stop()
 
 
     def shutdown(self):
@@ -133,73 +132,82 @@ class App(QWidget):
             shutdownDialog.exec_()
 
 
-def run(app=None):
-    global _running
-    _running = True
+class RunCatsCradle(object):
+    def __init__(self, returnToZero=True, app=None):
+        self.app = app
+        self.returnToZero = returnToZero
+        self.running = False
 
-    logging.basicConfig(filename='interactions.log', level=logging.INFO)
-    logging.info(str(time.time()) + ' started.')
+    def run(self):
+        self.running = True
 
-    cameraMaxX = 1920
-    cameraMaxY = 1080
+        logging.basicConfig(filename='interactions.log', level=logging.INFO)
+        logging.info(str(time.time()) + ' started.')
 
-    actionModule = ActionModule(cameraMaxX, cameraMaxY, dummy="--dummyAction" in sys.argv)
+        cameraMaxX = 1920
+        cameraMaxY = 1080
 
-    print('Loaded Action Module...\n')
+        actionModule = ActionModule(cameraMaxX, cameraMaxY, dummy="--dummyAction" in sys.argv)
 
-    response_module = ResponseModule(actionModule)
+        print('Loaded Action Module...\n')
 
-    print('Loaded Response Module...\n')
+        response_module = ResponseModule(actionModule)
 
-    emotion_module = EmotionModule(response_module, visualise=True)
+        print('Loaded Response Module...\n')
 
-    print('Loaded Emotion Module...\n')
+        emotion_module = EmotionModule(response_module, visualise=True)
 
-    sensor_module = SensorModule(emotion_module)
-    sensor_module.loadReactors()
+        print('Loaded Emotion Module...\n')
 
-    print('Loaded Sensor Module...\n')
+        sensor_module = SensorModule(emotion_module)
+        sensor_module.loadReactors()
 
-    # loading the camera should happen after sensor module is initialized but before loading camera for the sensor module
-    camera = cv2.VideoCapture(VIDEO_FEED)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
-    sensor_module.loadSensors(camera)
+        print('Loaded Sensor Module...\n')
 
-    while _running:
+        # loading the camera should happen after sensor module is initialized but before loading camera for the sensor module
+        camera = cv2.VideoCapture(VIDEO_FEED)
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
+        sensor_module.loadSensors(camera)
 
-        sensor_module.update()
+        while self.running:
 
-        if app is not None:
-            # Process the app events to catch a click on Shutdown button
-            app.processEvents()
-        else:
-            # Hit 'q' on the keyboard to quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-               _running = False
+            sensor_module.update()
+
+            if self.app is not None:
+                # Process the app events to catch a click on Shutdown button
+                self.app.processEvents()
+            else:
+                # Hit 'q' on the keyboard to quit
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                   self.running = False
 
 
-    print("stopping...")
-    sensor_module.cleanup()
-    camera.release()
-    cv2.destroyAllWindows()
+        print("stopping...")
+        sensor_module.cleanup()
+        camera.release()
+        cv2.destroyAllWindows()
 
-    # Clear the current queue
-    actionModule.clearQueue()
-    # Go to resting pose
-    actionModule.goBackToZero()
+        # Clear the current queue
+        actionModule.clearQueue()
 
-    logging.info(str(time.time()) + ' ended.')
+        if self.returnToZero:
+            # Go to resting pose
+            actionModule.goBackToZero()
+
+        logging.info(str(time.time()) + ' ended.')
+
+    def stop(self):
+        self.running = False
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    appWidget = App()
+    run = RunCatsCradle(True, app)
+    appWidget = AppRun(run)
     if "--dummyAction" in sys.argv or appWidget.setup():
         appWidget.show()
         app.processEvents()
-        run(app)
+        run.run()
 
     appWidget.shutdown()
-
-    exit()
