@@ -37,6 +37,13 @@ class MainApp(QWidget):
         self.setupStep = 0
         self.runCatsCradle = RunCatsCradle(False, app)
 
+    def closeEvent(self, event):
+        if self.runCatsCradle.running:
+            self.runCatsCradle.stop()
+            
+        self.initShutdown()
+        event.accept() # let the window close
+
     def setup(self):
         # Raise message boxes to make sure the user properly sets the marionette
         # before running the AI
