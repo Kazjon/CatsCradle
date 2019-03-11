@@ -642,8 +642,8 @@ class ActionModule(object):
         restAngles = [0] * 12
         # Add angles for the eyes (90)
         restAngles.extend([90, 90])
-        # Define speed for each motor (25)
-        speeds = [30] * 14
+        # Define speed for each motor (20)
+        speeds = [20] * 14
         self.moveToAngles(restAngles, speeds)
 
 
