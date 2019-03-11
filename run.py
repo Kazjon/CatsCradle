@@ -195,6 +195,7 @@ class RunCatsCradle(object):
             # Go to resting pose
             actionModule.goBackToZero()
 
+        actionModule.stop()
         logging.info(str(time.time()) + ' ended.')
 
     def stop(self):
