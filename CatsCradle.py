@@ -182,6 +182,8 @@ class MainApp(QWidget):
                 if i > 5000:
                     actionModule.currentAngles = actionModule.currentTargetAngles
 
+        actionModule.stop()
+
         label.hide()
 
     def shutdown(self):
