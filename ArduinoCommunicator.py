@@ -33,6 +33,10 @@ class ArduinoCommunicator(object):
         # Wait a bit for the arduino to get ready
         time.sleep(2)
 
+    def __del__(self):
+        if self.serial_port is not None:
+            self.serial_port.close()
+
     def send(self, data):
         # Makes sure the command sent ends with NULL
         data += '\x00'
