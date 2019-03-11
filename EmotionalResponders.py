@@ -53,6 +53,7 @@ class ExpressionResponder(Responder):
                     # we have someone to respond to
                     emotion_names = []
                     emotion_quantities = []
+                    logging.info(str(time.time()) + ' INTENSITIES:' + str(emotion_module.emotion_as_dict()))
                     for emotion_name, emotion_quantity in emotion_module.emotion_as_dict().iteritems():
                         if len(self.emotional_gestures[emotion_name]):
                             emotion_quantity -= 0.25
@@ -60,10 +61,11 @@ class ExpressionResponder(Responder):
                             emotion_quantity *= 1.33
                         emotion_names.append(emotion_name)
                         emotion_quantities.append(emotion_quantity)
+                    #logging.info(str(time.time()) + ' RAW_QUANTITIES:' + str(dict(zip(emotion_names, emotion_quantities))))
                     # here we select one emotion given the emotion_quantities as their probability of being selected
-                    emotion_quantities = normalise_emotion_vector(emotion_quantities)[0]
-                    logging.info(str(time.time()) + ' PROBAS:' + str(dict(zip(emotion_names, emotion_quantities))))
-                    selected_emotion = np.random.choice(emotion_names, p=emotion_quantities)
+                    #emotion_quantities = emotion_quantities / np.linalg.norm(np.array(emotion_quantities))
+                    #logging.info(str(time.time()) + ' PROBAS:' + str(dict(zip(emotion_names, emotion_quantities))))
+                    selected_emotion = np.random.choice(emotion_names, p=emotion_module.emotion_as_dict().values())
                     #print "Expressing", str(emotion_name).upper()
                     logging.info(str(time.time()) + ' EMOTION:' + str(selected_emotion))
                     g = np.random.choice(self.emotional_gestures[selected_emotion][1], p=self.emotional_gestures[selected_emotion][0])
