@@ -18,6 +18,7 @@ import cv2
 
 import ArduinoCommunicator
 import time
+import logging
 
 from Action import *
 from Marionette import *
@@ -245,13 +246,15 @@ class ActionModule(object):
                     eyeSpeedX = 0
                     eyeSpeedY = 0
                     self.targetReached = False
-                    print(str(time.time()) + " sending command: " + str(cmds))
+                    #print(str(time.time()) + " sending command: " + str(cmds))
                     for cmd in cmds:
                         # print "step = ", step
                         if cmd[0] == 'requestHeadData':
+                            logging.info(str(time.time()) + " EXE_R:.")
                             self.ac.requestHeadData()
                         elif cmd[0] == 'IMU':
                             on = bool(cmd[1])
+                            logging.info(str(time.time()) + " EXE_I:" + str(on))
                             if on:
                                 self.ac.engageIMU()
                             else:
@@ -268,19 +271,24 @@ class ActionModule(object):
                                 # Obsolete motor AR
                                 continue
                             if id == 'head':
+                                logging.info(str(time.time()) + " EXE_H:" + str(angle) + "," + str(speed))
                                 self.ac.rotateHead(angle, speed)
                             elif id == 'shoulder':
+                                logging.info(str(time.time()) + " EXE_S:" + str(angle) + "," + str(speed))
                                 self.ac.rotateShoulder(angle, speed)
                             elif id == 'eyeX':
+                                logging.info(str(time.time()) + " EXE_EX:" + str(angle) + "," + str(speed))
                                 eyeMotion = True
                                 eyeAngleX = angle
                                 eyeSpeedX = speed
                             elif id == 'eyeY':
+                                logging.info(str(time.time()) + " EXE_EY:" + str(angle) + "," + str(speed))
                                 eyeMotion = True
                                 eyeAngleY = angle
                                 eyeSpeedY = speed
                             else:
                                 # Other motors
+                                logging.info(str(time.time()) + " EXE_O:" + str(id) + "," + str(angle) + "," + str(speed))
                                 self.ac.rotateStringMotor(id, angle, speed)
 
                     if eyeMotion:
@@ -409,6 +417,7 @@ class ActionModule(object):
                     if type(item) is tuple:
                         raise ValueError('executeGesture should only execute gestures not tracking stuff')
                     else:
+                        logging.info(str(time.time()) + " QUEUE_G:" + str(item))
                         self.moveTo(item)
             self.busy_executing = False
 
@@ -465,6 +474,7 @@ class ActionModule(object):
         speed = 90 # arbitrary speed value
         command = [['motorEX', eyeAngleX, speed], ['motorEY', eyeAngleY, speed]]
         #print(str(time.time()) + " putting the eye command in the queue")
+        logging.info(str(time.time()) + " QUEUE_E:" + str(command))
         self.qMotorCmds.put(((0,self.getMovementCount()), command))
 
     def moveEyesAndHead(self, targetCameraCoords):
@@ -501,6 +511,7 @@ class ActionModule(object):
 
         # First move the eyes to the target
         self.moveEyes(targetCameraCoords)
+        logging.info(str(time.time()) + " QUEUE_I:" + str(headAngle))
         # Then engage IMU
         self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         # Then move the head to face the target (data already updated when calling moveEyes)
@@ -597,6 +608,7 @@ class ActionModule(object):
     def updateHeadData(self):
         self.headDataUpdated = False
         #print(str(time.time()) + " putting a request for the head data in the queue")
+        logging.info(str(time.time()) + " QUEUE_REQUEST_HEAD_DATA:.")
         self.qMotorCmds.put(((0,self.getMovementCount()), [['requestHeadData']]))
 	    #self.ac.requestHeadData()
         # Wait until head data is updated (bail if too long)

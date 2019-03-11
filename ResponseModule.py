@@ -52,7 +52,7 @@ class ResponseModule(object):
         self.updateAttentionAndTrack(audience, emotional_state)
 
         if not self.focus is None and self.focus.id != self.last_focus_id:
-            print("current focus: " + str(self.focus))
+            #print("current focus: " + str(self.focus))
             logging.info(str(time.time()) + ' FOCUS:' + str(self.focus))
             self.last_focus_id = self.focus.id
 
@@ -71,6 +71,7 @@ class ResponseModule(object):
             gesture = self.gesture_queue.pop()[:]
             if gesture[0] == '046a_Reset':
                 print("Going back to zero.")
+                logging.info(str(time.time()) + ' BACK_TO_ZERO:.')
             self.action_module.executeGesture(gesture, useThread=True)
         # discard the queue since the contents might not be relavant in the next update cycle
         self.gesture_queue.clear()
@@ -85,26 +86,28 @@ class ResponseModule(object):
 
     def updateAttentionAndTrack(self, audience, emotional_state):
         t = time.time()
-        if self.shame_lookaway and t > self.shame_lookaway_timeout:
-            self.shame_lookaway = False
-            #If we're ending a shame lookaway, always check to see if we should re-start one
-            self.last_shame_lookaway_check = t - (SHAME_LOOKAWAY_INTERVAL+0.1)
+        # disabling shame look away
+        #if self.shame_lookaway and t > self.shame_lookaway_timeout:
+        #    self.shame_lookaway = False
+        #    #If we're ending a shame lookaway, always check to see if we should re-start one
+        #    self.last_shame_lookaway_check = t - (SHAME_LOOKAWAY_INTERVAL+0.1)
         if not self.shame_lookaway:
             if (t > self.returnToFocusAt) and (t - self.last_attention_change > ATTENTION_CHANGE_MINIMUM):
                 if len(audience.persons):
                     sorted_emotions = sorted(emotional_state.items(), key=lambda x: x[1], reverse=True)
                     highest_emotion = sorted_emotions[0]
                     second_emotion = sorted_emotions[1]
-                    if highest_emotion[0] == "shame":
-                        if t - self.last_shame_lookaway_check > SHAME_LOOKAWAY_INTERVAL:
-                            self.last_shame_lookaway_check = t
-                            shame_proportion = highest_emotion[1] / second_emotion[1]
-                            p = 0.2 * shame_proportion
-                            if np.random.random() < p:
-                                #self.shame_lookaway = True
-                                self.shame_lookaway_timeout = t + (np.random.random() * (SHAME_MAX_LOOKAWAY - SHAME_MIN_LOOKAWAY) + SHAME_MIN_LOOKAWAY)
-                                self.lookAway(audience)
-                                return
+                    # disabling shame look away
+                    #if highest_emotion[0] == "shame":
+                    #    if t - self.last_shame_lookaway_check > SHAME_LOOKAWAY_INTERVAL:
+                    #        self.last_shame_lookaway_check = t
+                    #        shame_proportion = highest_emotion[1] / second_emotion[1]
+                    #        p = 0.2 * shame_proportion
+                    #        if np.random.random() < p:
+                    #            self.shame_lookaway = True
+                    #            self.shame_lookaway_timeout = t + (np.random.random() * (SHAME_MAX_LOOKAWAY - SHAME_MIN_LOOKAWAY) + SHAME_MIN_LOOKAWAY)
+                    #            self.lookAway(audience)
+                    #            return
                     #Probabilistically select a focus of attention between the current and highest attention person
                     interests = [p.interestingness for p in audience.persons]
                     ids = [p.id for p in audience.persons]
@@ -130,8 +133,9 @@ class ResponseModule(object):
                 if t > self.returnToFocusAt:
                     self.lookAt(self.focus)
                     self.last_tracked = t
-        elif len(audience.persons):
-            self.lookAway(audience)
+        # disabling shame look away
+        #elif len(audience.persons):
+        #    self.lookAway(audience)
 
 
     #These attention-directing functions are putting eyes/head movements directly into the action module's priority queue
@@ -140,6 +144,7 @@ class ResponseModule(object):
     def glanceAt(self,person, duration=0):
         target = tuple(person.faceMidpoint())
         if self.differentToCurrentTarget(target):
+            logging.info(str(time.time()) + ' TRACKING_E:' + str(target))
             self.currentEyeTarget = target
             self.action_module.moveEyes(target)
             if duration > 0:
@@ -149,6 +154,7 @@ class ResponseModule(object):
     def lookAt(self,person,duration=0):
         target = tuple(person.faceMidpoint())
         if self.differentToCurrentTarget(target):
+            logging.info(str(time.time()) + ' TRACKING_I:' + str(target))
             self.currentEyeTarget = target
             self.action_module.moveEyesAndHead(target)
             if duration > 0:
@@ -161,6 +167,7 @@ class ResponseModule(object):
     def lookAway(self,audience):
         target = tuple(audience.furthestFromFaces())
         if self.differentToCurrentTarget(target):
+            logging.info(str(time.time()) + ' LOOK_AWAY:' + str(target))
             self.currentEyeTarget = target
             self.action_module.moveEyesAndHead(target)
 
