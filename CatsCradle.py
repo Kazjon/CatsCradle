@@ -1,4 +1,5 @@
 import time
+import subprocess
 
 import cv2
 
@@ -6,7 +7,6 @@ from ActionModule import ActionModule
 from Marionette import *
 
 from SimulatorUI import *
-from run import RunCatsCradle
 
 import ArduinoCommunicator
 
@@ -21,9 +21,10 @@ class MainApp(QWidget):
         super(MainApp, self).__init__()
         self.setWindowTitle('Cat\'s Cradle')
         self.move(0, 0)
+        self.app = app
 
         self.appBtn = QPushButton('Start CatsCradle')
-        self.appBtn.clicked.connect(self.startStop)
+        self.appBtn.clicked.connect(self.startCatsCradle)
         self.simBtn = QPushButton('Start Simulator')
         self.simBtn.clicked.connect(self.simulator)
         self.closeBtn = QPushButton('Shutdown')
@@ -35,12 +36,8 @@ class MainApp(QWidget):
         layout.addWidget(self.closeBtn, 1, 3)
 
         self.setupStep = 0
-        self.runCatsCradle = RunCatsCradle(False, app)
 
     def closeEvent(self, event):
-        if self.runCatsCradle.running:
-            self.runCatsCradle.stop()
-            
         self.initShutdown()
         event.accept() # let the window close
 
@@ -103,25 +100,27 @@ class MainApp(QWidget):
 
         return True
 
-    def startStop(self):
-        if not self.runCatsCradle.running:
-            # Disable buttons
-            self.simBtn.setEnabled(False)
-            # self.appBtn.setEnabled(False)
-            self.closeBtn.setEnabled(False)
 
-            self.appBtn.setText("Stop CatsCradle")
-            self.runCatsCradle.run()
-            self.appBtn.setText("Start CatsCradle")
+    def startCatsCradle(self):
+        # Disable buttons
+        self.simBtn.setEnabled(False)
+        self.appBtn.setEnabled(False)
+        self.closeBtn.setEnabled(False)
 
-            self.resetMotors()
+        # Force an immediate redraw of the buttons
+        self.simBtn.repaint()
+        self.appBtn.repaint()
+        self.closeBtn.repaint()
+        self.app.processEvents()
 
-            # Enable buttons
-            self.simBtn.setEnabled(True)
-            self.appBtn.setEnabled(True)
-            self.closeBtn.setEnabled(True)
-        else:
-            self.runCatsCradle.stop()
+        subprocess.call(['python2', './run.py', '--noUI'])
+
+        self.resetMotors()
+
+        # Enable buttons
+        self.simBtn.setEnabled(True)
+        self.appBtn.setEnabled(True)
+        self.closeBtn.setEnabled(True)
 
 
     def simulator(self):
@@ -176,7 +175,7 @@ class MainApp(QWidget):
 
         i = 0
         while not actionModule.isMarionetteIdle():
-            app.processEvents()
+            self.app.processEvents()
             if "--testUI" in sys.argv:
                 i = i + 1
                 if i > 5000:
@@ -202,10 +201,10 @@ class MainApp(QWidget):
             shutdownDialog.exec_()
 
 
-
 if __name__ == "__main__":
     global _running
     _running = True
+
     app = QApplication(sys.argv)
     mainAppWidget = MainApp(app)
     if mainAppWidget.setup():

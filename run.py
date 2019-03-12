@@ -50,6 +50,10 @@ class AppRun(QWidget):
 
         self.setupStep = 0
 
+    def closeEvent(self, event):
+        self.initShutdown()
+        event.accept() # let the window close
+
     def setup(self):
         # Raise message boxes to make sure the user properly sets the marionette
         # before running the AI
@@ -203,12 +207,22 @@ class RunCatsCradle(object):
 
 
 if __name__ == "__main__":
+    noSetup = False
+    noShutdown = False
+    returnToZero = True
+    if "--noUI" in sys.argv:
+        noSetup = True
+        noShutdown = True
+        returnToZero = False
+
     app = QApplication(sys.argv)
-    run = RunCatsCradle(True, app)
+
+    run = RunCatsCradle(returnToZero, app)
     appWidget = AppRun(run)
-    if "--dummyAction" in sys.argv or appWidget.setup():
+    if "--dummyAction" in sys.argv or noSetup or appWidget.setup():
         appWidget.show()
         app.processEvents()
         run.run()
 
-    appWidget.shutdown()
+    if not noShutdown:
+        appWidget.shutdown()
