@@ -28,8 +28,8 @@ class SensorModule(object):
         self.audience = Audience(self.personSensor)
 
 
-    def loadSensors(self, camera):
-        self.personSensor.load_camera(camera)
+    def loadSensors(self, front_camera, back_camera):
+        self.personSensor.load_camera(front_camera, back_camera)
 
 
     def loadReactors(self):

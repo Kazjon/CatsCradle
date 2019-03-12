@@ -14,6 +14,7 @@ import Person
 
 QUEUE_MAX_MESSAGES = 10
 FRAME_PROCESSING_STRIDE = 1
+BACK_CAMERA_MOTION_THRESHOLD = 5
 
 class PersonSensor():
     """
@@ -24,6 +25,7 @@ class PersonSensor():
         
         # a public variable to reference the camera (later to load)
         self.front_camera = None
+        self.back_camera = None
         
         # The means to transfer frames to the prediction process
         self._frames_to_process_queue = Queue(QUEUE_MAX_MESSAGES)
@@ -34,6 +36,8 @@ class PersonSensor():
         self._frame_counter = 0
         # bookkeeping the latest predictions
         self._latest_predictions = []
+        # bookkeeping the last camera frame
+        self._last_back_camera_frame = None
     
         # initialize the prediction process
         self._prediction_process = Process(target=predictor.process_image,
@@ -54,8 +58,9 @@ class PersonSensor():
         self._prediction_process.terminate()
     
 
-    def load_camera(self, camera):
-        self.front_camera = camera
+    def load_camera(self, front_camera, back_camera):
+        self.front_camera = front_camera
+        self.back_camera = back_camera
     
 
     # the 'update' method
@@ -64,6 +69,10 @@ class PersonSensor():
         Get a list of Person objects and a list of PersonBody objects by processing one frame from the self.front_camera.
         This function should be called from the main thread since it displays the camera frame on a window.
         """
+        
+        # if no front camera return early
+        if self.front_camera is None:
+            return previousPersons, previousPersonBodies
         
         # read one frame from the camera
         ret, frame = self.front_camera.read()
@@ -93,10 +102,11 @@ class PersonSensor():
             # the length of prediction results is equal to the number of detected faces in the last frame.
             self._latest_predictions = results
         except:
-            pass
+            # no new results -- return early
+            return previousPersons, previousPersonBodies
 
         # display frame
-        self.display_frame(frame, self._latest_predictions)
+        self.display_front_frame(frame, self._latest_predictions)
         
         persons = []
         for prediction in self._latest_predictions:
@@ -133,6 +143,39 @@ class PersonSensor():
 #            print(person)
 
         return persons, personBodies
+
+    
+    def update_back_camera(self):
+        # return early if the camera is not setup
+        if self.back_camera is None:
+            return False
+    
+        # read a frame from the back camera
+        ret, frame = self.back_camera.read()
+        
+        detected_motion = False
+        # if we have a previous frame calculate the motion
+        if not self._last_back_camera_frame is None:
+            # get the difference between the current frame and the last frame
+            dist = frame_distance(frame, self._last_back_camera_frame)
+            mod = cv2.GaussianBlur(dist, (9,9), 0)
+            _, stDev = cv2.meanStdDev(mod)
+            if stDev > BACK_CAMERA_MOTION_THRESHOLD:
+                print("MOTION DETECTED")
+                detected_motion = True
+            else:
+                #print(stDev)
+                pass
+                        
+            # display
+            #cv2.namedWindow('dist', cv2.WINDOW_NORMAL)
+            #cv2.resizeWindow('dist', 100, 100)
+            #cv2.imshow('dist', mod)
+
+        self._last_back_camera_frame = frame
+        #cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
+        #cv2.resizeWindow('Back Camera', 800, int(0.56*800))
+        #cv2.imshow('Back Camera', frame)
     
     
     def get_age_probas(self, age_probas):
@@ -147,7 +190,7 @@ class PersonSensor():
         return gender_probas
     
     
-    def display_frame(self, frame, prediction_results):
+    def display_front_frame(self, frame, prediction_results):
         """
         Display frame on cv2 window.
         
@@ -188,9 +231,9 @@ class PersonSensor():
                     cv2.putText(frame, text, (x+2, y+h-6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
         # display the frame
-        cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('Camera', predictor.PROCESSING_SIZE, int(img_ratio*predictor.PROCESSING_SIZE))
-        cv2.imshow('Camera', frame)
+        cv2.namedWindow('Front Camera', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Front Camera', predictor.PROCESSING_SIZE, int(img_ratio*predictor.PROCESSING_SIZE))
+        cv2.imshow('Front Camera', frame)
 
 
     def get2dAnd3dCoordsFromLocation(self, top, right, bottom, left):
@@ -203,3 +246,14 @@ class PersonSensor():
 
         return top_left_2d, top_right_2d, bottom_right_2d, bottom_left_2d, center_2d
 
+
+### Static methods
+
+def frame_distance(frame1, frame2):
+    """outputs pythagorean distance between two frames"""
+    frame1_32 = np.float32(frame1)
+    frame2_32 = np.float32(frame2)
+    diff32 = frame1_32 - frame2_32
+    norm32 = np.sqrt(diff32[:,:,0]**2 + diff32[:,:,1]**2 + diff32[:,:,2]**2)/np.sqrt(255**2 + 255**2 + 255**2)
+    dist = np.uint8(norm32*255)
+    return dist

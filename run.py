@@ -23,7 +23,8 @@ import logging
 #VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/people gesturing-converted.mp4')
 #VIDEO_FEED = os.path.expanduser('~/Desktop/ishaanMovies/morePeople-converted.mp4')
 # camera
-VIDEO_FEED = 0
+FRONT_CAMERA = 0
+BACK_CAMERA = 1
 
 TEST_WIHOUT_RASP = False
 
@@ -163,10 +164,14 @@ class RunCatsCradle(object):
         print('Loaded Sensor Module...\n')
 
         # loading the camera should happen after sensor module is initialized but before loading camera for the sensor module
-        camera = cv2.VideoCapture(VIDEO_FEED)
-        camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
-        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
-        sensor_module.loadSensors(camera)
+        front_camera = cv2.VideoCapture(FRONT_CAMERA)
+        front_camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
+        front_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
+
+        back_camera = cv2.VideoCapture(BACK_CAMERA)
+        back_camera.set(cv2.CAP_PROP_FRAME_WIDTH, cameraMaxX)
+        back_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraMaxY)
+        sensor_module.loadSensors(front_camera, back_camera)
 
         while self.running:
 
@@ -183,7 +188,10 @@ class RunCatsCradle(object):
 
         print("stopping...")
         sensor_module.cleanup()
-        camera.release()
+        if front_camera:
+            front_camera.release()
+        if back_camera:
+            back_camera.release()
         cv2.destroyAllWindows()
 
         # Clear the current queue

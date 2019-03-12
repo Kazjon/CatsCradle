@@ -40,6 +40,7 @@ class Audience:
             self.previousPersons,
             self.previousPersonBodies
         )
+        self.personSensor.update_back_camera()
 
         previousIDs = set([p.id for p in self.previousPersons])
         currentIDs = set([p.id for p in self.persons])
