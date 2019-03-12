@@ -37,16 +37,10 @@ class AppRun(QWidget):
 
         self.loadingDialog = None
 
-        label = QLabel()
-        pixmap = QPixmap()
-        pixmap.load('./icon_headshot')
-        pixmap = pixmap.scaledToHeight(600)
-        label.setPixmap(pixmap)
-        closeBtn = QPushButton('Shutdown')
+        closeBtn = QPushButton('Stop CatsCradle')
         closeBtn.clicked.connect(self.initShutdown)
         layout = QGridLayout(self)
-        layout.addWidget(label, 1, 1)
-        layout.addWidget(closeBtn, 2, 1)
+        layout.addWidget(closeBtn, 1, 1)
 
         self.setupStep = 0
 
