@@ -429,7 +429,14 @@ class AppSimulator(QWidget):
 
 
     def saveCalibration(self, name):
-        self.actionModule.saveCalibration(name)
+        confirmationDialog = QMessageBox()
+        confirmationDialog.setText("Confirm Calibration")
+        confirmationDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirmationDialog.setDefaultButton(QMessageBox.Ok)
+
+        confirmationDialog.setInformativeText("The Camera Calibration will be modified.\n Are you sure?");
+        if confirmationDialog.exec_() == QMessageBox.Ok:
+            self.actionModule.saveCalibration(name)
 
 
     def IMUCompensationCallback(self):
