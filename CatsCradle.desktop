@@ -1,11 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=CatsCradle
-Comment=Run CatsCradle
-Exec=/home/bill/Desktop/CatsCradle-master/RunCatsCradle
+Exec=/home/bill/Desktop/CatsCradle.sh
 Icon=/home/bill/Desktop/CatsCradle-master/icon_headshot.jpg
 Terminal=true
 Type=Application
-Categories=Utility;Application;
-Path=
-StartupNotify=false
