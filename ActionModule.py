@@ -29,11 +29,12 @@ from time import sleep
 # To get the PROCESSING_SIZE variable from predictor
 from image_processing import predictor
 
-import time
 
 TIME_TO_RESET = 30 # in seconds, how often the marionette should go to zero
 
-TIME_TO_RESET_HEAD_DATA = 10 # in seconds, reset the head data if nothing comes from the raspberry pi
+TIME_TO_RESET_HEAD_DATA = 15 # in seconds, reset the head data if nothing comes from the raspberry pi
+
+TRACKING_DISABLED = False
 
 class ActionModule(object):
 
@@ -457,6 +458,9 @@ class ActionModule(object):
 
 
     def moveEyes(self, targetCameraCoords):
+        if TRACKING_DISABLED:
+            return
+    
         # check for valid coords
         if (targetCameraCoords[0] > self.cameraCoordMaxX) or (targetCameraCoords[0] < 1):
             return
@@ -477,13 +481,19 @@ class ActionModule(object):
         logging.info(str(time.time()) + " QUEUE_E:" + str(command))
         self.qMotorCmds.put(((0,self.getMovementCount()), command))
 
+
     def moveEyesAndHead(self, targetCameraCoords):
+        if TRACKING_DISABLED:
+            return
+        
         # check for valid coords
         if (targetCameraCoords[0] > self.cameraCoordMaxX) or (targetCameraCoords[0] < 1):
             return
         if (targetCameraCoords[1] > self.cameraCoordMaxY) or (targetCameraCoords[1] < 1):
             return
-        #print("TARGET CAMERA COORDS (E+H): " + str(targetCameraCoords))
+        
+        # calculate the head angles / speed
+        
         # Compute the angles
         targetPitch, targetYaw = self.cameraCoordsToEyeWorld(targetCameraCoords)
         # Head motor mounted so that positive yaw = negative angle
@@ -504,28 +514,51 @@ class ActionModule(object):
         #elif head_diff < 5:
         #    speed = 5
         elif head_diff < 9:
-            speed = 10
+            head_speed = 10
         else:
-            speed = 20
+            head_speed = 20
         #print("head angle: " + str(headAngle) + " diff: " + str(head_diff) + " speed: " + str(speed))
 
-        # First move the eyes to the target
-        self.moveEyes(targetCameraCoords)
-        logging.info(str(time.time()) + " QUEUE_I:" + str(headAngle))
-        # Then engage IMU
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
-        # Then move the head to face the target (data already updated when calling moveEyes)
-        # put the head rotation message in the priority queue
-        self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', headAngle, speed]]))
-        # For now ignore the pitch. Not sure what is the correspondance between head motor
-        # angle and pitch
-        # Disengage IMU
-        #self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 0]]))
-        # move eyes to zero
-        #command = [['motorEX', 90, 90], ['motorEY', 90, 90]]
-        #print(str(time.time()) + " putting the eye command in the queue")
-        #self.qMotorCmds.put(((0,self.getMovementCount()), command))
-	
+        # calculate the eye movement
+        
+        eyePitch = targetPitch - (3 * self.pitch)
+        eyeYaw = targetYaw - self.yaw
+        eyeAngleX = 95 + eyeYaw
+        eyeAngleY = 58 + eyePitch
+        eye_speed = 90 # arbitrary speed value
+        
+        # disable tracking until the set of commands involving the IMU is finished
+        TRACKING_DISABLED = True
+        
+        # create a thread to send items to queue in a timely manner
+
+        def send_imu_messages(cmds):
+            
+            # send the eye command
+            command = [['motorEX', cmds[0], cmds[2]], ['motorEY', cmds[1], cmds[2]]]
+            logging.info(str(time.time()) + " QUEUE_IE:" + str(command))
+            self.qMotorCmds.put(((0,self.getMovementCount()), command))
+            
+            # wait for 200 ms
+            sleep(200)
+            
+            # engage IMU
+            logging.info(str(time.time()) + " QUEUE_I:" + str(headAngle))
+            self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
+        
+            # send the head command
+            self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', cmds[3], cmds[4]]]))
+            
+            # wait for 200 ms
+            sleep(200)
+            
+            # enable tracking
+            TRACKING_DISABLED = False
+	    
+        # use a thread to send the IMU commands
+        imu_thread = Thread(target=send_imu_messages, args=[[eyeAngleX, eyeAngleY, eye_speed, headAngle, head_speed]])
+        imu_thread.start()
+        
 
     def eyeTargetToAngles(self, eyeToWorld, target):
         """Compute the eye angles (pitch and yaw) using the eye transform matrix
@@ -638,6 +671,8 @@ class ActionModule(object):
 
 
     def goBackToZero(self):
+        if TRACKING_DISABLED:
+            return
         # Define rest angles for the 12 motors (0)
         restAngles = [0] * 12
         # Add angles for the eyes (90)
