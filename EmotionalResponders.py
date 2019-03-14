@@ -44,11 +44,11 @@ class ExpressionResponder(Responder):
             if idle:
                 if random() < self.p:
                     # check to see if we should be neutral (when nobody is in the room and we got no focus of attention)
-                    if self.response_module.focus is None and len(audience.persons) == 0:
+                    if (self.response_module.focus is None) and (len(audience.persons) == 0):
                         logging.info(str(time.time()) + ' EMOTION:NEUTRAL')
                         g = np.random.choice(self.emotional_gestures["neutral"][1], p=self.emotional_gestures["neutral"][0])
                         logging.info(str(time.time()) + ' GESTURE:' + str(g))
-                        return
+                        return g
                     
                     # we have someone to respond to
                     emotion_names = []
@@ -157,9 +157,9 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.1 - 2.3
             [
-                ("fear approach M", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "glance", 2, "small"),
-                ("fear fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "glance", 1, "small"),
-                ("fear fast approach S", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "glance", 1, "small")
+                ("fear approach M", [(['Approach', 'adult', 'M', 'current'], 0)], "fear", "extreme", "glance", 2, "medium"),
+                ("fear fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "fear", "large", "glance", 1, "medium"),
+                ("fear fast approach S", [(['Threat', 'senior', None, 'current'], 0)], "fear", "large", "glance", 1, "medium")
             ]
         )
         
@@ -167,8 +167,8 @@ class ApproachResponder(Responder):
             audience,
             # rules list 2.4 - 2.7
             [
-                ("sad/shame approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "shame", "medium", "glance", 1, "large"),
-                ("sad/shame slow approach F", [(['Creeping', 'adult', 'F', 'current'], 2)], "shame", "small", "", 0, "small"),
+                ("sad/shame approach F", [(['Approach', 'adult', 'F', 'current'], 0)], "shame", "large", "glance", 1, "large"),
+                ("sad/shame slow approach F+2", [(['Creeping', 'adult', 'F', 'current'], 2)], "shame", "large", "", 0, "small"),
                 ("sad/shame slow approach S", [(['Creeping', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
                 ("sad/shame slow approach +5", [(['Creeping', None, None, 'current'], 5)], "shame", "large", "", 0, "small")
             ]
@@ -180,7 +180,7 @@ class ApproachResponder(Responder):
             [
                 ("surprise fast approach M", [(['Threat', 'adult', 'M', 'current'], 0)], "surprise", "instant", "glance", 0.5, "tiny"),
                 ("surprise fast approach C", [(['Threat', 'child', None, 'current'], 0)], "surprise", "instant", "glance", 0.5, "tiny"),
-                ("surprise fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "surprise", "instant", "glance", 0.5, "tiny")
+                ("surprise fast approach F", [(['Threat', 'adult', 'F', 'current'], 0)], "surprise", "extreme", "glance", 0.5, "tiny")
             ]
         )
         
@@ -291,9 +291,9 @@ class TooCloseResponder(Responder):
             audience,
             # rules list 4.2 - 4.4
             [
-                ("surprise close F", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "instant", "", 0, "tiny"),
-                ("surprise close S", [(['Close', 'senior', None, 'current'], 0)], "surprise", "instant", "", 0, "tiny"),
-                ("surprise close C", [(['Close', 'child', None, 'current'], 0)], "surprise", "instant", "glance", 0.5, "tiny")
+                ("surprise close F", [(['Close', 'adult', 'F', 'current'], 0)], "surprise", "extreme", "", 0, "medium"),
+                ("surprise close S", [(['Close', 'senior', None, 'current'], 0)], "surprise", "extreme", "", 0, "medium"),
+                ("surprise close C", [(['Close', 'child', None, 'current'], 0)], "surprise", "extreme", "glance", 0.5, "medium")
             ]
         )
         
@@ -353,9 +353,9 @@ class MovementResponder(Responder):
         #        ("sad/shame movement F", [(['Moving', 'adult', 'F', 'current'], 0)], "shame", "small", "glance", 2, "large"),
         #        ("sad/shame movement +5", [(['Moving', None, None, 'current'], 5)], "shame", "medium", "", 0, "small"),
         #        ("sad/shame movement S", [(['Moving', 'senior', None, 'current'], 0)], "shame", "small", "glance", 1, "medium"),
-        #     
+             
         #        ("sad/shame still F+2", [(['Still', 'adult', 'F', 'current'], 2)], "shame", "small", "", 0, "small"),
-        #        #("sad/shame still S", [(['Still', 'senior', None, 'current'], 0)], "shame", "small", "", 0, "medium")
+        #        ("sad/shame still S", [(['Still', 'senior', None, 'current'], 0)], "shame", "medium", "", 0, "medium")
         #    ]
         #)
         
@@ -370,7 +370,7 @@ class MovementResponder(Responder):
         #     
         #        ("longing still F+2", [(['Still', 'adult', 'F', 'current'], 2)], "longing", "small", "", 0, "small"),
         #        ("longing still C+A", [(['Still', 'adult', None, 'current'], 0),
-        #                       (['Still', 'child', None, 'current'], 0)], "longing", "small", "", 0, "large")
+        #                               (['Still', 'child', None, 'current'], 0)], "longing", "small", "", 0, "large")
         #    ]
         #)
 
