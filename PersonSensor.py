@@ -9,6 +9,8 @@ from multiprocessing import Process, Queue
 from datetime import datetime
 
 import copy
+import time
+import logging
 
 import Person
 
@@ -162,6 +164,7 @@ class PersonSensor():
             _, stDev = cv2.meanStdDev(mod)
             if stDev > BACK_CAMERA_MOTION_THRESHOLD:
                 print("MOTION DETECTED")
+                logging.info(str(time.time()) + ' BACK_MOTION:.')
                 detected_motion = True
             else:
                 #print(stDev)
@@ -176,6 +179,7 @@ class PersonSensor():
         #cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
         #cv2.resizeWindow('Back Camera', 800, int(0.56*800))
         #cv2.imshow('Back Camera', frame)
+        return detected_motion
     
     
     def get_age_probas(self, age_probas):

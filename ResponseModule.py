@@ -86,11 +86,11 @@ class ResponseModule(object):
 
     def updateAttentionAndTrack(self, audience, emotional_state):
         t = time.time()
-        # disabling shame look away
-        #if self.shame_lookaway and t > self.shame_lookaway_timeout:
-        #    self.shame_lookaway = False
+        # checking for back camera movement
+        #if not audience.back_movement and t > self.back_movement_response_timeout:
+        #    self.back_movement_response = False
         #    #If we're ending a shame lookaway, always check to see if we should re-start one
-        #    self.last_shame_lookaway_check = t - (SHAME_LOOKAWAY_INTERVAL+0.1)
+        #    self.last_back_movement_check = t - (BACK_MOVEMENT_RESPONSE_INTERVAL + 0.1)
         if not self.shame_lookaway:
             if (t > self.returnToFocusAt) and (t - self.last_attention_change > ATTENTION_CHANGE_MINIMUM):
                 if len(audience.persons):

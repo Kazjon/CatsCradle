@@ -27,6 +27,7 @@ class Audience:
         self.previousPersonBodiesBehindMarionette = []
         self.numLostHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
         self.numNewHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
+        self.back_movement = False
 
 
     def update(self):
@@ -40,7 +41,7 @@ class Audience:
             self.previousPersons,
             self.previousPersonBodies
         )
-        self.personSensor.update_back_camera()
+        self.back_movement = self.personSensor.update_back_camera()
 
         previousIDs = set([p.id for p in self.previousPersons])
         currentIDs = set([p.id for p in self.persons])
