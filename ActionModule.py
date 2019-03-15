@@ -34,8 +34,6 @@ TIME_TO_RESET = 30 # in seconds, how often the marionette should go to zero
 
 TIME_TO_RESET_HEAD_DATA = 15 # in seconds, reset the head data if nothing comes from the raspberry pi
 
-TRACKING_DISABLED = False
-
 class ActionModule(object):
 
     def __init__(self, cameraMaxX, cameraMaxY, dummy=False):
@@ -49,6 +47,8 @@ class ActionModule(object):
         self.isIdle = True
 
         self.headDataUpdated = False
+        
+        self.tracking_disabled = False
 
         # TODO: hardcoded configs?
         gesture_files = {
@@ -458,7 +458,7 @@ class ActionModule(object):
 
 
     def moveEyes(self, targetCameraCoords):
-        if TRACKING_DISABLED:
+        if self.tracking_disabled:
             return
     
         # check for valid coords
@@ -483,7 +483,7 @@ class ActionModule(object):
 
 
     def moveEyesAndHead(self, targetCameraCoords):
-        if TRACKING_DISABLED:
+        if self.tracking_disabled:
             return
         
         # check for valid coords
@@ -528,7 +528,7 @@ class ActionModule(object):
         eye_speed = 90 # arbitrary speed value
         
         # disable tracking until the set of commands involving the IMU is finished
-        TRACKING_DISABLED = True
+        self.tracking_disabled = True
         
         # create a thread to send items to queue in a timely manner
 
@@ -536,26 +536,39 @@ class ActionModule(object):
             
             # send the eye command
             command = [['motorEX', cmds[0], cmds[2]], ['motorEY', cmds[1], cmds[2]]]
+            print("sending the eye command")
             logging.info(str(time.time()) + " QUEUE_IE:" + str(command))
             self.qMotorCmds.put(((0,self.getMovementCount()), command))
             
             # wait for 200 ms
-            sleep(200)
+            sleep(0.2)
             
             # engage IMU
             logging.info(str(time.time()) + " QUEUE_I:" + str(headAngle))
+            print("sending the imu command")
             self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         
+            sleep(0.1)
+
+            #command = [['motorEX', 90, 90], ['motorEY', 90, 90]]
+            #print("reset the eye")
+            #logging.info(str(time.time()) + " QUEUE_IE:" + str(command))
+            #self.qMotorCmds.put(((0,self.getMovementCount()), command))
+            
+            #sleep(0.5)
+
             # send the head command
+            print("sending the head command")
             self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', cmds[3], cmds[4]]]))
             
             # wait for 200 ms
-            sleep(200)
+            sleep(0.5)
             
             # enable tracking
-            TRACKING_DISABLED = False
+            self.tracking_disabled = False
 	    
         # use a thread to send the IMU commands
+        print("starting the imu thread")
         imu_thread = Thread(target=send_imu_messages, args=[[eyeAngleX, eyeAngleY, eye_speed, headAngle, head_speed]])
         imu_thread.start()
         
@@ -671,7 +684,7 @@ class ActionModule(object):
 
 
     def goBackToZero(self):
-        if TRACKING_DISABLED:
+        if self.tracking_disabled:
             return
         # Define rest angles for the 12 motors (0)
         restAngles = [0] * 12
