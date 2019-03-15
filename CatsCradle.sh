@@ -6,4 +6,4 @@
 # Can only be executed in CatsCradle's directory (where files are located)
 
 source ./CatsCradleEnv
-python2 ./CatsCradle.py --testUI
+python2 ./CatsCradle.py
