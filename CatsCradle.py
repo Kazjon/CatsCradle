@@ -113,7 +113,7 @@ class MainApp(QWidget):
         self.closeBtn.repaint()
         self.app.processEvents()
 
-        subprocess.call(['python2', './run.py', '--noUI'])
+        subprocess.call("RunCatsCradle")
 
         self.resetMotors()
 
@@ -129,11 +129,7 @@ class MainApp(QWidget):
         self.appBtn.setEnabled(False)
         self.closeBtn.setEnabled(False)
 
-        ex = AppSimulator()
-        while ex.running:
-            ret, frame = ex.camera.read()
-            cv2.imshow('Camera', frame)
-            app.processEvents()
+        subprocess.call("RunSimulator")
 
         self.resetMotors()
 

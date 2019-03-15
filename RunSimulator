@@ -1,3 +1,9 @@
 #!/bin/bash
 
-python2 $HOME/Desktop/CatsCradle/SimulatorUI.py
+# Should be executable:
+# chmod +x RunSimulator
+
+# Can only be executed in CatsCradle's directory (where files are located)
+
+source ./CatsCradleEnv
+python2 ./SimulatorUI.py
