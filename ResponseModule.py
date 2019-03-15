@@ -13,6 +13,7 @@ import EmotionalResponders
 import time
 import logging
 
+DISABLE_GESTURES = False
 ATTENTION_CHANGE_MINIMUM = 8.0 #minimum time before attention will be checked again
 TRACKING_INTERVAL = 0.05 #How frequently to send new locations of the current focus of attention so that eyes+head track them.
 SHAME_LOOKAWAY_INTERVAL = 10. #How frequently to check whether, if she's ashamed, she should look away rather than at someone
@@ -61,21 +62,22 @@ class ResponseModule(object):
         
         Responder.all_rules = set()
         
-        for responder in self.responders:
-            response = responder.respond(emotion_module, audience, idle)
-            if response is not None:
-                self.gesture_queue.append(response)
-
-        if len(self.gesture_queue):
-            # [:] is for copying the list since we clear the queue afterwards
-            gesture = self.gesture_queue.pop()[:]
-            if gesture[0] == '046a_Reset':
-                print("Going back to zero.")
-                logging.info(str(time.time()) + ' BACK_TO_ZERO:.')
-            self.action_module.executeGesture(gesture, useThread=True)
-        # discard the queue since the contents might not be relavant in the next update cycle
-        self.gesture_queue.clear()
-
+        if not DISABLE_GESTURES:
+            for responder in self.responders:
+                response = responder.respond(emotion_module, audience, idle)
+                if response is not None:
+                    self.gesture_queue.append(response)
+    
+            if len(self.gesture_queue):
+                # [:] is for copying the list since we clear the queue afterwards
+                gesture = self.gesture_queue.pop()[:]
+                if gesture[0] == '046a_Reset':
+                    print("Going back to zero.")
+                    logging.info(str(time.time()) + ' BACK_TO_ZERO:.')
+                self.action_module.executeGesture(gesture, useThread=True)
+            # discard the queue since the contents might not be relavant in the next update cycle
+            self.gesture_queue.clear()
+        
         self.last_updated = time.time()
         
         if len(Responder.all_rules) > 0:
