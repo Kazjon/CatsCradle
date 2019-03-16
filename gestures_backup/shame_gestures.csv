@@ -1,6 +1,0 @@
-ID,Weight,Sequence
-1,5,015d_HandLRDownFullMed,0.1,022b_ShoulderLRDownFullSlow,0.3,002b_HeadLRDownHalfSlow,0.1,006b_HeadLDownFullSlow_Resignation
-2,1,015d_HandLRDownFullMed,0.1,019a_ShoulderRupHalfSlow,004b_HeadRDownHalfSlow
-3,2,015d_HandLRDownFullMed,0.1,021a_ShoulderLupHalfSlow,007b_HeadLDownHalfSlow
-4,2,015d_HandLRDownFullMed,024d_ShoulderRotR(0)FullMed,0.1,024e_ShoulderRotRFullSlow,004b_HeadRDownHalfSlow
-5,1,015d_HandLRDownFullMed,026f_ShoulderRotL(0)FullMed,0.1,026g_ShoulderRotLFullSlow,007b_HeadLDownHalfSlow
