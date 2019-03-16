@@ -128,7 +128,7 @@ class ResponseModule(object):
             else:
                 #There's no one around, so ditch the focus.
                 self.focus = None
-        if (self.focus is not None) and (t - self.last_tracked > TRACKING_INTERVAL):
+        elif (self.focus is not None) and (t - self.last_tracked > TRACKING_INTERVAL):
             if t > self.returnToFocusAt:
                 self.lookAt(self.focus)
                 self.last_tracked = t
@@ -158,10 +158,12 @@ class ResponseModule(object):
 
     def setFocus(self,person):
         self.lookAt(person)
+        logging.info(str(time.time()) + ' CHANGE_FOCUS:' + str(person))
         self.focus = person
 
     def lookAway(self, audience):
-        if audience.back_movement_left > audience.back_movement_right:
+        # note that sides of the camera is reversed.
+        if audience.back_movement_left < audience.back_movement_right:
             gesture = '041c_HeadRotLHalfMed'
         else:
             gesture = '040c_HeadRotRHalfMed'
