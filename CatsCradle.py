@@ -49,7 +49,7 @@ class MainApp(QWidget):
         setupDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
         setupDialog.setDefaultButton(QMessageBox.Ok)
 
-        setupDialog.setInformativeText("Power on Raspberry Pi, \nwait 1 minute\n");
+        setupDialog.setInformativeText("Power on Raspberry Pi, then click OK and wait 1 minute\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
