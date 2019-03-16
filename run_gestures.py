@@ -27,7 +27,7 @@ if __name__ == "__main__":
     emotion_name = 'shame'
     for index, gesture in enumerate(emotional_gestures[emotion_name][1]):
 
-        action_module.executeGesture(gesture, useThread=False)
+        action_module.executeGesture(gesture, useThread=True)
         while not action_module.checkTargetReached():
             pass
             # sleep(3)
