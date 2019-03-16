@@ -63,6 +63,10 @@ class PersonSensor():
         self.front_camera = front_camera
         self.back_camera = back_camera
     
+        if not back_camera is None:
+            self.backCameraMaxX = self.back_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+            self.backCameraMaxY = self.back_camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    
 
     # the 'update' method
     def getPersonsAndPersonBodies(self, previousPersons, previousPersonBodies):
@@ -154,25 +158,35 @@ class PersonSensor():
         # read a frame from the back camera
         ret, frame = self.back_camera.read()
         
-        motion_amount = 0
+        motion_amount_right = 0
+        motion_amount_left = 0
         # if we have a previous frame calculate the motion
         if not self._last_back_camera_frame is None:
+            # this code is adopted from here: https://software.intel.com/en-us/node/754940
             # get the difference between the current frame and the last frame
             dist = frame_distance(frame, self._last_back_camera_frame)
             mod = cv2.GaussianBlur(dist, (9,9), 0)
-            _, stDev = cv2.meanStdDev(mod)
-            motion_amount = stDev
-            #print(str(motion_amount))  
+            _, threshold = cv2.threshold(mod, 100, 255, 0)
+            left_threshold = threshold[:,:int(self.backCameraMaxX/2)]
+            right_threshold = threshold[:,int(self.backCameraMaxX/2):]
+            
+            _, stdev_right = cv2.meanStdDev(right_threshold)
+            _, stdev_left = cv2.meanStdDev(left_threshold)
+            
+            motion_amount_right = stdev_right[0][0]
+            motion_amount_left = stdev_left[0][0]
+#            print(str(motion_amount_left) + ", " + str(motion_amount_right))
+
             # display
-            #cv2.namedWindow('dist', cv2.WINDOW_NORMAL)
-            #cv2.resizeWindow('dist', 100, 100)
-            #cv2.imshow('dist', mod)
+            cv2.namedWindow('Back Camera -- Motion Detector', cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('Back Camera -- Motion Detector', 400, int(0.56*400))
+            cv2.imshow('Back Camera -- Motion Detector', threshold)
 
         self._last_back_camera_frame = frame
-        cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('Back Camera', 300, int(0.56*300))
-        cv2.imshow('Back Camera', frame)
-        return motion_amount
+#        cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
+#        cv2.resizeWindow('Back Camera', 300, int(0.56*300))
+#        cv2.imshow('Back Camera', frame)
+        return motion_amount_left, motion_amount_right
     
     
     def get_age_probas(self, age_probas):

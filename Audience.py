@@ -27,7 +27,8 @@ class Audience:
         self.previousPersonBodiesBehindMarionette = []
         self.numLostHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
         self.numNewHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
-        self.back_movement = 0
+        self.back_movement_right = 0
+        self.back_movement_left = 0
 
 
     def update(self):
@@ -41,7 +42,7 @@ class Audience:
             self.previousPersons,
             self.previousPersonBodies
         )
-        self.back_movement = self.personSensor.update_back_camera()
+        self.back_movement_left, self.back_movement_right = self.personSensor.update_back_camera()
 
         previousIDs = set([p.id for p in self.previousPersons])
         currentIDs = set([p.id for p in self.persons])
@@ -132,7 +133,7 @@ class Audience:
 
     #Returns the point in the camera field that is furthest away from any faces
     def furthestFromFaces(self):
-	cameraMaxX = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+        cameraMaxX = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_WIDTH)
         cameraMaxY = self.personSensor.front_camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
         width = predictor.PROCESSING_SIZE
         height = width * cameraMaxY / cameraMaxX

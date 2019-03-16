@@ -93,7 +93,8 @@ class ResponseModule(object):
             return
         
         # checking for back camera movement
-        if (audience.back_movement > BACK_MOVEMENT_RESPONSE_MIN) and np.random.random() < (audience.back_movement / BACK_MOVEMENT_RESPONSE_FACTOR):
+        max_back_movement = max(audience.back_movement_left, audience.back_movement_right)
+        if (max_back_movement > BACK_MOVEMENT_RESPONSE_MIN) and np.random.random() < (max_back_movement / BACK_MOVEMENT_RESPONSE_FACTOR):
             self.lookAway(audience)
             self.back_movement_response_timeout = t + BACK_MOVEMENT_RESPONSE_INTERVAL
             print("back camera movement -> looking away.")
@@ -160,7 +161,10 @@ class ResponseModule(object):
         self.focus = person
 
     def lookAway(self, audience):
-        gesture = np.random.choice(['040c_HeadRotRHalfMed', '041c_HeadRotLHalfMed'])
+        if audience.back_movement_left > audience.back_movement_right:
+            gesture = '041c_HeadRotLHalfMed'
+        else:
+            gesture = '040c_HeadRotRHalfMed'
         self.action_module.executeLookAway(gesture)
 
     def differentToCurrentTarget(self,target):
