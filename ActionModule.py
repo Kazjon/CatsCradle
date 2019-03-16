@@ -560,7 +560,7 @@ class ActionModule(object):
             
             # send the eye command
             command = [['motorEX', cmds[0], cmds[2]], ['motorEY', cmds[1], cmds[2]]]
-            print("sending the eye command")
+            #print("sending the eye command")
             logging.info(str(time.time()) + " QUEUE_IE:" + str(command))
             self.qMotorCmds.put(((0,self.getMovementCount()), command))
             
@@ -569,7 +569,7 @@ class ActionModule(object):
             
             # engage IMU
             logging.info(str(time.time()) + " QUEUE_I:" + str(headAngle))
-            print("sending the imu command")
+            #print("sending the imu command")
             self.qMotorCmds.put(((0,self.getMovementCount()), [['IMU' , 1]]))
         
             sleep(0.1)
@@ -582,7 +582,7 @@ class ActionModule(object):
             #sleep(0.5)
 
             # send the head command
-            print("sending the head command")
+            #print("sending the head command")
             self.qMotorCmds.put(((0,self.getMovementCount()), [['motorH', cmds[3], cmds[4]]]))
             
             # wait for 200 ms
@@ -592,7 +592,7 @@ class ActionModule(object):
             self.tracking_disabled = False
 	    
         # use a thread to send the IMU commands
-        print("starting the imu thread")
+        #print("starting the imu thread")
         imu_thread = Thread(target=send_imu_messages, args=[[eyeAngleX, eyeAngleY, eye_speed, headAngle, head_speed]])
         imu_thread.start()
         
