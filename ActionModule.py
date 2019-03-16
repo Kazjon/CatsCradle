@@ -429,6 +429,30 @@ class ActionModule(object):
             executeSequence(sequenceList)
             self.busy_executing = False
 
+    def executeLookAway(self, tracking_gesture):
+        # this function is for responding to back camera movements
+        # it is a kind of tracking function, but uses a defined gesture to do the tracking
+        # 1. get the angle and speed
+        if tracking_gesture not in self.positions.keys():
+            print "No targetKey = ", tracking_gesture
+            return None
+        position = self.positions[tracking_gesture]
+        # 2. find the command
+        target = position['angles']
+        speeds = position['speeds']
+        action = Action(target, self.timeInterval)
+        output = action.getCmdsToTarget(self.currentAngles, speeds)
+        #print(output)
+        newTargetAngles = []
+        for oldAngle, newAngle in zip(self.currentTargetAngles, target):
+            if newAngle is None:
+                newTargetAngles.append(oldAngle)
+            else:
+                newTargetAngles.append(newAngle)
+        self.currentTargetAngles = newTargetAngles
+        # 3. send the command with high priority (like tracking)
+        self.qMotorCmds.put(((0,self.getMovementCount()),output))
+        
 
     def isMarionetteIdle(self):
         return self.isIdle

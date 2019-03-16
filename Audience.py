@@ -27,7 +27,7 @@ class Audience:
         self.previousPersonBodiesBehindMarionette = []
         self.numLostHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
         self.numNewHistory = deque([0]*ENTRY_EXIT_HISTORY_LENGTH,maxlen=ENTRY_EXIT_HISTORY_LENGTH)
-        self.back_movement = False
+        self.back_movement = 0
 
 
     def update(self):

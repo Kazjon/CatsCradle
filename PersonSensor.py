@@ -16,7 +16,6 @@ import Person
 
 QUEUE_MAX_MESSAGES = 10
 FRAME_PROCESSING_STRIDE = 1
-BACK_CAMERA_MOTION_THRESHOLD = 5
 
 class PersonSensor():
     """
@@ -155,31 +154,25 @@ class PersonSensor():
         # read a frame from the back camera
         ret, frame = self.back_camera.read()
         
-        detected_motion = False
+        motion_amount = 0
         # if we have a previous frame calculate the motion
         if not self._last_back_camera_frame is None:
             # get the difference between the current frame and the last frame
             dist = frame_distance(frame, self._last_back_camera_frame)
             mod = cv2.GaussianBlur(dist, (9,9), 0)
             _, stDev = cv2.meanStdDev(mod)
-            if stDev > BACK_CAMERA_MOTION_THRESHOLD:
-                print("MOTION DETECTED")
-                logging.info(str(time.time()) + ' BACK_MOTION:.')
-                detected_motion = True
-            else:
-                #print(stDev)
-                pass
-                        
+            motion_amount = stDev
+            #print(str(motion_amount))  
             # display
             #cv2.namedWindow('dist', cv2.WINDOW_NORMAL)
             #cv2.resizeWindow('dist', 100, 100)
             #cv2.imshow('dist', mod)
 
         self._last_back_camera_frame = frame
-        #cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
-        #cv2.resizeWindow('Back Camera', 800, int(0.56*800))
-        #cv2.imshow('Back Camera', frame)
-        return detected_motion
+        cv2.namedWindow('Back Camera', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Back Camera', 300, int(0.56*300))
+        cv2.imshow('Back Camera', frame)
+        return motion_amount
     
     
     def get_age_probas(self, age_probas):
