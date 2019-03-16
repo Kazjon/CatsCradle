@@ -175,6 +175,8 @@ class RunCatsCradle(object):
         self.running = True
 
         logging.basicConfig(filename='interactions.log', level=logging.INFO)
+        # comment this line to enable logging
+        logging.disable(logging.INFO)
         logging.info(str(time.time()) + ' started.')
 
         cameraMaxX = 1920
