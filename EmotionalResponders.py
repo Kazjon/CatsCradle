@@ -11,6 +11,7 @@ import cv2
 from scipy.spatial import distance
 
 BASE_RESPONSE_CHANCE = 0.375 #Probability of conducting an idle gesture every response_interval
+IDLE_CHANCE = 0.01 # probability of executing idle movements. 0.01 -> every 30 seconds
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
 
 HIGH_INTEREST_THRESH = 10 #An arbitrary line dividing "low" and "high" interest people
@@ -42,15 +43,18 @@ class ExpressionResponder(Responder):
         t = time.time()
         if t - self.last_checked > EXPRESSION_INTERVAL:
             if idle:
-                if random() < self.p:
-                    # check to see if we should be neutral (when nobody is in the room and we got no focus of attention)
-                    if (self.response_module.focus is None) and (len(audience.persons) == 0):
+                # check to see if we should be neutral (when nobody is in the room and we got no focus of attention)
+                if (self.response_module.focus is None) and (len(audience.persons) == 0):
+                    if random() < IDLE_CHANCE:
+                        print("idle movement")
                         logging.info(str(time.time()) + ' EMOTION:NEUTRAL')
                         g = np.random.choice(self.emotional_gestures["neutral"][1], p=self.emotional_gestures["neutral"][0])
                         logging.info(str(time.time()) + ' GESTURE:' + str(g))
                         return g
-                    
-                    # we have someone to respond to
+                    return
+
+                # we have someone to respond to if we get the chance!
+                if random() < self.p:
                     emotion_names = []
                     emotion_quantities = []
                     logging.info(str(time.time()) + ' INTENSITIES:' + str(emotion_module.emotion_as_dict()))
