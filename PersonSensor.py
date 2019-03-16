@@ -5,6 +5,7 @@ from imutils.face_utils import rect_to_bb
 import numpy as np
 
 from multiprocessing import Process, Queue
+from collections import deque
 
 from datetime import datetime
 
@@ -16,6 +17,7 @@ import Person
 
 QUEUE_MAX_MESSAGES = 10
 FRAME_PROCESSING_STRIDE = 1
+FACE_HISTORY_LENGTH = 100
 
 class PersonSensor():
     """
@@ -47,8 +49,8 @@ class PersonSensor():
         self._prediction_process.start()
     
         # history of face encodings.
-        self._face_encodings = []
-        self._person_objects = []
+        self._face_encodings = deque(maxlen=FACE_HISTORY_LENGTH)
+        self._person_objects = deque(maxlen=FACE_HISTORY_LENGTH)
         self._last_id = 0
     
     
@@ -94,6 +96,7 @@ class PersonSensor():
             self._frame_counter = 0
 
         # update prediction results for display (only if new results available)
+        new_results = False
         try:
             results = self._prediction_results_queue.get(False)
             # prediction results is a list of tuples that each contains the following
@@ -101,12 +104,16 @@ class PersonSensor():
             # index 1. face_descriptors of a face in the last frame,
             # index 2. probabilities of age/gender in the last frame.
             self._latest_predictions = results
+            new_results = True
         except:
             # no new results -- return early
-            return previousPersons, previousPersonBodies
+            new_results = False
 
         # display frame
         self.display_front_frame(frame, self._latest_predictions)
+
+        if not new_results:
+            return previousPersons, previousPersonBodies
         
         persons = []
         for prediction in self._latest_predictions:
