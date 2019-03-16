@@ -98,13 +98,8 @@ class PersonSensor():
             results = self._prediction_results_queue.get(False)
             # prediction results is a list of tuples that each contains the following
             # index 0. face_rect of a face in the last frame,
-            # index 1. ages of a face in the last frame,
-            # index 2. genders of a face in the last frame,
-            # index 3. face_descriptors of a face in the last frame,
-            # index 4. probabilities of 100 bins for age of a face in the last frame,
-            # index 5. a list probabilities of gender of a face in the last frame.
-            #          The first item is the proba for female and the second item for male.
-            # the length of prediction results is equal to the number of detected faces in the last frame.
+            # index 1. face_descriptors of a face in the last frame,
+            # index 2. probabilities of age/gender in the last frame.
             self._latest_predictions = results
         except:
             # no new results -- return early
@@ -119,9 +114,8 @@ class PersonSensor():
             face_rect = prediction[0]
             face_position = self.get2dAnd3dCoordsFromLocation(face_rect.top(), face_rect.right(),
                                                               face_rect.bottom(), face_rect.left())
-            face_encoding = prediction[3]
-            age_probas = self.get_age_probas(prediction[4])
-            gender_probas = self.get_gender_probas(prediction[5])
+            face_encoding = prediction[1]
+            age_gender_probas = prediction[2]
             
             # compare the face encoding to the history of encodings
             distances = np.array([100])
@@ -131,13 +125,13 @@ class PersonSensor():
                 # found a match in history -- return the person object
                 person = self._person_objects[(distances < 0.6).argmax()]
                 person.reappear()
-                person.update_age_gender(age_probas, gender_probas)
+                person.update_age_gender(age_gender_probas)
                 person.updateFace(face_position)
                 persons.append(person)
             else:
                 # new person
                 self._face_encodings.append(face_encoding)
-                person = Person.Person(age_probas, gender_probas, self._last_id, face_position)
+                person = Person.Person(age_gender_probas, self._last_id, face_position)
                 persons.append(person)
                 self._person_objects.append(person)
                 self._last_id += 1
@@ -153,7 +147,7 @@ class PersonSensor():
     def update_back_camera(self):
         # return early if the camera is not setup
         if self.back_camera is None:
-            return False
+            return 0, 0
     
         # read a frame from the back camera
         ret, frame = self.back_camera.read()
@@ -189,18 +183,6 @@ class PersonSensor():
         return motion_amount_left, motion_amount_right
     
     
-    def get_age_probas(self, age_probas):
-        age_probas = {'child': age_probas[0],
-                      'adult': age_probas[1],
-                      'senior': age_probas[2]}
-        return age_probas
-    
-    
-    def get_gender_probas(self, gender_probas):
-        gender_probas = {'F': gender_probas[0], 'M': gender_probas[1]}
-        return gender_probas
-    
-    
     def display_front_frame(self, frame, prediction_results):
         """
         Display frame on cv2 window.
@@ -224,7 +206,7 @@ class PersonSensor():
 
         if len(prediction_results) > 0:
             # write the results on the frame
-            for face_rect, age, gender, _, _, _ in prediction_results:
+            for face_rect, _, age_gender_probas in prediction_results:
                 # convert dlib.rectangle to regular bounding box
                 (x, y, w, h) = rect_to_bb(face_rect)
                 # re-scale based on predictor.PROCESSING_SIZE
@@ -237,8 +219,19 @@ class PersonSensor():
                 # draw a filled rectangle to write text
                 cv2.rectangle(frame, (x, y+h - 35), (x+w, y+h), (212, 211, 212), cv2.FILLED)
                 # write age and gender if provided
-                if not age is None and not gender is None:
-                    text = predictor.GENDER_MAP[gender] + "(" + predictor.AGE_MAP[int(age)] + ")"
+                if not age_gender_probas is None:
+                    index = np.argmax(age_gender_probas)
+                    text = ''
+                    if index == 0:
+                        text = 'child'
+                    elif index == 1:
+                        text = 'M adult'
+                    elif index == 2:
+                        text = 'F adult'
+                    elif index == 3:
+                        text = 'senior'
+                    else:
+                        print("Age / gender out of range.")
                     cv2.putText(frame, text, (x+2, y+h-6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
         # display the frame

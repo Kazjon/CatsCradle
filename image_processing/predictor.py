@@ -17,8 +17,7 @@ MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 FACE_DETECTION_MODEL_PATH = MODULE_PATH + '/models/mmod_human_face_detector'
 SHAPE_PREDICTION_MODEL_PATH = MODULE_PATH + '/models/shape_predictor_68_face_landmarks'
 FACE_RECOGNITION_MODEL_PATH = MODULE_PATH + '/models/dlib_face_recognition_resnet_model_v1'
-AGE_MODEL_PATH = MODULE_PATH + '/models/model_age'
-GENDER_MODEL_PATH = MODULE_PATH + '/models/model_gender'
+AGE_GENDER_MODEL_PATH = MODULE_PATH + '/models/model_age_gender'
 
 # GPU PARAMS
 #PROCESSING_SIZE = 1200
@@ -60,15 +59,13 @@ def load_age_and_gender_model():
     './models' directory.
 
     Returns:
-        predictor_age (sklearn.??): the model for predicting age.
-        predictor_gender (sklearn.??): the model for predicting gender.
+        predictor_age_gender (sklearn.??): the model for predicting age.
     """
 
     print("loading age and gender model.")
-    predictor_age = joblib.load(AGE_MODEL_PATH)
-    predictor_gender = joblib.load(GENDER_MODEL_PATH)
+    predictor_age_gender = joblib.load(AGE_GENDER_MODEL_PATH)
 
-    return predictor_age, predictor_gender
+    return predictor_age_gender
 
 
 def detect_faces(color_image_list, gray_image_list, dlib_models):
@@ -85,6 +82,7 @@ def detect_faces(color_image_list, gray_image_list, dlib_models):
         face_images (np.array): an array of images of detected faces.
         n_faces_list (list): a list of ints showing the number of detected faces in each frame.
         flat_face_rects (list): a list of dlib.rectangle objects containing rectangle info of each detected face.
+        face_descriptors (list): list of face_descriptor. A face_descriptor is a lists of 128 dim vector that describes the face.
 
     Example:
         Given the following inputs
@@ -151,7 +149,7 @@ def detect_faces(color_image_list, gray_image_list, dlib_models):
     return np.array(face_images), n_faces_list, flat_face_rects, face_descriptors
 
 
-def process_batch_frames(color_image_list, gray_image_list, predictor_age, predictor_gender, dlib_models):
+def process_batch_frames(color_image_list, gray_image_list, predictor_age_gender, dlib_models):
     """
     Processes a batch of images to detect faces and if ENABLE_AGEGENDER_DETECTION is True it also
     predicts ages and genders of each detected faces.
@@ -160,36 +158,27 @@ def process_batch_frames(color_image_list, gray_image_list, predictor_age, predi
         color_image_list (list): list of images. Each item is a frame read by the cv2 package.
         gray_image_list (list): list of images in grayscale. This list should contain the same images
             as the color_image_list, but in grayscale. This list is used by the CNN model.
-        predictor_age (sklearn.??): the model for predicting age.
-        predictor_gender (sklearn.??): the model for predicting gender.
+        predictor_age_gender (sklearn.??): the model for predicting age and gender.
         dlib_models (dict): a dictionary containing dlib cnn, shape_predictor, and recognition models.
 
     Returns:
         n_faces_list (list): list of ints containing the number of detected faces for each frame. So, the
             length of this list is equal to the length if color_image_list and gray_image_list.
-        ages (list): lists of detected ages. If ENABLE_AGEGENDER_DETECTION is False, then this list is empty.
-            The length of this list is equal to the number of detected faces and genders list.
-        genders (list): lists of detected genders. If ENABLE_AGEGENDER_DETECTION is False, then this list is empty.
-            The length of this list is equal to the number of detected faces and ages list.
         face_rects (list): lists of rectangle of faces. Each rectangle is a dlib.rectangle object.
+        face_descriptors (list): list of face_descriptor. A face_descriptor is a lists of 128 dim vector that describes the face.
+        age_genders_proba (list): list of probas of age/gender. First item is proba of child, second is proba of adult male, third is for adult female and last is senior.
     """
 
     # detect faces
     face_images_array, n_faces_list, face_rects, face_descriptors = detect_faces(color_image_list, gray_image_list, dlib_models)
 
     # detect age and gender for all frames
-    ages = []
-    genders = []
-    ages_proba = []
-    genders_proba = []
+    age_genders_probas = []
     if ENABLE_AGEGENDER_DETECTION:
         # no support for batch yet
         encodings = np.array(face_descriptors)[0]
         if len(encodings) > 0:
-            ages = predictor_age.predict(encodings)
-            ages_proba = predictor_age.predict_proba(encodings)
-            genders = predictor_gender.predict(encodings)
-            genders_proba = predictor_gender.predict_proba(encodings)
+            age_genders_probas = predictor_age_gender.predict_proba(encodings)
 
             ## debug: write images to disk for inspection
 #            for img in face_images_array:
@@ -197,7 +186,7 @@ def process_batch_frames(color_image_list, gray_image_list, predictor_age, predi
 #                print("writing to file: " + fname)
 #                cv2.imwrite(fname, img)
 
-    return n_faces_list, ages, genders, face_rects, face_descriptors, [ages_proba, genders_proba]
+    return n_faces_list, face_rects, face_descriptors, age_genders_probas
 
 
 def process_image(frame_queue, prediction_queue):
@@ -207,7 +196,7 @@ def process_image(frame_queue, prediction_queue):
     """
 
     dlib_models = load_dlib_module()
-    predictor_age, predictor_gender = load_age_and_gender_model()
+    predictor_age_gender = load_age_and_gender_model()
 
     print("model initialized.")
 
@@ -249,11 +238,10 @@ def process_image(frame_queue, prediction_queue):
             continue
 
         # time to process the frame to detect face/age/gender
-        n_faces_list, ages, genders, face_rects, face_descriptors, probas = process_batch_frames(
+        n_faces_list, face_rects, face_descriptors, age_genders_probas = process_batch_frames(
             batch_color_image_list,
             batch_gray_image_list,
-            predictor_age,
-            predictor_gender,
+            predictor_age_gender,
             dlib_models
         )
 
@@ -263,23 +251,17 @@ def process_image(frame_queue, prediction_queue):
         batch_gray_image_list = []
 
         # display results on the terminal
-#        display_results(n_faces_list, ages, genders, probas)
+        # display_results(n_faces_list, age_genders_probas)
 
         # update the last_faces_rects and update the frame to display
         last_face_index = sum(n_faces_list) - n_faces_list[-1]
         if ENABLE_AGEGENDER_DETECTION:
             last_frame_predictions = list(zip(face_rects[last_face_index:],
-                                              ages[last_face_index:],
-                                              genders[last_face_index:],
                                               face_descriptors[len(face_descriptors)-1],
-                                              probas[0][last_face_index:],
-                                              probas[1][last_face_index:]))
+                                              age_genders_probas[last_face_index:]))
         else:
             last_frame_predictions = list(zip(face_rects[last_face_index:],
-                                              [None]*len(face_rects[last_face_index:]),
-                                              [None]*len(face_rects[last_face_index:]),
                                               face_descriptors[len(face_descriptors)-1],
-                                              [None]*len(face_rects[last_face_index:]),
                                               [None]*len(face_rects[last_face_index:])))
 
         # set the results for display in the main thread
@@ -289,14 +271,13 @@ def process_image(frame_queue, prediction_queue):
     print("done.")
 
 
-def display_results(n_faces_list, ages, genders, probas):
+def display_results(n_faces_list, age_genders_probas):
     """
     Display results in the terminal.
 
     Args:
         n_faces_list (list): list of ints -- number of detected faces.
-        ages (list): list of floats -- len(ages) = sum(n_faces_list)
-        genders (list): list of 0 or 1 -- len(genders) = sum(n_faces_list)
+        age_genders_probas (list): list of probas
     """
 
     flat_counter = 0
@@ -305,5 +286,5 @@ def display_results(n_faces_list, ages, genders, probas):
         print("\nFound " + str(n_faces) + " faces.")
         if ENABLE_AGEGENDER_DETECTION:
             for i in range(n_faces):
-                print("Age: " + AGE_MAP[int(ages[flat_counter])] + " (" + str(max(probas[0][flat_counter])) + "), gender: " + GENDER_MAP[genders[flat_counter]] + " (" + str(max(probas[1][flat_counter])) + ")")
+                print("probas: " + str(age_genders_probas))
                 flat_counter = flat_counter + 1

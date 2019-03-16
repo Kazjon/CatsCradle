@@ -1,5 +1,5 @@
 import cv2
-import numpy
+import numpy as np
 
 from MathUtils import *
 from Camera import *
@@ -37,7 +37,7 @@ class Person:
                str(self.interestingness) + "," + str(self.faceMidpoint()) + "," + str(self.labels.keys())
 
 
-    def __init__(self, age_probas, gender_probas, person_id,
+    def __init__(self, age_gender_probas, person_id,
                  (face_top_left_2d, face_top_right_2d,
                   face_bottom_right_2d, face_bottom_left_2d, face_center_2d)):
         self.id = person_id
@@ -46,11 +46,8 @@ class Person:
         self.last_seen = time.time()
         
         # Person's properties
-        self.gender_probabilities = gender_probas
-        self.gender = max(gender_probas.iterkeys(), key=(lambda key: gender_probas[key]))
-        
-        self.age_probabilities = age_probas
-        self.ageRange = max(age_probas.iterkeys(), key=(lambda key: age_probas[key]))
+        self.age_gender_probabilities = age_gender_probas
+        self.set_age_gender_from_probas()
         
         # number of samples (frames) that the age/gender are being predicted based on
         self.num_samples = 1
@@ -88,26 +85,37 @@ class Person:
         self.faceSizeHistory.appendleft(face_size(face_top_left_2d, face_bottom_right_2d))
 
 
-    def update_age_gender(self, age_probas, gender_probas):
+    def update_age_gender(self, age_gender_probas):
         if self.num_samples >= MAX_NUM_SAMPLES:
             return
         
         # update the new probas and prediction
+        for index, item in enumerate(self.age_gender_probabilities):
+            self.age_gender_probabilities[index] = self.update_probability(item, age_gender_probas[index])
         
-        # 1. update gender probas
-        for key in self.gender_probabilities.keys():
-            self.gender_probabilities[key] = self.update_probability(self.gender_probabilities[key], gender_probas[key])
-        # 2. update gender prediction
-        self.gender = max(self.gender_probabilities.iterkeys(), key=(lambda key: self.gender_probabilities[key]))
-        
-        # 3. update age probas
-        for key in self.age_probabilities.keys():
-            self.age_probabilities[key] = self.update_probability(self.age_probabilities[key], age_probas[key])
-        # 4. update age prediction
-        self.ageRange = max(self.age_probabilities.iterkeys(), key=(lambda key: self.age_probabilities[key]))
+        self.set_age_gender_from_probas()
         
         self.num_samples = self.num_samples + 1
         
+    
+    def set_age_gender_from_probas(self):
+        index = np.argmax(self.age_gender_probabilities)
+        if index == 0:
+            self.gender = '?'
+            self.ageRange = 'child'
+        elif index == 1:
+            self.gender = 'M'
+            self.ageRange = 'adult'
+        elif index == 2:
+            self.gender = 'F'
+            self.ageRange = 'adult'
+        elif index == 3:
+            self.gender = '?'
+            self.ageRange = 'senior'
+        else:
+            self.gender = '?'
+            self.ageRange = '?'
+            print("Age / gender out of range.")
 
     def update_probability(self, old_value, new_value):
         return (float(self.num_samples * old_value) + new_value) / (self.num_samples + 1)
