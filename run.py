@@ -130,6 +130,40 @@ class AppRun(QWidget):
             shutdownDialog.setInformativeText("Turn Off Rasberry Pi\n")
             shutdownDialog.exec_()
 
+    def checkCameras(self):
+        # load the cameras
+        front_camera = cv2.VideoCapture(FRONT_CAMERA)
+        back_camera = cv2.VideoCapture(BACK_CAMERA)
+
+        # test cameras and warn user if one is missing
+        retFont, frame = front_camera.read()
+        retBack, frame = back_camera.read()
+
+        # release the cameras
+        if front_camera:
+            front_camera.release()
+        if back_camera:
+            back_camera.release()
+
+        msg = ""
+        result = True
+        if not retFont:
+            msg = "The front camera is not connected. The application will not be launched."
+            result = False
+        elif not retBack:
+            msg = "The back camera is not connected. The application will be launched without the back camera."
+
+        if msg is not "":
+            cameraDialog = QMessageBox()
+            cameraDialog.setText("ERROR")
+            cameraDialog.setStandardButtons(QMessageBox.Ok)
+            cameraDialog.setDefaultButton(QMessageBox.Ok)
+
+            cameraDialog.setInformativeText(msg)
+            cameraDialog.exec_()
+
+        return result
+
 
 class RunCatsCradle(object):
     def __init__(self, returnToZero=True, app=None):
@@ -221,7 +255,18 @@ if __name__ == "__main__":
 
     run = RunCatsCradle(returnToZero, app)
     appWidget = AppRun(run)
-    if "--dummyAction" in sys.argv or noSetup or appWidget.setup():
+
+    launch = True
+    if not noSetup:
+        launch = appWidget.setup()
+
+    if launch and not "--noCameraCheck" in sys.argv:
+        launch = appWidget.checkCameras()
+
+    if "--dummyAction" in sys.argv:
+        launch = True
+
+    if launch:
         appWidget.show()
         app.processEvents()
         run.run()
