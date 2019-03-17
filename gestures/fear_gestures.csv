@@ -1,8 +1,8 @@
 ID,Name,Sequence
 1,1,001c_HeadLRupFullMed
-2,2,001a_HeadLRupFullSlow,023e_ShoulderLRupHalfFast
+2,2,023e_ShoulderLRupHalfFast
 3,1,003e_HeadRupFullFast
-4,2,004e_HeadRupHalfFast,031e_FootRupHalfFast
+4,2,031e_FootRupHalfFast
 5,2,005e_HeadRupLowFast,021e_ShoulderLupHalfFast
 6,1,008g_HeadLupFullMed
 7,2,010a_HandRupHalfMed

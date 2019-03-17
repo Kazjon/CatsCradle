@@ -1,5 +1,5 @@
 ID,Name,Sequence
-1,1,003a_HeadRupFullSlow,014a_HandLupLowSlow,034c_FootLupHalfMed
+1,1,014a_HandLupLowSlow,034c_FootLupHalfMed
 2,1,007a_HeadLupHalfSlow
 3,2,011a_HandRupLowSlow,002a_HeadLRupHalfSlow
 4,2,003c_HeadRupFullMed
@@ -10,8 +10,7 @@ ID,Name,Sequence
 9,2,006c_HeadRupFullMed,027e_ShoulderRotLHalfMed,031c_FootRupHalfMed
 10,2,014a_HandLupLowSlow,010a_HandRupHalfMed
 11,1,002a_HeadLRupHalfSlow,010a_HandRupHalfMed,014a_HandLupLowSlow
-12,2,004a_HeadRupHalfSlow,033a_FootLupFullSlow
-13,2,014a_HandLupLowSlow,008e_HeadLupLowFast
-14,1,014a_HandLupLowSlow,034c_FootLupHalfMed
-15,2,017a_HandLRupLowSlow
-16,0.25,046a_Reset
+12,2,014a_HandLupLowSlow,008e_HeadLupLowFast
+13,1,014a_HandLupLowSlow,034c_FootLupHalfMed
+14,2,017a_HandLRupLowSlow
+15,0.25,046a_Reset

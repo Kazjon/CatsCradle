@@ -49,25 +49,15 @@ class MainApp(QWidget):
         setupDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
         setupDialog.setDefaultButton(QMessageBox.Ok)
 
-        setupDialog.setInformativeText("Power on Raspberry Pi, then click OK and wait 1 minute\n");
+        setupDialog.setInformativeText("Please make sure main camera is plugged in and powered.\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
 
-        # Wait for 60
-        delay = 60
-        if "--testUI" in sys.argv:
-            delay = 1
-        progress = QProgressDialog("Starting Raspberry Pi...", None, 0, delay)
-        progress.setWindowModality(Qt.WindowModal)
-
-        for i in range(0, delay):
-            progress.setValue(i)
-            if (progress.wasCanceled()):
-                return False
-            time.sleep(1)
-
-        progress.setValue(delay);
+        setupDialog.setInformativeText("Power on Raspberry Pi and rear camera. Click Ok and wait 1 minute.\n");
+        ret = setupDialog.exec_();
+        if ret == QMessageBox.Close:
+            return False
 
         # Try port connection and warn user if failed
         ac = ArduinoCommunicator.ArduinoCommunicator("/dev/ttyUSB0")
@@ -84,14 +74,26 @@ class MainApp(QWidget):
 
         self.setupStep = 1
 
-        setupDialog.setInformativeText("If necessary, plug main camera into battery\n");
-        ret = setupDialog.exec_();
-        if ret == QMessageBox.Close:
-            return False
+        
+        # Wait for 60
+        delay = 60
+        if "--testUI" in sys.argv:
+            delay = 1
+        progress = QProgressDialog("Starting Raspberry Pi...", None, 0, delay)
+        progress.setWindowModality(Qt.WindowModal)
+
+        for i in range(0, delay):
+            progress.setValue(i)
+            if (progress.wasCanceled()):
+                return False
+            time.sleep(1)
+
+        progress.setValue(delay);
+
 
         self.setupStep = 2
 
-        setupDialog.setInformativeText("Power on motors and rear camera\n");
+        setupDialog.setInformativeText("Power on motors.\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
