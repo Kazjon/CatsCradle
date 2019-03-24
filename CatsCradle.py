@@ -49,12 +49,12 @@ class MainApp(QWidget):
         setupDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
         setupDialog.setDefaultButton(QMessageBox.Ok)
 
-        setupDialog.setInformativeText("Please make sure main camera is plugged in and powered.\n");
+        setupDialog.setInformativeText("Please make sure the main camera is powered on.\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
 
-        setupDialog.setInformativeText("Power on Raspberry Pi and rear camera. Click Ok and wait 1 minute.\n");
+        setupDialog.setInformativeText("Power on Raspberry Pi. Click Ok and wait 1 minute.\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
@@ -93,7 +93,7 @@ class MainApp(QWidget):
 
         self.setupStep = 2
 
-        setupDialog.setInformativeText("Power on motors.\n");
+        setupDialog.setInformativeText("Power on motors and rear camera. Then plug in the rear camera.\n");
         ret = setupDialog.exec_();
         if ret == QMessageBox.Close:
             return False
@@ -191,11 +191,11 @@ class MainApp(QWidget):
         shutdownDialog.setDefaultButton(QMessageBox.Ok)
 
         if self.setupStep > 2:
-            shutdownDialog.setInformativeText("Turn Off Motors\n")
+            shutdownDialog.setInformativeText("Power down motors and rear camera. Unplug rear camera USB.\n")
             shutdownDialog.exec_()
 
         if self.setupStep > 0:
-            shutdownDialog.setInformativeText("Turn Off Rasberry Pi\n")
+            shutdownDialog.setInformativeText("Power down Rasberry Pi and main camera.\n")
             shutdownDialog.exec_()
 
 
