@@ -7,4 +7,4 @@ ID,Name,Sequence
 6,1,036a_FootLRupFullSlow,4,036b_FootLRDownFullSlow
 7,1,025e_ShoulderRotRHalfSlow
 8,1,027g_ShoulderRotLHalfSlow
-9,0.5,046a_Reset
+9,2,046a_Reset
