@@ -10,7 +10,7 @@ import cv2
 
 from scipy.spatial import distance
 
-BASE_RESPONSE_CHANCE = 0.375 #Probability of conducting an idle gesture every response_interval
+BASE_RESPONSE_CHANCE = 0.45 #Probability of conducting an idle gesture every response_interval
 IDLE_CHANCE = 0.01 # probability of executing idle movements. 0.01 -> every 30 seconds
 EXPRESSION_INTERVAL = 1. #Min seconds between checks for an expression.
 
